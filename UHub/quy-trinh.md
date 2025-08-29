@@ -1,6 +1,6 @@
 # Quy Trình Vận Hành E2E Gift Management - UHub System
 
-**Tác giả:** BMad Master - Dựa trên tài liệu UHub hiện có
+**Tác giả:** [..] - Dựa trên tài liệu UHub hiện có
 **Phiên bản:** 2025 - Quy trình mới với UHub Integration
 **Mục đích:** Hướng dẫn business team vận hành end-to-end Gift Management System
 
@@ -9,7 +9,13 @@
 Quy trình Gift Management E2E bao gồm 7 giai đoạn chính từ lập kế hoạch đến quản lý kho:
 
 ```
-B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Stores → B4. Gift Usage → B5. Gift Recall → B6. Stock Management → B7. Stock Adjustment
+B1. Gift Planning
+ → B2. Gift Delivery to Agency
+  → B3. Gift Delivery to Stores
+   → B4. Gift Usage
+    → B5. Gift Recall
+     → B6. Stock Management
+      → B7. Stock Adjustment
 ```
 
 ---
@@ -23,16 +29,16 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] Thỏa thuận với KA (Coopmart, Big C, Lotte, Aeon, etc.) về:
-  - Loại quà tặng và số lượng
-  - Thời gian triển khai campaign
-  - Mechanics (Standard Schemes như: Giỏ hàng + E-voucher, SKU + quà vật lý)
-- [ ] **[MỚI]** Thống nhất Gift Recall Alignment:
-  - Điều kiện thu hồi quà thừa
-  - Thời gian thu hồi sau campaign
-  - Quy trình xử lý quà thu hồi
+- [ ] Thoả thuận với các đối tác Key Account (Coopmart, Big C, Lotte, Aeon, v.v.) về:
+  - Danh mục và số lượng quà tặng chiến dịch
+  - Khung thời gian triển khai marketing campaign
+  - Cơ chế khuyến mãi (Các scheme tiêu chuẩn như: Combo giỏ hàng + E-voucher, Mua sản phẩm + quà tặng vật lý)
+- [ ] **[MỚI]** Thống nhất nguyên tắc thu hồi quà tặng:
+  - Điều kiện và tiêu chí thu hồi quà dư
+  - Khung thời gian thu hồi sau chiến dịch
+  - Quy trình xử lý và tái phân phối quà tặng
 
-**Deliverable:** Customer Alignment Document với Gift Recall Agreement
+**Deliverable:** Tài liệu thỏa thuận đối tác với chi tiết chính sách thu hồi quà
 
 ### 1.2 UGMS Setup Gift Volume (BU)
 
@@ -41,14 +47,14 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] Nhập thông tin campaign vào UGMS:
-  - Gift codes và descriptions
-  - Estimated volume theo từng loại quà
-  - Budget allocation
+- [ ] Cập nhật thông tin chiến dịch vào hệ thống UGMS:
+  - Giftcode và mô tả chi tiết từng loại quà
+  - Dự báo khối lượng quà theo từng phân khúc
+  - Phân bổ ngân sách marketing
 - [ ] Source/Input dữ liệu cho integration với UHub
 - [ ] Review và approve với ITU team
 
-**Deliverable:** UGMS Setup hoàn tất với dữ liệu sẵn sàng integration
+**Deliverable:** Cấu hình UGMS hoàn chỉnh, sẵn sàng integration
 
 ### 1.3 UGMS-UHub Integration (BU)
 
@@ -63,10 +69,10 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
   - Gift codes
   - Số lượng quà theo từng SKU
   - Store allocation matrix
-- [ ] Test integration với sample data
-- [ ] Sign-off integration completion
+- [ ] Kiểm thử tích hợp với bộ dữ liệu mẫu
+- [ ] Xác nhận hoàn tất quá trình tích hợp
 
-**Deliverable:** UHub system updated với complete gift information
+**Deliverable:** Hệ thống UHub được cập nhật với toàn bộ thông tin quà tặng
 
 ---
 
@@ -79,12 +85,12 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] Generate delivery orders từ UGMS
-- [ ] Coordinate với Linfox cho logistics
-- [ ] Track delivery status và estimated arrival
-- [ ] Provide delivery confirmation đến Agency
+- [ ] Tạo lệnh giao hàng từ hệ thống UGMS
+- [ ] Phối hợp với Linfox về kế hoạch logistics
+- [ ] Theo dõi trạng thái và thời gian dự kiến của đợt giao hàng
+- [ ] Cung cấp xác nhận giao hàng cho Agency
 
-**Deliverable:** Quà tặng delivered đến Agency warehouses
+**Deliverable:** Quà tặng được chuyển thành công đến kho Agency
 
 ### 2.2 UHub Store Allocation (BU)
 
@@ -94,14 +100,14 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 **Các bước thực hiện:**
 
 - [ ] **[MỚI]** Sử dụng UHub allocation feature thay vì Excel
-- [ ] Set allocation parameters:
-  - Store priority levels
-  - Expected campaign performance
-  - Historical data analysis
-- [ ] Generate allocation reports từ UHub
-- [ ] Send allocation instructions đến Agency
+- [ ] Thiết lập các tham số phân bổ:
+  - Mức độ ưu tiên của từng điểm bán
+  - Dự báo hiệu quả chiến dịch
+  - Phân tích dữ liệu lịch sử
+- [ ] Tạo báo cáo phân bổ từ UHub
+- [ ] Gửi hướng dẫn phân bổ đến Agency
 
-**Deliverable:** Store allocation completed trong UHub system
+**Deliverable:** Hoàn tất phân bổ quà tặng trên hệ thống UHub
 
 ### 2.3 Agency Confirmation on UHub (Agency)
 
@@ -110,16 +116,16 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] Agency nhận quà vật lý từ Linfox
-- [ ] Kiểm tra số lượng thực tế vs delivery note
-- [ ] **[MỚI]** Login UHub system và confirm received quantities:
-  - Actual quantity received
-  - Any discrepancies
-  - Damaged items (if any)
-- [ ] Upload photos/documents nếu có discrepancy
-- [ ] Submit confirmation
+- [ ] Agency tiếp nhận quà vật lý từ Linfox
+- [ ] Kiểm tra số lượng thực tế so với phiếu giao hàng
+- [ ] **[MỚI]** Đăng nhập UHub và xác nhận số lượng nhận được:
+  - Số lượng quà thực tế
+  - Các điểm khác biệt (nếu có)
+  - Các mặt hàng bị hư hỏng (nếu có)
+- [ ] Tải lên hình ảnh/tài liệu minh chứng nếu có sai lệch
+- [ ] Gửi xác nhận chính thức
 
-**Deliverable:** Agency inventory confirmed trong UHub system
+**Deliverable:** Xác nhận tồn kho Agency trên hệ thống UHub
 
 ---
 
@@ -132,12 +138,12 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] ?? Generate delivery schedule từ UHub allocation
-- [ ] Prepare shipments theo store allocation
-- [ ] Coordinate delivery với stores
-- [ ] Provide delivery tracking information
+- [ ] Tạo lịch trình giao hàng từ phân bổ của UHub
+- [ ] Chuẩn bị lô hàng theo phân bổ của từng điểm bán
+- [ ] Điều phối việc giao hàng với các cửa hàng
+- [ ] Cung cấp thông tin theo dõi vận chuyển
 
-**Deliverable:** Gifts delivered đến các stores theo allocation
+**Deliverable:** Quà tặng được giao đến các cửa hàng theo kế hoạch phân bổ
 
 ### 3.2 Sales Confirmation on UHub (Sales)
 
@@ -146,16 +152,16 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] Sales nhận quà từ Agency delivery
+- [ ] Sales nhận quà từ Agency giao
 - [ ] Kiểm tra số lượng và chất lượng quà
-- [ ] **[MỚI]** Login UHub system và confirm:
-  - Store received quantities
-  - Storage location
-  - Any issues hoặc discrepancies
-- [ ] Update store inventory status
-- [ ] Notify PG team về gift availability
+- [ ] **[MỚI]** Đăng nhập UHub và xác nhận:
+  - Số lượng quà nhận tại cửa hàng
+  - Vị trí lưu trữ
+  - Các vấn đề hoặc điểm khác biệt
+- [ ] Cập nhật trạng thái tồn kho cửa hàng
+- [ ] Thông báo cho đội PG về tình trạng quà tặng
 
-**Deliverable:** Store inventory confirmed và ready for campaign
+**Deliverable:** Xác nhận tồn kho cửa hàng và sẵn sàng cho chiến dịch
 
 ---
 
@@ -168,15 +174,15 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] BU submit campaign setup request đến UTOP Admin
-- [ ] UTOP Admin review:
-  - Technical feasibility
-  - Gift inventory availability
-  - Campaign mechanics complexity
-- [ ] Configure campaign trong UHub:
-  - Campaign rules và conditions
-  - Gift mapping
-  - Store participation
+- [ ] BU Log Form submit campaign setup request đến UTOP Admin
+- [ ] UTOP Admin rà soát:
+  - Tính khả thi về kỹ thuật
+  - Tình trạng tồn kho quà tặng
+  - Độ phức tạp của cơ chế chiến dịch
+- [ ] Cấu hình chiến dịch trong UHub:
+  - Quy tắc và điều kiện chiến dịch
+  - Ánh xạ quà tặng
+  - Sự tham gia của điểm bán
 - [ ] **Điều kiện kích hoạt:** Campaign chỉ ready khi đã confirm gift inventory tại stores
 - [ ] UAT testing với sample transactions
 - [ ] Go-live campaign
@@ -186,21 +192,21 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 ### 4.2 UHub Gift Report (BU)
 
 **Người thực hiện:** BU Team
-**Mục đích:** Monitor real-time gift usage và inventory
+**Mục đích:** Giám sát việc sử dụng quà tặng và tồn kho theo thời gian thực
 
 **Các bước thực hiện:**
 
-- [ ] **[MỚI]** Access UHub reporting dashboard
-- [ ] Monitor key metrics:
-  - Số lượng quà đã phát theo ngày/store
-  - Remaining inventory tại mỗi store
-  - Campaign performance metrics
-  - Shopper participation rates
-- [ ] Set up alerts cho low inventory
-- [ ] Generate daily/weekly reports
-- [ ] Share insights với stakeholders
+- [ ] **[MỚI]** Truy cập UHub reporting dashboard
+- [ ] Theo dõi các chỉ số chính:
+  - Số lượng quà đã phát theo ngày/cửa hàng
+  - Tồn kho còn lại tại mỗi điểm bán
+  - Các chỉ số hiệu quả chiến dịch
+  - Tỷ lệ tham gia của khách hàng
+- [ ] Thiết lập cảnh báo cho tồn kho thấp
+- [ ] Tạo báo cáo hàng ngày/hàng tuần
+- [ ] Chia sẻ thông tin chi tiết với các bên liên quan
 
-**Deliverable:** Real-time campaign performance monitoring
+**Deliverable:** Giám sát hiệu quả chiến dịch theo thời gian thực
 
 ### 4.3 PG Support Operations (Agency/PG)
 
@@ -213,18 +219,18 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 - [ ] Hỗ trợ shoppers:
   - Hướng dẫn truy cập UHub webapp
   - Hướng dẫn chụp hóa đơn
-  - Hỗ trợ troubleshooting
+  - Hỗ trợ giải quyết các vấn đề phát sinh
 - [ ] Phát quà vật lý:
-  - Scan QR code từ shopper's "Quà của tôi"
-  - Confirm gift delivery trong PG App
-  - Update inventory real-time
-- [ ] Phát sampling:
-  - Scan QR cá nhân của shopper
-  - Select sampling type
-  - Confirm sampling delivery
-- [ ] **[MỚI]** Real-time inventory update khi phát quà
+  - Quét mã QR từ mục "Quà của tôi" của shopper
+  - Xác nhận giao quà trong PG App
+  - Cập nhật tồn kho theo thời gian thực
+- [ ] Phát sản phẩm dùng thử:
+  - Quét mã QR cá nhân của shopper
+  - Chọn loại sản phẩm dùng thử
+  - Xác nhận giao sản phẩm dùng thử
+- [ ] **[MỚI]** Cập nhật tồn kho theo thời gian thực khi phát quà
 
-**Deliverable:** Efficient gift distribution với real-time tracking
+**Deliverable:** Phân phối quà hiệu quả với real-time tracking
 
 ---
 
@@ -237,13 +243,13 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 
 **Các bước thực hiện:**
 
-- [ ] **[MỚI]** Follow Gift Recall Alignment đã thỏa thuận trong B1.1
-- [ ] Generate recall schedule từ UHub system
-- [ ] Coordinate với stores cho pickup
-- [ ] Physical recall và transportation
-- [ ] Update UHub system với recalled quantities
+- [ ] **[MỚI]** Tuân thủ nguyên tắc thu hồi quà đã thỏa thuận trong B1.1
+- [ ] Tạo lịch trình thu hồi từ hệ thống UHub
+- [ ] Điều phối với các cửa hàng về việc thu hồi
+- [ ] Thực hiện thu hồi vật lý và vận chuyển
+- [ ] Cập nhật hệ thống UHub với số lượng quà thu hồi
 
-**Deliverable:** Excess gifts recalled theo alignment agreement
+**Deliverable:** Thu hồi quà thừa theo thỏa thuận đã ký kết
 
 ---
 
@@ -252,89 +258,85 @@ B1. Gift Planning → B2. Gift Delivery to Agency → B3. Gift Delivery to Store
 ### 6.1 Agency UHub Reconciliation (Agency)
 
 **Người thực hiện:** Agency Team
-**Mục đích:** Reconcile physical inventory với UHub records
+**Mục đích:** Reconcile physical inventory với UHub report
 
 **Các bước thực hiện:**
 
-- [ ] **[MỚI]** Conduct physical inventory count
-- [ ] Input actual quantities vào UHub system:
-  - Gifts remaining at stores
-  - Gifts recalled to agency
-  - Damaged/expired items
-- [ ] UHub system tự động so sánh:
-  - Physical count vs system records
-  - Identify discrepancies
-- [ ] Submit reconciliation report với explanations cho discrepancies
+- [ ] **[MỚI]** Thực hiện kiểm kê tồn kho vật lý
+- [ ] Nhập số lượng thực tế vào hệ thống UHub:
+  - Quà còn lại tại các cửa hàng
+  - Quà được thu hồi về kho
+  - Các mặt hàng bị hư hỏng/hết hạn
+- [ ] Hệ thống UHub tự động so sánh:
+  - Kiểm kê vật lý so với hồ sơ hệ thống
+  - Xác định các điểm chênh lệch
+- [ ] Gửi báo cáo đối soát kèm giải trình cho các điểm khác biệt
 
-**Deliverable:** Agency reconciliation completed trong UHub
+**Deliverable:** Hoàn tất đối soát Agency trong UHub
 
 ### 6.2 BU Review & Confirm (BU)
 
 **Người thực hiện:** BU Team
-**Mục đích:** Review và approve Agency reconciliation
+**Mục đích:** Rà soát và phê duyệt đối soát Agency
 
 **Các bước thực hiện:**
 
-- [ ] **[MỚI]** Receive reconciliation reports từ UHub
-- [ ] Review discrepancies:
-  - Investigate root causes
-  - Validate explanations từ Agency
-- [ ] Approve hoặc request corrections:
-  - Accept reasonable discrepancies
-  - Request additional documentation nếu cần
-- [ ] Finalize inventory status trong UHub
+- [ ] **[MỚI]** Nhận báo cáo đối soát từ UHub
+- [ ] Rà soát các điểm khác biệt:
+  - Điều tra nguyên nhân gốc rễ
+  - Xác thực các giải trình từ Agency
+- [ ] Phê duyệt hoặc yêu cầu chỉnh sửa:
+  - Chấp nhận các chênh lệch hợp lý
+  - Yêu cầu bổ sung tài liệu nếu cần
+- [ ] Hoàn thiết trạng thái tồn kho trong UHub
 
-**Deliverable:** Approved reconciliation với final inventory status
+**Deliverable:** Phê duyệt đối soát với trạng thái tồn kho cuối cùng
 
 ### 6.3 Comprehensive UHub Reconciliation (BU)
 
 **Người thực hiện:** BU Team
-**Mục đích:** Overall reconciliation across all systems
+**Mục đích:** Đối soát toàn diện trên tất cả hệ thống
 
 **Các bước thực hiện:**
 
-- [ ] **[MỚI]** UHub automatic reconciliation process:
-  - UGMS original allocation
-  - UHub tracking records
-  - Agency physical reports
-  - Actual shopper redemptions
-- [ ] Review discrepancies và variances
-- [ ] Generate final campaign summary:
-  - Total gifts distributed
-  - Remaining inventory
-  - Financial impact
-  - Lessons learned
+- [ ] **[MỚI]** Quy trình đối soát tự động của UHub:
+  - Phân bổ ban đầu từ UGMS
+  - Hồ sơ theo dõi của UHub
+  - Báo cáo vật lý từ Agency
+  - Số lượng quà khách hàng đã nhận thực tế
+- [ ] Rà soát các điểm khác biệt và sai lệch
+- [ ] Tạo báo cáo tổng kết chiến dịch:
+  - Tổng số quà đã phân phối
+  - Tồn kho còn lại
+  - Tác động tài chính
+  - Bài học kinh nghiệm
 
-**Deliverable:** Complete campaign reconciliation report
-
----
-
-## B7. STOCK REDUCTION/RECALL/RE-ALLOCATION
+**Deliverable:** Báo cáo đối soát chiến dịch hoàn chỉnh
 
 ### 7.1 Ticket System với Level 2 Approval (BU)
 
 **Người thực hiện:** BU Team với Management Approval
-**Mục đích:** Handle special cases requiring inventory adjustments
+**Mục đích:** Xử lý các trường hợp đặc biệt yêu cầu điều chỉnh tồn kho
 
 **Các bước thực hiện:**
 
-- [ ] **[TÍNH NĂNG MỚI]** Create tickets trong UHub system cho:
-  - **Stock Reduction:** Giảm inventory do damage/expiry
-  - **Gift Recall:** Thu hồi quà khẩn cấp
-  - **Re-allocation:** Phân bổ lại quà giữa stores
-- [ ] Submit ticket với:
-  - Detailed justification
-  - Supporting documentation
-  - Proposed action plan
+- [ ] **[TÍNH NĂNG MỚI]** Tạo ticket trong hệ thống UHub cho:
+  - **Giảm Tồn Kho (Stock Reduction):** Giảm tồn kho do hư hỏng/hết hạn
+  - **Thu Hồi Quà (Gift Recall):** Thu hồi quà khẩn cấp
+  - **Phân Bổ Lại (Re-allocation):** Phân bổ lại quà giữa các cửa hàng
+- [ ] Gửi ticket với:
+  - Lý do chi tiết
+  - Tài liệu hỗ trợ
+  - Kế hoạch hành động đề xuất
 - [ ] **Level 2 Management Approval:**
-  - Review business impact
-  - Approve/reject với comments
-- [ ] **[MỚI]** Auto-integration UHUB ↔ UGMS:
-  - Update inventory records
-  - Sync financial impact
-  - Update campaign parameters nếu cần
+  - Đánh giá tác động kinh doanh
+  - Phê duyệt/từ chối kèm nhận xét
+- [ ] **[MỚI]** Tích hợp tự động UHUB ↔ UGMS:
+  - Cập nhật hồ sơ tồn kho
+  - Đồng bộ tác động tài chính
+  - Cập nhật các tham số chiến dịch nếu cần
 
-**Deliverable:** Approved inventory adjustments với complete audit trail
+**Deliverable:** Điều chỉnh tồn kho được phê duyệt với đầy đủ hồ sơ kiểm toán
 
 ---
 
