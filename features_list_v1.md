@@ -1,4 +1,4 @@
-# Danh Sách Tính Năng - E2E Physical Gift Management System v1.1
+# Danh Sách Tính Năng - E2E Physical Gift Management System v1.2 (MVP Simplified)
 
 | Sản phẩm | Phân hệ | Tính năng | Chi tiết tính năng |
 |----------|---------|-----------|-------------------|
@@ -40,22 +40,22 @@
 |  |  |  | Approval history tracking với approver identity và timestamp |
 |  |  |  | Reason code mandatory cho all manual adjustments |
 |  |  |  | Complete audit trail với transaction logging |
-| E2E Physical Gift Management System | Gift Recall & Advanced Features (Thu hồi Quà tặng & Tính năng Nâng cao) | Gift Recall System (Hệ thống Thu hồi Quà tặng) | Key Account recall agreement templates với legal compliance |
-|  |  |  | Recall initiation workflow với automated notifications |
-|  |  |  | Recall tracking dashboard với collection progress monitoring |
-|  |  |  | Recall performance metrics và waste reduction reporting |
-|  |  | Advanced Analytics (Phân tích Nâng cao) | Predictive analytics cho optimal gift allocation |
-|  |  |  | Campaign performance benchmarking với industry standards |
-|  |  |  | Store performance analytics với utilization efficiency metrics |
-|  |  |  | Advanced reporting export cho executive presentations |
-|  |  | Compliance & Audit (Tuân thủ & Kiểm toán) | Complete transaction logging với immutable audit trail |
-|  |  |  | Compliance reporting templates cho internal/external audits |
-|  |  |  | GDPR compliance cho personal data handling |
-|  |  |  | Data retention policies với automated archival processes |
-|  |  | Integration Readiness (Sẵn sàng Tích hợp) | API framework cho third-party gift vendor integrations |
-|  |  |  | Loyalty program integration endpoints preparation |
-|  |  |  | Performance optimization foundation cho enterprise scale |
-|  |  |  | Machine learning pipeline preparation cho AI-powered features |
+| E2E Physical Gift Management System | MVP Completion & Future Readiness (Hoàn thiện MVP & Sẵn sàng Tương lai) | System Optimization (Tối ưu hóa Hệ thống) | Database query optimization với proper indexing |
+|  |  |  | API response time optimization đảm bảo <2s cho standard operations |
+|  |  |  | Caching mechanism implementation cho frequently accessed data |
+|  |  |  | Load testing và system monitoring alerts |
+|  |  | Basic Audit & Compliance (Kiểm toán & Tuân thủ Cơ bản) | Basic transaction logging cho all inventory changes |
+|  |  |  | User activity tracking cho critical operations |
+|  |  |  | Simple audit report generation cho internal review |
+|  |  |  | Basic security compliance (authentication logs, access tracking) |
+|  |  | Quality Assurance (Đảm bảo Chất lượng) | End-to-end testing coverage cho all MVP workflows |
+|  |  |  | Integration testing với UGMS API trong various scenarios |
+|  |  |  | Mobile responsiveness testing trên target devices |
+|  |  |  | Performance testing under simulated production load |
+|  |  | Future Enhancement Preparation (Chuẩn bị Nâng cấp Tương lai) | Configuration framework cho feature toggles và system settings |
+|  |  |  | Basic API versioning strategy implementation |
+|  |  |  | Database schema designed với future expansion in mind |
+|  |  |  | Documentation của extension points cho Phase 2 development |
 
 ## Các Tính Năng Bổ Sung (Additional Features)
 
@@ -87,20 +87,59 @@
 - **AES-256 encryption** at rest và in transit cho security
 - **OAuth 2.0 JWT tokens** cho user session management
 
-### Giảm Lãng Phí (Waste Reduction)
-- **Giảm 60% lãng phí quà tặng** thông qua systematic recall process
-- **95%+ thu hồi** quà thừa từ Key Accounts
-- **Predictive analytics** để tối ưu gift allocation
-- **Target: <2% budget waste** per campaign (giảm từ 5-10%)
+### Giảm Lãng Phí (Waste Reduction) - MVP Focus
+- **Basic inventory tracking** để minimize overstock situations
+- **Manual reconciliation reduction** giảm 90% thời gian đối soát
+- **Improved visibility** để better allocation planning
+- **Target: Establish foundation** cho future waste reduction improvements
 
-### Mobile-First Experience
+### Mobile-First Experience - MVP Focus
 - **Progressive Web App** với real-time connectivity
 - **One-tap confirmation** với Quick Confirmation Pattern
 - **Photo + Notes pattern** cho discrepancy reporting
-- **Progressive disclosure** để avoid overwhelming users
 - **Status-driven UI**: Green=OK, Yellow=Pending, Red=Issue
-- **WCAG AA accessibility** compliance cho diverse user abilities
+- **Basic accessibility** compliance (WCAG AA deferred to Phase 2)
 
 ---
 
-*Tài liệu này được tạo dựa trên E2E Physical Gift Management System PRD v1.0 - Ngày 03/09/2025*
+*Tài liệu này được tạo dựa trên E2E Physical Gift Management System PRD v1.2 (MVP Simplified) - Ngày 03/09/2025*
+
+---
+
+## 🚫 **TÍNH NĂNG DEFERRED TO PHASE 2**
+
+### ❌ **Advanced Analytics**
+- Predictive analytics cho optimal gift allocation
+- Campaign performance benchmarking với industry standards  
+- Advanced reporting export cho executive presentations
+- Store performance analytics với utilization efficiency metrics
+
+### ❌ **Gift Recall System** 
+- Key Account recall agreement templates với legal compliance
+- Recall initiation workflow với automated notifications
+- Collection progress monitoring
+- Recall performance metrics và waste reduction reporting
+
+### ❌ **Advanced Compliance & Audit**
+- GDPR compliance cho personal data handling
+- Automated archival processes
+- Compliance reporting templates cho external audits
+- Immutable audit trail với regulatory export capabilities
+
+### ❌ **Integration Readiness**
+- Third-party gift vendor integrations
+- Loyalty program integration endpoints
+- Machine learning pipeline preparation cho AI-powered features
+- Enterprise scale performance optimization
+
+### ❌ **Advanced Mobile UX Features**
+- Progressive disclosure để avoid overwhelming users
+- Full WCAG AA accessibility compliance
+- Advanced status-driven UI với complex workflows
+
+### ❌ **Advanced PowerBI Features**
+- Drill-down store-level analytics với complex filtering
+- Historical forecasting trends
+- Advanced visualization và executive dashboards
+
+**🎯 MVP Focus:** Tập trung vào automation cơ bản, digital confirmation workflows, và basic reconciliation để establish foundation mạnh mẽ trước khi expand sang advanced features.

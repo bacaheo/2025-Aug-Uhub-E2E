@@ -6,9 +6,9 @@
 • Tự động hóa 80% quy trình quản lý quà tặng vật lý thay thế quy trình Excel thủ công  
 • Tạo end-to-end visibility từ kho Agency đến tay người tiêu dùng cuối  
 • Giảm 90% thời gian đối soát post-campaign (từ 40 giờ xuống 4 giờ)  
-• Thiết lập quy trình thu hồi quà có hệ thống giảm 60% lãng phí quà tặng  
 • Đạt tỷ lệ chính xác inventory <2% sai lệch giữa vật lý và hệ thống  
 • Tích hợp UGMS-UHub seamless với digital confirmation thay thế báo cáo Excel
+• **MVP Focus**: Thiết lập foundation mạnh mẽ cho automation cơ bản và digital workflows
 
 ### Background Context
 
@@ -21,6 +21,7 @@ E2E Physical Gift Management System giải quyết căn bản bằng tích hợp
 |------|---------|-------------|---------|
 | 2025-09-03 | 1.0 | PRD Creation - Goals and Background Context | John (PM) |
 | 2025-09-03 | 1.1 | Scope Simplification - Removed offline capabilities và GPS tracking | John (PM) |
+| 2025-09-03 | 1.2 | MVP Scope Reduction - Defer advanced analytics, gift recall, compliance features | John (PM) |
 
 ## Requirements
 
@@ -40,11 +41,11 @@ Dựa trên brief và 4 pain points chính, tôi xây dựng functional và non-
 
 **FR6:** Reconciliation engine hỗ trợ so sánh UGMS records ↔ UHub tracking ↔ Physical inventory và highlight discrepancies
 
-**FR7:** Hệ thống hỗ trợ gift recall workflow với Key Account agreement tracking và systematic collection process
+**FR7:** **[DEFERRED TO PHASE 2]** Basic foundation cho future gift recall capabilities
 
 **FR8:** Level 1 Approval workflow cho stock adjustments với audit trail và reason code requirements
 
-**FR9:** Exception reporting tự động với root cause analysis và resolution workflow assignment
+**FR9:** Exception reporting tự động với basic categorization và assignment workflow
 
 **FR10:** Mobile-responsive interface cho Agency và Sales confirmation trên smartphone/tablet
 
@@ -142,8 +143,8 @@ Triển khai Agency và Sales digital confirmation interfaces với mobile-respo
 **Epic 3: Reconciliation & Exception Management**  
 Xây dựng reconciliation engine, exception reporting system, và Level 1 approval workflow với PowerBI dashboard integration.
 
-**Epic 4: Gift Recall & Advanced Features**  
-Triển khai systematic gift recall workflow, advanced analytics, và optimization features với complete audit trail và compliance capabilities.
+**Epic 4: MVP Completion & Future Readiness**  
+Hoàn thiện MVP với basic audit trail, system optimization, và preparation hooks cho future advanced features (deferred to Phase 2).
 
 ## Epic 1: Foundation & UGMS Integration
 
@@ -350,7 +351,7 @@ Triển khai systematic gift recall workflow, advanced analytics, và optimizati
 1. API framework cho third-party gift vendor integrations
 2. Loyalty program integration endpoints preparation
 3. Advanced workflow engine foundation cho complex approval processes
-4. Machine learning pipeline preparation cho AI-powered features
+4. Basic extension points cho future AI features (implementation deferred to Phase 2)
 5. Performance optimization foundation cho enterprise scale deployment
 
 ## Checklist Results Report
