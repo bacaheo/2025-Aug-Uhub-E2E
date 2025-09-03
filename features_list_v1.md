@@ -1,4 +1,4 @@
-# Danh Sách Tính Năng - E2E Physical Gift Management System v1.0
+# Danh Sách Tính Năng - E2E Physical Gift Management System v1.1
 
 | Sản phẩm | Phân hệ | Tính năng | Chi tiết tính năng |
 |----------|---------|-----------|-------------------|
@@ -13,17 +13,15 @@
 |  |  |  | Upload ảnh với compression và thumbnail preview |
 |  |  |  | Digital signature capture cho xác nhận giao hàng |
 |  |  |  | Discrepancy reporting capability với ghi chú chi tiết |
-|  |  |  | Offline capability với sync khi có mạng |
 |  |  | Sales Store Confirmation (Xác nhận Cửa hàng Sales) | Store inventory dashboard hiển thị gift allocation hiện tại |
 |  |  |  | Quick confirmation buttons cho số lượng chuẩn |
 |  |  |  | Manual adjustment input với reason code requirements |
 |  |  |  | Photo documentation cho inventory discrepancies |
 |  |  |  | Real-time sync với hệ thống inventory trung tâm |
 |  |  | PG App Enhancement (Nâng cấp Ứng dụng PG) | QR code scanner tích hợp với PG App hiện có |
-|  |  |  | Automatic inventory deduction khi scan QR code trao quà |
+|  |  |  | Parallel inventory tracking - E2E system cung cấp số đầu kỳ, UHub tracks actual distribution |
 |  |  |  | Shopper confirmation screen với gift details display |
-|  |  |  | GPS location tracking và timestamp cho audit trail |
-|  |  |  | Offline queue với batch sync capabilities |
+|  |  |  | Timestamp recording cho audit trail (GPS location removed) |
 | E2E Physical Gift Management System | Reconciliation & Exception Management (Đối soát & Quản lý Ngoại lệ) | Reconciliation Engine (Engine Đối soát) | So sánh tự động UGMS records ↔ UHub tracking ↔ Physical inventory |
 |  |  |  | Discrepancy detection với configurable tolerance thresholds |
 |  |  |  | Bulk reconciliation processing cho post-campaign analysis |
@@ -96,7 +94,7 @@
 - **Target: <2% budget waste** per campaign (giảm từ 5-10%)
 
 ### Mobile-First Experience
-- **Progressive Web App** cho offline functionality
+- **Progressive Web App** với real-time connectivity
 - **One-tap confirmation** với Quick Confirmation Pattern
 - **Photo + Notes pattern** cho discrepancy reporting
 - **Progressive disclosure** để avoid overwhelming users

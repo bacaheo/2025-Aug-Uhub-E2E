@@ -20,6 +20,7 @@ E2E Physical Gift Management System giải quyết căn bản bằng tích hợp
 | Date | Version | Description | Author |
 |------|---------|-------------|---------|
 | 2025-09-03 | 1.0 | PRD Creation - Goals and Background Context | John (PM) |
+| 2025-09-03 | 1.1 | Scope Simplification - Removed offline capabilities và GPS tracking | John (PM) |
 
 ## Requirements
 
@@ -33,7 +34,7 @@ Dựa trên brief và 4 pain points chính, tôi xây dựng functional và non-
 
 **FR3:** Sales có thể confirm digital gift inventory tại store level với real-time inventory update và photo documentation
 
-**FR4:** PG App tự động trừ inventory khi scan QR code trao quà cho shopper với timestamp và location tracking
+**FR4:** PG App tracking gift distribution với parallel inventory management - E2E system cung cấp baseline quantities, UHub tracks actual distribution với timestamp recording
 
 **FR5:** Hệ thống tạo PowerBI dashboard với refresh 3 lần/ngày hiển thị gift usage, remaining inventory theo campaign và store
 
@@ -55,7 +56,7 @@ Dựa trên brief và 4 pain points chính, tôi xây dựng functional và non-
 
 **NFR3:** Data sync latency UGMS-UHub <30 giây với guaranteed delivery và retry mechanism
 
-**NFR4:** Mobile interface tương thích 95%+ thiết bị iOS 13+ và Android 9+ của field teams
+**NFR4:** Mobile interface tương thích 95%+ thiết bị iOS 13+ và Android 9+ với stable internet connectivity
 
 **NFR5:** 99.5% system uptime durante campaign periods với automatic failover capabilities
 
@@ -68,7 +69,7 @@ Dựa trên brief và 4 pain points chính, tôi xây dựng functional và non-
 ## User Interface Design Goals
 
 ### Overall UX Vision
-Mobile-first approach tối ưu cho field teams với simple, intuitive workflows. Design philosophy: "One-tap confirmation" cho high-frequency actions, progressive disclosure để avoid overwhelming users với nhiều options, và offline-capable để handle unreliable network connectivity tại remote stores.
+Mobile-first approach tối ưu cho field teams với simple, intuitive workflows. Design philosophy: "One-tap confirmation" cho high-frequency actions, progressive disclosure để avoid overwhelming users với nhiều options, và real-time connectivity với robust error handling để manage network issues tại remote stores.
 
 ### Key Interaction Paradigms  
 • **Quick Confirmation Pattern:** Swipe/tap confirm với visual feedback instant  
@@ -210,7 +211,7 @@ Triển khai systematic gift recall workflow, advanced analytics, và optimizati
 2. Photo upload functionality với compression và thumbnail preview
 3. Quantity verification input với discrepancy reporting capability
 4. Digital signature capture cho delivery confirmation
-5. Offline capability với sync khi network available
+5. Real-time connectivity requirement với error handling cho network issues
 
 ### Story 2.2: Sales Store Inventory Confirmation
 **As a** Sales Representative,  
@@ -227,14 +228,14 @@ Triển khai systematic gift recall workflow, advanced analytics, và optimizati
 ### Story 2.3: PG App Integration Enhancement
 **As a** Promotion Girl (PG),  
 **I want** enhanced QR scanning functionality,  
-**so that** gift distribution automatically updates inventory.
+**so that** gift distribution tracking được synchronized với E2E system.
 
 **Acceptance Criteria:**
 1. QR code scanner integrated với existing PG App
-2. Automatic inventory deduction upon successful scan
-3. Timestamp và GPS location recording cho audit trail
+2. Giai đoạn đầu: Parallel tracking system - E2E Physical Gift management cung cấp số đầu kỳ theo scheme/Giftcode, UHub theo dõi số thực tế phát theo campaign
+3. Timestamp recording cho audit trail (GPS location removed)
 4. Shopper confirmation screen với gift details display
-5. Offline queue với batch sync capabilities
+5. Real-time processing với retry mechanism cho network failures
 
 ### Story 2.4: Real-time Inventory Synchronization
 **As a** System Administrator,  
