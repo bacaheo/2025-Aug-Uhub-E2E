@@ -2,11 +2,11 @@
 
 ## Executive Summary
 
-**E2E Physical Gift Management System** là dự án tối ưu hóa toàn bộ quy trình quản lý quà tặng vật lý từ lập kế hoạch đến thu hồi cho các chương trình khuyến mãi (CTKM) của Unilever tại Việt Nam. Hệ thống tích hợp UHub và UGMS để tự động hóa theo dõi quà tặng, giải quyết các pain points trong quy trình thủ công hiện tại, và tạo ra transparency hoàn chỉnh từ kho đến tay người tiêu dùng cuối.
+**E2E Physical Gift Management System** là dự án tối ưu hóa toàn bộ quy trình quản lý quà tặng vật lý từ lập kế hoạch đến thu hồi cho các chương trình khuyến mãi (CTKM) của Unilever tại Việt Nam. Hệ thống tích hợp UHub và UGMS để tự động hóa theo dõi quà tặng, giải quyết các pain points trong quy trình thủ công hiện tại, và minh bạch hoàn toàn từ khâu kho vận đến tay người tiêu dùng cuối.
 
-**Vấn đề cốt lõi:** Quy trình quản lý quà vật lý hiện tại hoàn toàn dựa vào Excel và xử lý thủ công, dẫn đến thiếu kiểm soát tồn kho, không thể thu hồi quà sau campaign, và đối soát thủ công tốn thời gian.
+**Vấn đề cốt lõi:** Quy trình quản lý quà vật lý hiện tại còn dựa vào Excel và xử lý thủ công, dẫn đến thiếu kiểm soát tồn kho (kho Agency, kho cửa hàng), không thể thu hồi quà sau campaign, và đối soát thủ công tốn thời gian.
 
-**Giải pháp:** Hệ thống E2E tích hợp UGMS-UHub với digital confirmation, real-time tracking, automatic reconciliation và approval workflow.
+**Giải pháp:** Hệ thống E2E Physical Gift Management tích hợp UGMS-UHub với digital confirmation, PowerBI Report tracking, automatic reconciliation và approval workflow.
 
 **Giá trị cốt lõi:** Tự động hóa 80% quy trình, giảm 90% thời gian đối soát, và tạo ra end-to-end visibility cho toàn bộ chuỗi cung ứng quà tặng.
 
@@ -45,26 +45,26 @@ Quy trình quản lý quà tặng vật lý cho các CTKM của Unilever tại V
 **Tác động tài chính:**
 
 - Lãng phí quà tặng do không thu hồi được: ước tính 5-10% budget campaign
-- Chi phí nhân công cho manual reconciliation: ~40 giờ/campaign
+- Chi phí nhân công cho manual reconciliation: ~20 giờ/campaign
 - Rủi ro sai sót trong báo cáo tài chính do reconciliation thủ công
 
 **Tác động vận hành:**
 
-- Thiếu transparency trong chuỗi cung ứng quà tặng
+- Thiếu minh bạch trong chuỗi cung ứng quà tặng
 - Khó khăn trong inventory planning cho campaigns tiếp theo
 - Giảm hiệu quả trong việc phân bổ quà tặng theo performance thực tế
 
 **Thời điểm cấp thiết:**
 
-- Unilever đang mở rộng số lượng campaigns và coverage geographic
-- Key Accounts yêu cầu transparency cao hơn trong gift management
-- ITU team có kế hoạch nâng cấp UHub system trong Q4 2025
+- Unilever đang tăng trưởng số lượng campaigns
+- Key Accounts yêu cầu minh bạch cao hơn trong quản lý quà
+- ITU team có kế hoạch nâng cấp UHub system trong Q4 2025/Đầu 2026
 
 ## Proposed Solution
 
-### Tổng Quan Giải Pháp E2E
+### Tổng Quan Giải Pháp E2E Physical Gift Management
 
-**E2E Physical Gift Management System** tạo ra một quy trình tự động hóa hoàn chỉnh gồm 7 giai đoạn được tích hợp:
+**E2E Physical Gift Management System** tạo ra một quy trình tự động hóa hoàn chỉnh gồm 7 giai đoạn:
 
 ```
 B1. Gift Planning (with Recall Alignment)
@@ -82,29 +82,29 @@ B1. Gift Planning (with Recall Alignment)
 
 - Tự động đồng bộ thông tin: Schemes, Gift codes, Quantities, Store allocation
 - Real-time data sync thay thế Excel manual input
-- Dual-system consistency with audit trail
+- Đồng bộ thông tin UGMS-Uhub with audit trail
 
 **2. Digital Confirmation Workflow**
 
 - Agency confirm nhận hàng trực tiếp trên UHub system
-- Sales confirm nhận quà trực tiếp trên UHub system tại store level với inventory update
+- Sales confirm nhận quà trực tiếp trên UHub system tại store level với inventory update (Phase 2)
 - PG automatic inventory deduction khi scan QR trao quà
 
-**3. Real-time Reporting & Analytics**
+**3. PowerBI Reporting & Analytics**
 
 - UHub Gift Report dashboard thay thế Excel reporting
-- Live inventory tracking theo store và campaign
-- Predictive analytics for gift allocation optimization
+- Report inventory tracking theo store và campaign
+- Report hỗ trợ predictive analytics để tối ưu việc phân bổ quà cho stores
 
-**4. Automatic Reconciliation Engine**
+**4. Reconciliation Engine (Engine đối soát)**
 
-- Tự động so sánh: UGMS records ↔ UHub tracking ↔ Physical inventory
+- So sánh: UGMS records ↔ UHub tracking ↔ Physical inventory
 - Exception reporting với root cause analysis
-- Streamlined resolution workflow
+- Quy trình giải quyết được sắp xếp hợp lý (Streamlined resolution workflow)
 
-**5. Approval & Ticket System**
+**5. Hệ thống phê duyệt & Ticket request**
 
-- Level 2 approval workflow cho stock adjustments
+- Level 2 Approval Workflow cho điều chỉnh hàng tồn kho
 - Integration ticket system giữa UHUB và UGMS
 - Complete audit trail cho compliance
 
@@ -113,20 +113,20 @@ B1. Gift Planning (with Recall Alignment)
 **So Với Quy Trình Thủ Công:**
 
 - 80% tự động hóa (Automation) thay vì 100% thủ công
-- Khả năng theo dõi thời gian thực (Real-time Visibility) thay vì báo cáo cuối chiến dịch
+- PowerBI Report theo dõi thay vì end-campaign report
 - Xử lý ngoại lệ chủ động (Proactive Exception Handling) thay vì giải quyết vấn đề thụ động
 
 **So Với Giải Pháp Đối Thủ:**
 
-- Tích hợp sâu với hành trình người mua sắm UHub hiện có (Existing UHub Shopper Journey)
-- Hỗ trợ cơ chế CTKM riêng biệt của Unilever (Unilever-specific CTKM Mechanics)
-- Tối ưu hóa hệ sinh thái Tài Khoản Chủ Chốt thị trường Việt Nam
+- Tích hợp sâu với shopper journey hiện tại của UHub
+- Hỗ trợ các dạng Mechanic đặc thù của Unilever
+- Tối ưu hóa cho các KA của thị trường Việt Nam
 
 **Technical Innovation:**
 
-- Tích hợp API UGMS-UHub liền mạch (Seamless) với xác thực RSA (RSA Authentication)
-- Thiết kế di động ưu tiên (Mobile-first Design) cho xác nhận của Đại lý và Bán hàng
-- Thuật toán đối soát nâng cao (Advanced Reconciliation Algorithms) với phát hiện sự khác biệt dựa trên ML (ML-based Discrepancy Detection)
+- Tích hợp API UGMS-UHub với xác thực RSA (RSA Authentication)
+- Mobile-first Design cho Agency và Store
+- Reconciliation Algorithms phát hiện sự khác biệt
 
 ## Target Users
 
@@ -135,56 +135,56 @@ B1. Gift Planning (with Recall Alignment)
 **Demographic Profile:**
 
 - 5-15 nhân viên Unilever tại Việt Nam
-- Vai trò: Quản lý Thương hiệu (Brand Managers), Marketing Thương mại (Trade Marketing), Đội Đổi mới Bán lẻ (Retail Innovation Team)
-- Kinh nghiệm: 2-8 năm kinh nghiệm FMCG/bán lẻ
+- Vai trò: Brand Managers, Retail Innovation Team
+- Kinh nghiệm: 2-5 năm kinh nghiệm FMCG/bán lẻ
 
 **Current Behaviors:**
 
-- Sử dụng Excel để theo dõi hiệu suất chiến dịch (Campaign Performance) và phân bổ quà tặng (Gift Allocation)
-- Phối hợp thủ công (Manual Coordination) với các đội Đại lý qua email/điện thoại
-- Đánh giá kinh doanh hàng quý (Quarterly Business Reviews) với khối lượng công việc đối soát nặng
-- Phụ thuộc cao vào UTOP Admin cho thiết lập chiến dịch (Campaign Setup)
+- Sử dụng Excel để theo dõi Campaign Performance và Gift Allocation
+- Manual Coordination với các đội Agency qua email/điện thoại
+- Quarterly Business Reviews với khối lượng công việc đối soát nặng
+- BU phải cập nhật Mechanics/Quà/số lượng/Phân bổ cho UTOP Admin bằng Log Form thủ công
 
 **Pain Points:**
 
-- Thiếu khả năng theo dõi thời gian thực (Real-time Visibility) vào việc sử dụng quà tặng và hàng tồn kho
-- Quy trình đối soát tốn thời gian (Time-consuming Reconciliation Process) mỗi chiến dịch
-- Khó khăn trong lập kế hoạch hàng tồn kho cho các chiến dịch chồng chéo (Overlapping Campaigns)
+- Thiếu PowerBI report theo dõi quà tặng và hàng tồn kho
+- Quy trình đối soát tốn thời gian mỗi campaign
+- Khó lập plan phân bổ quà cho các campaign chồng chéo (Overlapping Campaigns)
 - Nhập liệu và tính toán thủ công dễ sai sót (Manual Error-prone Data Entry)
 
 **Goals & Success Metrics:**
 
-- Giảm 70% thời gian dành cho quản lý chiến dịch (Campaign Administration)
+- Giảm 70% spend-time quản lý Campaign
 - Tăng độ chính xác trong dự báo và lập kế hoạch hàng tồn kho (Inventory Forecasting)
-- Truy cập thời gian thực vào dữ liệu hiệu suất chiến dịch (Real-time Campaign Performance Data)
-- Quy trình phê duyệt được sắp xếp hợp lý (Streamlined Approval Workflow) cho các điều chỉnh
+- PowerBI report theo dõi Campaign Performance
+- Streamlined Approval Workflow cho các điều chỉnh
 
 ### Secondary User Segment: Agency & Sales Operations
 
 **Demographic Profile:**
 
-- 20-50 nhân viên đại lý và đại diện bán hàng (Sales Representatives)
-- Địa điểm: Phân bố trên khắp các cửa hàng Tài Khoản Chủ Chốt tại Việt Nam
+- 20-50 nhân viên Agency và Sale
+- Địa điểm: Phân bố trên khắp các cửa hàng của KA tại Việt Nam
 - Mức độ thoải mái với công nghệ: Trung bình, quen thuộc với các ứng dụng di động cơ bản
 
 **Current Behaviors:**
 
-- Quy trình xác nhận thủ công với theo dõi bằng giấy tờ (Paper-based Tracking)
-- Giao tiếp qua WhatsApp/điện thoại về tình trạng hàng tồn kho (Inventory Status)
-- Kiểm đếm hàng tồn kho vật lý mà không cập nhật hệ thống
-- Phụ thuộc vào Nhân viên khuyến mại (PG) để phối hợp phân phối quà tặng
+- Quy trình xác nhận thủ công, theo dõi bằng giấy tờ
+- Giao tiếp qua Viber/điện thoại về tình trạng quà tồn kho
+- Kiểm đếm quà tồn kho mà không cập nhật hệ thống
+- Phụ thuộc vào PG để phối hợp phân phối quà tặng
 
 **Pain Points:**
 
-- Không có công cụ số hóa (Digital Tools) để xác nhận hàng tồn kho
-- Khoảng cách giao tiếp (Communication Gaps) giữa Đại lý → Bán hàng → PG
-- Trì hoãn thời gian trong báo cáo thay đổi hàng tồn kho
-- Thiếu khả năng theo dõi (Visibility) về phân bổ quà tặng từ kế hoạch trung tâm
+- Không có Digital Tools để xác nhận hàng tồn kho
+- Communication Gaps giữa Agency → Sale → PG
+- Trì hoãn thời gian trong báo cáo thay đổi quà tồn kho
+- Thiếu PowerBI Report theo dõi phân bổ quà tặng
 
 **Goals & Success Metrics:**
 
-- Giao diện di động đơn giản (Simple Mobile Interface) cho xác nhận hàng tồn kho
-- Giao tiếp thời gian thực về tình trạng có sẵn quà tặng tại cửa hàng
+- Simple Mobile Interface xác nhận hàng tồn kho
+- PowerBI report thông tin quà tặng tại cửa hàng
 - Giảm giấy tờ thủ công và phối hợp qua điện thoại
 - Trách nhiệm rõ ràng (Clear Accountability) trong chuỗi phân phối quà tặng
 
@@ -200,14 +200,14 @@ B1. Gift Planning (with Recall Alignment)
 
 ### User Success Metrics
 
-- **Năng Suất Đội Ngũ BU (BU Team Productivity):** Giảm thời gian quản lý chiến dịch từ 40 giờ xuống 12 giờ mỗi chiến dịch
-- **Khả Năng Theo Dõi Thời Gian Thực (Real-time Visibility):** 95% các giao dịch hàng tồn kho được theo dõi trong thời gian thực
-- **Chấp Nhận Người Dùng (User Adoption):** 90% tỷ lệ chấp nhận xác nhận số hóa từ các đội Đại lý và Bán hàng
+- **Năng Suất Đội Ngũ BU (BU Team Productivity):** Giảm spend-time cho campaign từ 40 giờ xuống 12 giờ mỗi chiến dịch
+- **PowerBI Report:** 95% các giao dịch hàng tồn kho được theo dõi
+- **Chấp Nhận Người Dùng (User Adoption):** 90% tỷ lệ chấp nhận xác nhận số hóa từ Agency Teams và Sale Teams
 - **Giảm Sai Sót (Error Reduction):** Giảm 85% lỗi đối soát
 
 ### Key Performance Indicators (KPIs)
 
-- **Độ Tin Cậy Hệ Thống (System Reliability):** >99.5% thời gian hoạt động hệ thống UHub trong các giai đoạn chiến dịch
+- **Độ Tin Cậy Hệ Thống (System Reliability):** >99.5% thời gian hoạt động hệ thống UHub trong các giai đoạn campaign
 - **Độ Chính Xác Tích Hợp (Integration Accuracy):** >99% tỷ lệ đồng bộ dữ liệu UGMS-UHub thành công
 - **Hoàn Thành Quy Trình (Process Completion):** <1% chu kỳ phân phối quà tặng không hoàn chỉnh
 - **Sự Hài Lòng Người Dùng (User Satisfaction):** >4.2/5.0 điểm hài lòng từ khảo sát hàng quý
@@ -232,7 +232,7 @@ B1. Gift Planning (with Recall Alignment)
 
 - Phân tích nâng cao (Advanced Analytics) và mô hình dự đoán (Predictive Modeling) cho phân bổ quà tặng
 - Hỗ trợ đa ngôn ngữ (Multi-language Support) - chỉ tiếng Việt trong MVP
-- Phát triển ứng dụng di động (Mobile App Development) - chỉ giao diện di động dựa trên web
+- Phát triển ứng dụng di động (Mobile App Development) - chỉ giao diện di động dựa trên webapp
 - Tích hợp với Nhà Cung Cấp Quà Tặng bên ngoài (External Gift Vendors) ngoài GotIt/Urbox hiện có
 - Quy trình phê duyệt toàn diện (Comprehensive Approval Workflow) - chỉ phê duyệt Cấp 1 cơ bản
 
@@ -242,7 +242,7 @@ B1. Gift Planning (with Recall Alignment)
 
 - Xử lý thành công một chu kỳ quản lý quà tặng hoàn chỉnh cho 1 chiến dịch thí điểm
 - Không mất dữ liệu (Zero Data Loss) trong tích hợp UGMS-UHub
-- 100% phạm vi xác nhận số hóa cho các địa điểm Đại lý và Bán hàng thí điểm
+- 100% phạm vi xác nhận số hóa cho các địa điểm Agency và Sale thí điểm
 
 **Technical Success:**
 
@@ -252,21 +252,21 @@ B1. Gift Planning (with Recall Alignment)
 
 ## Post-MVP Vision
 
-### Phase 2 Features (6-12 months post-MVP)
+### Phase 2 Features (3-6 months post-MVP)
 
 **Advanced Analytics & Optimization:**
 
-- Đề xuất phân bổ quà tặng dựa trên học máy (Machine Learning-based) từ hiệu suất lịch sử
-- Lập kế hoạch hàng tồn kho dự đoán (Predictive Inventory Planning) với dự báo nhu cầu theo mùa
+- Đề xuất phân bổ quà tặng dựa trên học máy (Machine Learning-based) từ historical data
+- Predictive Inventory Planning với dự báo nhu cầu theo mùa
 - Đối soát nâng cao với tự động hóa phân tích nguyên nhân gốc
 
-### Long-term Vision (1-2 years)
+### Long-term Vision (6-8 months)
 
 **Tối Ưu Hóa Được Hỗ Trợ Bởi AI (AI-Powered Optimization):**
 
-- Đề xuất phân bổ quà tặng động (Dynamic Gift Allocation) dựa trên hiệu suất chiến dịch thời gian thực
-- Đề xuất thu hồi quà tặng tự động dựa trên mô hình sử dụng
-- Phát hiện gian lận thông minh (Intelligent Fraud Detection) cho các bất thường trong phân phối quà tặng
+- Đề xuất phân bổ quà tặng động (Dynamic Gift Allocation) dựa trên campaign perforcemance
+- Đề xuất thu hồi quà tặng tự động
+- Intelligent Fraud Detection cho các bất thường trong phân phối quà tặng
 
 **Tích Hợp Hệ Sinh Thái (Ecosystem Integration):**
 
@@ -280,7 +280,7 @@ B1. Gift Planning (with Recall Alignment)
 **Target Platforms:**
 
 - **Shopper & PG:** Mobile webapp responsive design optimized cho iOS 13+ và Android 9+
-- **Agency & Sales Portal:** Desktop web application compatible với Chrome 90+, Safari 14+ 
+- **Agency & Sales Portal:** Desktop web application compatible với Chrome 90+, Safari 14+
 - **PG App Integration:** Existing PG App compatibility với iOS 12+ và Android 8+
 
 **Performance Requirements:**
@@ -359,48 +359,48 @@ B1. Gift Planning (with Recall Alignment)
 
 - Đội phát triển: 3 lập trình viên full-stack, 1 chuyên gia di động, 1 kỹ sư DevOps
 - Sự có sẵn của đội kinh doanh: Đội BU có khả năng hạn chế trong các giai đoạn chiến dịch cao điểm (Oct-Dec, Feb-Mar)
-- Sự có sẵn của các đội Đại lý và Bán hàng cho UAT giới hạn trong giờ không cao điểm
+- Agency và Sales teams availability cho UAT limited to off-peak hours
 
 **Technical:**
 
-- Phải tích hợp với mã nguồn UHub hiện có mà không có thay đổi kiến trúc lớn
-- Khả năng hệ thống UGMS và giới hạn API dựa trên hợp đồng nhà cung cấp hiện tại
-- Yêu cầu tương thích di động trên hệ sinh thái thiết bị đa dạng được sử dụng bởi các đội thực địa
+- Must integrate với existing UHub codebase without major architectural changes
+- UGMS system capabilities và API limitations based on current vendor contract
+- Mobile compatibility requirements across diverse device ecosystem used by field teams
 
 ### Key Assumptions
 
-- **Sẵn Sàng API UGMS:** Nhà cung cấp UGMS sẽ cung cấp các điểm cuối API cần thiết trong thời gian phát triển
-- **Chấp Nhận Người Dùng (User Adoption):** Các đội Đại lý và Bán hàng sẽ chấp nhận quy trình xác nhận số hóa với sự kháng cự tối thiểu
-- **Kết Nối Mạng (Network Connectivity):** Các đội thực địa có kết nối internet đáng tin cậy cho cập nhật hệ thống thời gian thực
-- **Chất Lượng Dữ Liệu (Data Quality):** Chất lượng dữ liệu UGMS hiện có đủ cho tích hợp tự động mà không cần dọn dẹp extensive
-- **Quản Lý Thay Đổi (Change Management):** Tổ chức Unilever sẵn sàng để chấp nhận các quy trình số hóa mới với hỗ trợ đào tạo đầy đủ
+- **UGMS API Readiness:** UGMS vendor provide required API endpoints
+- **User Adoption:** Agency và Sales teams sẽ adopt digital confirmation process với minimal resistance
+- **Network Connectivity:** Field teams có reliable internet connectivity cho real-time system updates
+- **Data Quality:** Existing UGMS data quality sufficient cho automated integration without extensive cleanup
+- **Change Management:** Unilever organization ready để adopt new digital processes với adequate training support
 
 ## Risks & Open Questions
 
 ### Key Risks
 
-- **Rủi Ro Tích Hợp UGMS (UGMS Integration Risk):** Nhà cung cấp UGMS có thể trì hoãn phát triển API hoặc cung cấp chức năng hạn chế so với yêu cầu
+- **UGMS Integration Risk:** Nhà cung cấp UGMS có thể trì hoãn phát triển API hoặc cung cấp chức năng hạn chế so với yêu cầu
   - **Tác Động:** Trì hoãn toàn bộ tiến độ dự án và giảm khả năng tích hợp
-- **Rủi Ro Chấp Nhận Người Dùng (User Adoption Risk):** Các đội Đại lý và Bán hàng kháng cự quy trình số hóa, ưu tiên phương pháp thủ công hiện có
+- **User Adoption Risk:** Agency Teams và Sale Teams không follow-up quy trình số hóa, ưu tiên phương pháp thủ công hiện có
   - **Tác Động:** Tỷ lệ chấp nhận thấp làm giảm hiệu quả hệ thống và lợi tức đầu tư (ROI)
-- **Rủi Ro Di Chuyển Dữ Liệu (Data Migration Risk):** Dữ liệu Excel hiện có không nhất quán tạo ra thách thức trong tích hợp hệ thống và độ chính xác dữ liệu lịch sử
+- **Data Migration Risk:** Dữ liệu Excel hiện có không nhất quán tạo ra thách thức trong tích hợp hệ thống và độ chính xác của historical data
   - **Tác Động:** Dữ liệu nền tảng không chính xác ảnh hưởng đến độ chính xác đối soát và niềm tin người dùng
-- **Rủi Ro Hiệu Suất (Performance Risk):** Việc sử dụng đồng thời cao trong các chiến dịch lớn có thể làm quá tải khả năng hệ thống
-  - **Tác Động:** Hệ thống ngừng hoạt động trong thời gian kinh doanh quan trọng, làm tổn hại niềm tin người dùng
+- **Performance Risk:** Việc triển khai đồng loạt trong các campaign lớn có thể làm quá tải khả năng hệ thống
+  - **Tác Động:** Hệ thống ngừng hoạt động trong thời gian kinh doanh quan trọng, làm tổn hại niềm tin shopper
 
 ### Open Questions
 
 - **Tiến Độ API UGMS:** Khi nào nhà cung cấp UGMS có thể cam kết về đặc tả API cuối cùng và tiến độ giao hàng?
-- **Phương Pháp Quản Lý Thay Đổi (Change Management Approach):** Phương pháp đào tạo và giới thiệu nào hiệu quả nhất cho các đội hiện trường đa dạng trên khắp Việt Nam?
-- **Di Chuyển Dữ Liệu Lịch Sử (Historical Data Migration):** Có cần di chuyển dữ liệu chiến dịch lịch sử từ Excel, và nếu có thì phạm vi đến mức nào?
-- **Môi Trường Kiểm Thử Tích Hợp (Integration Testing Environment):** Nhà cung cấp UGMS có cung cấp môi trường sandbox để kiểm thử tích hợp toàn diện?
+- **Change Management Approach:** Phương pháp đào tạo và giới thiệu nào hiệu quả nhất cho các đội hiện trường đa dạng trên khắp Việt Nam?
+- **Historical Data Migration:** Có cần di chuyển dữ liệu chiến dịch lịch sử từ Excel, và nếu có thì phạm vi đến mức nào?
+- **Integration Testing Environment:** Nhà cung cấp UGMS có cung cấp môi trường sandbox để kiểm thử tích hợp toàn diện?
 
 ### Areas Needing Further Research
 
-- **Khả Năng Thiết Bị Di Động (Mobile Device Capabilities):** Kiểm toán toàn diện các thiết bị được sử dụng bởi các đội Đại lý và Bán hàng để đảm bảo yêu cầu tương thích
-- **Đánh Giá Cơ Sở Hạ Tầng Mạng (Network Infrastructure Assessment):** Kiểm tra thực địa độ tin cậy kết nối internet tại các cửa hàng chính trên các khu vực khác nhau
-- **Tối Ưu Hóa Hành Trình Người Dùng (User Journey Optimization):** Nghiên cứu người dùng chi tiết với các đội Đại lý và Bán hàng để tối ưu hóa quy trình xác nhận
-- **Phân Tích Yêu Cầu Bảo Mật (Security Requirements Analysis):** Xem xét các chính sách bảo mật của Unilever để đảm bảo tuân thủ yêu cầu xử lý dữ liệu
+- **Mobile Device Capabilities:** Kiểm tra các thiết bị được sử dụng bởi các Agency Teams và Sale Teams để đảm bảo yêu cầu tương thích
+- **Network Infrastructure Assessment:** Kiểm tra thực địa độ tin cậy kết nối internet tại các store chính trên các khu vực khác nhau
+- **User Journey Optimization:** Nghiên cứu người dùng chi tiết với các đội Agency Teams và Sale Teams để tối ưu hóa quy trình xác nhận
+- **Security Requirements Analysis:** Xem xét các chính sách bảo mật của Unilever để đảm bảo tuân thủ yêu cầu xử lý dữ liệu
 
 ## Appendices
 
@@ -408,21 +408,21 @@ B1. Gift Planning (with Recall Alignment)
 
 **Market Research Findings:**
 
-- Unilever Việt Nam triển khai 15-25 chiến dịch quà tặng lớn hàng năm với ngân sách trung bình 500K-2M USD mỗi chiến dịch
-- Hệ sinh thái Tài Khoản Chủ Chốt (Key Account) bao gồm 8 nhà bán lẻ lớn với hơn 500 điểm bán trên toàn quốc
+- Unilever Việt Nam triển khai 200-300 chiến dịch quà tặng lớn hàng năm với ngân sách trung bình 50M-500M mỗi chiến dịch
+- Hệ sinh thái Key Account bao gồm 8 nhà bán lẻ lớn với hơn 500 điểm bán trên toàn quốc
 - Quy trình thủ công hiện tại ước tính tốn hơn 2,000 giờ hành chính hàng năm
 
 **Competitive Analysis:**
 
 - P&G Việt Nam sử dụng quy trình thủ công tương tự với các vấn đề khó khăn tương đương
 - Các đối thủ khu vực (Thái Lan, Malaysia) đã triển khai các giải pháp số hóa một phần với kết quả không đồng nhất
-- Chưa có giải pháp E2E (từ đầu đến cuối) toàn diện đặc biệt dành cho quản lý quà tặng FMCG tại Việt Nam
+- Chưa có giải pháp E2E toàn diện đặc biệt dành cho quản lý quà tặng FMCG tại Việt Nam
 
 **Technical Feasibility Studies:**
 
 - Nhà cung cấp UGMS xác nhận tính khả thi phát triển API với tiến độ phát triển 2 tháng
 - Kiến trúc nền tảng UHub có thể tích hợp module mới mà không cần tái cấu trúc lớn
-- Kiểm toán thiết bị đội hiện trường cho thấy 85% tỷ lệ sử dụng smartphone với khả năng kỹ thuật đầy đủ
+- Kiểm tra thiết bị đội hiện trường cho thấy 85% tỷ lệ sử dụng smartphone với khả năng kỹ thuật đầy đủ
 
 ### B. Stakeholder Input
 
@@ -435,13 +435,12 @@ B1. Gift Planning (with Recall Alignment)
 **Agency Team Input:**
 
 - "Xác nhận số hóa có thể chấp nhận nếu giao diện đơn giản và không làm tăng đáng kể thời gian quy trình làm việc"
-- "Cần khả năng hoạt động offline cho các cửa hàng có kết nối internet kém"
 - "Khả năng tải ảnh lên cần thiết để ghi lại bất kỳ sự khác biệt hoặc hư hỏng nào"
 
 **UTOP Admin Perspective:**
 
 - "Quy trình thiết lập chiến dịch hiện tại phụ thuộc nhiều vào nhập dữ liệu thủ công - tự động hóa sẽ loại bỏ hầu hết các nguồn lỗi phổ biến"
-- "Tích hợp với quy trình làm việc Ứng dụng PG hiện có rất quan trọng để duy trì tính nhất quán trải nghiệm người dùng"
+- "Tích hợp với quy trình làm việc PG App hiện có rất quan trọng để duy trì tính nhất quán trải nghiệm người dùng"
 
 ### C. References
 
@@ -462,7 +461,7 @@ B1. Gift Planning (with Recall Alignment)
 
 ### PM Handoff
 
-Tài liệu Tóm Tắt Dự Án (Project Brief) này cung cấp đầy đủ bối cảnh cho **E2E Physical Gift Management System**. Product Manager hãy bắt đầu trong 'Chế Độ Tạo PRD (PRD Generation Mode)', đánh giá tóm tắt một cách toàn diện để làm việc với người dùng tạo ra PRD theo từng phần như template chỉ định, yêu cầu làm rõ khi cần thiết hoặc đề xuất cải tiến.
+Tài liệu Tóm Tắt Dự Án (Project Brief) này cung cấp đầy đủ bối cảnh cho **E2E Physical Gift Management System**.
 
 **Key Handoff Notes:**
 
