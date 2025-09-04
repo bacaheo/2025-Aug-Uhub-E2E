@@ -13,6 +13,40 @@
 | Sales |  |  | 11.Kiểm tra hàng<br>=> 12.Sales confirm nhận hàng<br>on UHub (at Store) |  |  |  |  |
 
 
+## Flow Tổng Quan Bảng Quy Trình
+
+```plantuml
+@startuml
+title Gift Management x UHub — Activity Diagram (Swimlanes)
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+|KA/BU/DC|
+start
+:1.Gift Planning;
+|Agency|
+:2.Gift Delivery to Agency WHs;
+|Sale|
+:3.Gift Delivery to Stores;
+|UHub|
+:4.Gift Usage;
+|Agency|
+:5.Gift Recall to Agency WHs;
+:B6.Stock Management;
+|BU Level-2|
+:B7. Stock Reduction/Recall/ Re-allocation (if any);
+stop
+@enduml
+```
 
 ## Mô Tả Chi Tiết Từng Bước Quy Trình Mới
 
@@ -44,7 +78,7 @@
 - **Mục đích**: BU gửi yêu cầu thiết lập campaign cho Utop Admin
 - **Thông tin bổ sung**:
   - Allocation by store (phân bổ theo cửa hàng)
-  - Thông tin SKUs cần in trên hóa đơn
+  - Thông tin SKUs in trên hóa đơn của KA
   - Thông tin Agency vận hành campaign
 
 #### 5. Sync ITU Log Form → UHub Admin - Auto Email
@@ -390,6 +424,7 @@ note right
   * Utop Admin nhận email thông tin Log Form,
   thông tin campaign trên Admin Portal
   * UHub (CR Bổ sung tính năng):
+  + Cập nhật Email BU (Theo Scheme ID)
   + Cập nhật thông tin Agency vận hành campaign (Theo Scheme ID)
   + Cập nhật Scheme ID khi tạo Campaign
   + Cập nhật Allocation by store theo Scheme ID + Campaign ID
@@ -423,19 +458,38 @@ partition "Agency" {
     ====
     * 
   end note
-  if (Đủ hàng & không hư hỏng?) then (Yes)
-  :Agency confirm nhận hàng theo Gift Vol on UHub\n(Agency WHs);
-  else (No)
-  :Agency confirm nhận hàng theo số thực tế \n& nguyên nhân on UHub\n(Agency WHs);
   
+  if (Đủ hàng & không hư hỏng?) then (Yes)
+    :Agency confirm nhận hàng theo Gift Vol on UHub\n(Agency WHs);
+  else (No)
+  repeat
+  :Agency tạo ticket nhận hàng theo số thực tế \n& nguyên nhân on UHub\n(Agency WHs);
+  note right
+    <b>Quy trình nhập kho Agency</b>
+    * Agency phải tạo ticket trước ngày live, 7 day x 24 giờ: 168 giờ
+    * Trường hợp cần tạo ticket cận ngày live <168 giờ, Agency phải nhờ
+    BU Log Form CR để yêu cầu Admin Utop hỗ trợ
+    ====
+    * 
+  end note
+  :BU review,\ncập nhật Giftcode, Quantity, Allocation by store\nvà approval ticket\non UHub;
+  note right
+    <b>Quy trình nhập kho Agency</b>
+    * BU phải approval ticket trong vòng 24 giờ, tính từ lúc tạo
+    * Quá 24 giờ ticket sẽ hết hạn
+    ====
+    * 
+  end note
+  repeat while (BU Approved?) is (Rejected) not (Approved)
   endif
+  :Xuất thông tin Allocation by store\non UHub;
   |B3.Gift Delivery to Stores|
   :Deliver to Stores\ntheo Allocation by store;
 }
 
 partition "Sales" {
   :Kiểm tra hàng so với Allocation by store;
-  note right
+    note right
       <b>Quy trình nhập kho Store</b>
       * Quy trình điều chỉnh Gift Vol / Allocation by store
       trước go-live campaign
@@ -449,7 +503,25 @@ partition "Sales" {
   if (Đủ hàng & không hư hỏng?) Then (Yes)
   :Sales Confirm nhận hàng\ntheo Allocation by store\non UHub\n(at Store);
   Else (No)
-  :Sales confirm nhận hàng\ntheo số thực tế & nguyên nhân\non UHub\n(at Store);
+  repeat
+    :Sales tạo ticket nhận hàng\ntheo số thực tế & nguyên nhân\non UHub\n(at Store);
+    note right
+      <b>Quy trình điều chỉnh kho Store</b>
+      * Sale chỉ được thực hiện trước Campaign Live 48 giờ.
+      * Trường hợp cần tạo ticket cận ngày live <48 giờ, Agency phải nhờ
+    BU Log Form CR để yêu cầu Admin Utop hỗ trợ
+      ====
+      * 
+    end note
+    :BU review,\ncập nhật Giftcode, Quantity, Allocation by store\nvà approval ticket\non UHub;
+    note right
+      <b>Quy trình điều chỉnh kho Store</b>
+      * BU phải approval ticket trong vòng 12 giờ, tính từ lúc tạo
+      * Quá 12 giờ, ticket sẽ hết hạn
+      ====
+      * 
+    end note
+  repeat while (BU Approved?) is (Rejected) not (Approved)
     
   Endif
 }
@@ -457,7 +529,7 @@ partition "Sales" {
 '--- Campaign setup & readiness gate (loop until ready)
 repeat
   partition "Utop Admin" {
-    :UTOP Setup UHub Campaign;
+    :UTOP Setup UHub Campaign\nVà Go-live theo Request setup campaign của BU;
   }
   
 repeat while (Campaign ready?) is (No)
@@ -469,6 +541,11 @@ partition "Agency" {
 
 partition "BU" {
   :BU xem UHub PowerBI Report (refresh 3 lần/ngày)\n- (NEW) Gift Report\n- Campaign Performance;
+}
+
+partition "BU" {
+  :BU Trigger quy trình luân chuyển quà giữa các Store (Nếu có);
+  :BU Trigger quy trình thay đổi Agency (Nếu có);
 }
 
 |B5. Gift Recall to Agency WHs|
@@ -496,21 +573,25 @@ partition "Agency" {
 
     if (Đủ hàng & không hư hỏng?) Then (Yes)
       :Agency confirm số của report đối soát\non UHub;
+      :Sync UHub <-> UGMS \n(Cập nhật số Gift Usage\npost-camapign);
     else (No)
       :Agency submit ticket đối soát\ntheo số điều chỉnh thực tế & nguyên nhân\non UHub;
+      :UHub gửi auto email thông tin ticket cho BU;
       |7. Stock Reduction/Recall/ Re-allocation (if any)|
     partition "BU" {
-      :Raise Ticket via Email\n(Level-2 Approval);
+      :BU Raise & Forward Ticket via Email\n(Get Level-2 Approval);
     }
     partition "BU Level-2" {
       :Review & Approval Ticket via Email;
     }
-      if (L2 Approved?) then (Yes)
+      if (BU Level-2 Approved?) then (Approved via email)
         partition "Utop Admin" {
-          :Sync UHub <-> UGMS \n(Điều chỉnh tồn\npost-camapign);
+          :Utop Admin confirm ticket;
+          :Sync UHub <-> UGMS \n(Điều chỉnh tồn post-camapign\n& evidences BU Level-2 Approved);
         }
-      else (No)
+      else (Rejected via email)
         partition "BU" {
+          :BU Rejected ticket;
           :Request Agency\ncorrection / re-check;
         }
       endif
@@ -518,7 +599,7 @@ partition "Agency" {
     Endif
     
   }
-  repeat while (BU Level-2 Approved?) is (No)
+  repeat while (BU Level-2 Approved?) is (Rejected) Not (Approved)
 
 :END;
 
@@ -528,3 +609,4 @@ stop
 @enduml
 
 ```
+
