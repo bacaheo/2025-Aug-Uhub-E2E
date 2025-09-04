@@ -1,16 +1,16 @@
 # Quy Trình Mới - Gift Management System với UHub Integration
 
-## Tổng Quan Bảng Quy Trình V2
+## Tổng Quan Bảng Quy Trình V2 (Enhanced with Ticket System)
 
 |  | B1.Gift Planning | B2.Gift Delivery to Agency WHs | B3.Gift Delivery to Stores | B4. Gift Usage | B5. Gift Recall to Agency WHs | B6. Stock Management | B7. Stock Reduction/Recall/ Re-allocation (if any) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | KA | 1.Customer Alignment (Gift Recall Alignment) |  |  |  |  |  |  |
-| BU | 2.Setup Gift on UGMS<br>=> 3.Sync UGMS → UHub<br>=> 4.Request Setup Campaign on ITU Log Form<br>=> 5.Sync ITU Log Form → UHub Admin | | | 11.BU xem UHub PowerBI Report<br>- Gift Report (NEW)<br>- Campaign Performance |  |  | 17.Raise Ticket via Email<br>(Level-2 Approval) |
-| BU Level-2 |  |  |  |  |  |  | 18.Review & Approval Ticket via Email |
-| Utop Admin | 6.Cập nhật thông tin campaign<br>trên Utop Admin Portal | | | 12.UTOP Setup UHub Campaign<br>(Campaign readiness gate) | |  | 19.Sync UHub ↔ UGMS<br>(Điều chỉnh tồn post-campaign) |
+| BU | 2.Setup Gift on UGMS<br>3.Sync UGMS → UHub<br>4.Request Setup Campaign on ITU Log Form<br>5.Sync ITU Log Form → UHub Admin | **6.BU Review & Approval Tickets**<br>- Agency tickets (≤168h before live)<br>- Sales tickets (≤48h before live)<br>- 24h/12h approval SLA | | 11.BU xem UHub PowerBI Report<br>- Gift Report (NEW)<br>- Campaign Performance<br>+ 12.**BU Trigger Operations**<br>- Gift transfer between stores<br>- Agency changes |  |  | 17.**BU Raise & Forward Ticket**<br>via Email (Level-2 Approval)<br>+ UHub auto email alerts |
+| BU Level-2 |  |  |  |  |  |  | 18.Review & Approval Ticket via Email<br>**(NEW: Approval with evidences)** |
+| Utop Admin | 6.Cập nhật thông tin campaign<br>trên Utop Admin Portal<br>+ **Email BU theo Scheme ID** | | | 12.**UTOP Setup & Go-live Campaign**<br>(Campaign readiness gate)<br>theo Request của BU | |  | 19.**Utop Admin Confirm Ticket**<br>Sync UHub ↔ UGMS<br>(Điều chỉnh tồn + evidences) |
 | DC | 7.Linfox Delivery → Agency WHs |  |  |  |  |  |  |
-| Agency |  | 8.Nhận & kiểm tra hàng<br>=> 9.Agency confirm nhận hàng on UHub<br>(Agency WHs) | 10.Deliver to Stores<br>theo Allocation by store | 13.PG operates campaign on UHub<br>(Sampling & Redemption) | 14.Recall Gifts to Agency WHs | 15.Kiểm tra hàng thu hồi<br>=> 16.Agency confirm/submit ticket<br>đối soát on UHub |  |
-| Sales |  |  | 11.Kiểm tra hàng<br>=> 12.Sales confirm nhận hàng<br>on UHub (at Store) |  |  |  |  |
+| Agency |  | 8.Nhận & kiểm tra hàng<br>**9.Agency Ticket System**<br>- Confirm theo Gift Vol (normal)<br>- Tạo ticket số thực tế + nguyên nhân<br>Xuất Allocation by store | 10.Deliver to Stores<br>theo Allocation by store | 13.PG operates campaign on UHub<br>(Sampling & Redemption) | 14.Recall Gifts to Agency WHs<br>(5 ngày sau end-campaign) | 15.Kiểm tra hàng thu hồi<br>16.**Agency Reconciliation**<br>- Confirm report đối soát (normal)<br>- Submit ticket discrepancy |  |
+| Sales |  |  | 11.Kiểm tra hàng<br>**12.Sales Ticket System**<br>- Confirm theo Allocation (normal)<br>- Tạo ticket số thực tế + nguyên nhân |  |  |  |  |
 
 
 ## Flow Tổng Quan Bảng Quy Trình
@@ -106,12 +106,18 @@ stop
 - **Lưu ý quan trọng**: Có thể điều chỉnh Gift Vol/Allocation by store trước go-live
 - **Trường hợp đặc biệt**: Nếu nhập kho khác số dự kiến, cần BU cập nhật ITU Log Form đồng bộ
 
-#### 9. Agency Confirm trên UHub - Agency
-- **TÍNH NĂNG MỚI**: Digital confirmation thay thế báo cáo thủ công
+#### 9. Agency Ticket System trên UHub - Agency
+- **TÍNH NĂNG MỚI ENHANCED**: Digital confirmation + Ticket workflow với SLA
 - **Logic xử lý**:
   - **Nếu đủ hàng & không hư hỏng**: Confirm theo Gift Vol dự kiến
-  - **Nếu có vấn đề**: Confirm theo số thực tế + ghi rõ nguyên nhân
-- **Lợi ích**: Kiểm soát Gift-in tự động, cập nhật real-time inventory
+  - **Nếu có vấn đề**: Tạo ticket với số thực tế + nguyên nhân chi tiết
+- **Ticket SLA & Timing**:
+  - **Deadline**: Agency phải tạo ticket trước 168 giờ (7 ngày) so với ngày go-live
+  - **Escalation**: Nếu cận ngày live <168h, Agency nhờ BU Log Form CR hỗ trợ
+  - **BU Response SLA**: BU phải approval trong vòng 24 giờ
+  - **Auto Expiry**: Ticket hết hạn nếu quá 24 giờ
+- **Workflow Loop**: Ticket bị Rejected sẽ lặp lại cho đến khi Approved
+- **Final Output**: Xuất thông tin Allocation by store trên UHub sau khi hoàn tất
 
 ### B3. Gift Delivery to Stores (Giao Quà Đến Store)
 
@@ -123,12 +129,18 @@ stop
 - **Quy trình**: Sales so sánh hàng nhận với Allocation by store
 - **Lưu ý**: Vẫn có thể điều chỉnh Gift Vol trước go-live campaign nếu cần
 
-#### 12. Sales Confirm trên UHub - Sales
-- **TÍNH NĂNG MỚI**: Digital confirmation tại store level
+#### 12. Sales Ticket System trên UHub - Sales
+- **TÍNH NĂNG MỚI ENHANCED**: Digital confirmation + Ticket workflow với shorter SLA
 - **Logic xử lý**:
   - **Nếu đủ hàng**: Confirm theo Allocation by store
-  - **Nếu có vấn đề**: Confirm theo số thực tế + nguyên nhân
-- **Lợi ích**: Theo dõi Gift-in/Gift-out tại từng store, inventory real-time
+  - **Nếu có vấn đề**: Tạo ticket với số thực tế + nguyên nhân chi tiết
+- **Ticket SLA & Timing (Stricter than Agency)**:
+  - **Deadline**: Sales chỉ được tạo ticket trước 48 giờ so với Campaign Live
+  - **Escalation**: Nếu cận ngày live <48h, Agency phải nhờ BU Log Form CR hỗ trợ
+  - **BU Response SLA**: BU phải approval trong vòng 12 giờ (nhanh hơn Agency)
+  - **Auto Expiry**: Ticket hết hạn nếu quá 12 giờ
+- **Workflow Loop**: Ticket bị Rejected sẽ lặp lại cho đến khi Approved
+- **Strategic Rationale**: SLA ngắn hơn ở store level vì gần ngày go-live hơn
 
 ### B4. Gift Usage (Sử Dụng Quà Tặng)
 
@@ -143,12 +155,20 @@ stop
   - **UHub Redemption**: PG trao quà theo mechanics
 - **Tương tác**: Scan QR code, xác nhận trao quà real-time
 
-#### 11. BU Xem UHub PowerBI Report - BU
-- **TÍNH NĂNG MỚI**: Gift Report được bổ sung
+#### 11. BU PowerBI Report + Trigger Operations - BU
+- **TÍNH NĂNG MỚI**: Gift Report được bổ sung + Operational triggers
 - **Tần suất**: Refresh 3 lần/ngày
-- **Nội dung**:
+- **Nội dung Dashboard**:
   - **Gift Report**: Tracking số lượng quà đã phát/còn lại
   - **Campaign Performance**: Hiệu quả campaign theo KPIs
+
+#### 12. BU Trigger Operations - BU (TÍNH NĂNG HOÀN TOÀN MỚI)
+- **Gift Transfer Between Stores**: BU trigger quy trình luân chuyển quà giữa các Store
+  - Dựa trên performance data từ PowerBI Report
+  - Điều chỉnh allocation để tối ưu hiệu quả
+- **Agency Change Process**: BU trigger quy trình thay đổi Agency nếu cần
+  - Dựa trên performance hoặc business requirements
+  - Quản lý transfer inventory và campaign responsibility
 
 ### B5. Gift Recall to Agency WHs (Thu Hồi Quà Về Kho Agency)
 
@@ -163,20 +183,25 @@ stop
 - **Quy trình**: Agency so sánh hàng thu hồi thực tế với report đối soát UHub
 - **Mục đích**: Xác minh tính chính xác của inventory sau campaign
 
-#### 16. Agency Confirm/Submit Ticket Đối Soát - Agency
-- **Logic xử lý**:
-  - **Nếu khớp**: Agency confirm số liệu report đối soát
+#### 16. Agency Reconciliation System - Agency
+- **Logic xử lý Enhanced**:
+  - **Nếu khớp**: Agency confirm số liệu report đối soát → Tự động Sync UHub ↔ UGMS
   - **Nếu có discrepancy**: Submit ticket đối soát với số điều chỉnh + nguyên nhân
-- **TÍNH NĂNG MỚI**: Digital reconciliation thay thế Excel thủ công
+- **TÍNH NĂNG MỚI ENHANCED**: 
+  - Digital reconciliation thay thế Excel thủ công
+  - **Auto Email Alert**: UHub gửi auto email thông tin ticket cho BU
+  - **Automatic Sync**: Nếu khớp, tự động cập nhật số Gift Usage post-campaign
 
 ### B7. Stock Reduction/Recall/Re-allocation (Nếu Cần)
 
-#### 17. Raise Ticket via Email (Level-2 Approval) - BU
-- **Trigger**: Khi có discrepancy từ Agency reconciliation
+#### 17. BU Raise & Forward Ticket (Level-2 Approval) - BU
+- **Trigger**: Khi có discrepancy từ Agency reconciliation + UHub auto email alert
+- **Enhanced Process**: BU Raise & Forward thay vì chỉ Raise
 - **Nội dung ticket**:
   - Stock reduction (giảm kho)
-  - Gift recall (thu hồi quà)
+  - Gift recall (thu hồi quà) 
   - Re-allocation (phân bổ lại)
+- **Workflow Enhancement**: BU forward ticket lên Level-2 với context đầy đủ
 
 #### 18. Review & Approval Ticket - BU Level-2
 - **TÍNH NĂNG MỚI**: Approval workflow với cấp quản lý
@@ -184,10 +209,16 @@ stop
   - **Approved**: Tiến hành sync UHub ↔ UGMS
   - **Rejected**: Yêu cầu Agency correction/re-check
 
-#### 19. Sync UHub ↔ UGMS (Điều chỉnh tồn post-campaign) - Utop Admin
-- **Mục đích**: Cập nhật inventory cuối cùng sau campaign
-- **TÍNH NĂNG MỚI**: Bi-directional sync để đảm bảo consistency
-- **Kết quả**: Finalize inventory status across all systems
+#### 19. Utop Admin Confirm Ticket + Enhanced Sync - Utop Admin
+- **Enhanced Process**: 2-step process với evidence tracking
+  - **Step 1**: Utop Admin confirm ticket (audit trail)
+  - **Step 2**: Sync UHub ↔ UGMS với evidences của BU Level-2 Approval
+- **Mục đích**: Cập nhật inventory cuối cùng sau campaign với full traceability
+- **TÍNH NĂNG MỚI ENHANCED**: 
+  - Bi-directional sync để đảm bảo consistency
+  - **Evidence Integration**: Sync kèm evidences của approval process
+  - **Complete Audit Trail**: Link ticket → approval → system sync
+- **Kết quả**: Finalize inventory status với complete governance
 
 ## So Sánh Cải Tiến với Quy Trình Cũ
 
@@ -202,7 +233,8 @@ stop
 | **Lack of Real-time Visibility** | ✅ UHub PowerBI Report với Gift Report (Bước 11) | Dashboard real-time, refresh 3 lần/ngày thay vì báo cáo tuần |
 | **No Campaign Readiness Control** | ✅ Campaign Readiness Gate (Bước 12) | Đảm bảo inventory đủ trước khi PG vận hành |
 | **Manual Excel-based Allocation** | ✅ UGMS-UHub Integration (Bước 2-3) | Đồng bộ tự động, loại bỏ 100% Excel thủ công |
-| **No Approval Workflow for Adjustments** | ✅ Level-2 Approval System (Bước 17-18) | Governance chặt chẽ, audit trail đầy đủ |
+| **No Approval Workflow for Adjustments** | ✅ Enhanced Level-2 Approval + Ticket System (Bước 17-19) | Governance chặt chẽ với evidence tracking, audit trail đầy đủ |
+| **No SLA for Issue Resolution** | ✅ Tiered SLA System với Auto Expiry | Agency: 24h, Sales: 12h approval SLA + escalation process |
 
 ### Các Tính Năng Hoàn Toàn Mới
 
@@ -385,6 +417,12 @@ end note
 
 partition "BU" {
   :Setup Gift\n(GiftCode,Scheme,Customer,Ship_to)\n --> trên App UGMS;
+  note right
+    <b>Quy trình internal Unilever</b>
+    * Cần triển khai trước ngày campaign live 15-30 ngày
+    ====
+    * 
+  end note
   :Sync Setup Gift UGMS --> UHub\n(\nGiftCode, \nScheme (Start,End,Mechanics,Giftcode,Quantity),\nCustomer, \nShip_to\n) ;
     note right
       <b>Quy trình Unilever-Utop</b>
@@ -397,6 +435,12 @@ partition "BU" {
       qua API từ bước này
     end note
   :Request Setup Campaign\n(GiftCode, Scheme, Allocation by store)\n-->Trên ITU Log Form;
+  note right
+    <b>Quy trình Unilever-Utop</b>
+    * Cần triển khai trước ngày campaign live 10-15 ngày
+    ====
+    * 
+  end note
   :Sync Request Setup Campaign\n ITU Log Form --> UHub Admin via auto email\n(\nGiftCode, \nScheme (Start,End,Mechanics,Giftcode,Quantity),\nThông tin SKUs in trên hoá đơn\nAllocation by store\nThông tin Agency vận hành campaign\n) ;
     note right
       <b>Quy trình Unilever-Utop</b>
@@ -509,7 +553,7 @@ partition "Sales" {
       <b>Quy trình điều chỉnh kho Store</b>
       * Sale chỉ được thực hiện trước Campaign Live 48 giờ.
       * Trường hợp cần tạo ticket cận ngày live <48 giờ, Agency phải nhờ
-    BU Log Form CR để yêu cầu Admin Utop hỗ trợ
+      BU Log Form CR để yêu cầu Admin Utop hỗ trợ
       ====
       * 
     end note
