@@ -1,0 +1,30 @@
+@startuml
+' title E2E Gift Management x UHub — Activity Diagram
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+|KA/BU/DC + Utop Admin|
+start
+:1.Gift Planning;
+|Agency|
+:2.Gift Delivery\nto Agency WHs;
+|Agency/Sale|
+:3.Gift Delivery\nto Stores;
+|Agency/BU + Utop Admin|
+:4.Gift Usage\n+ Dashboard;
+|Agency|
+:5.Gift Recall\nto Agency WHs;
+:6.Stock Management;
+|BU/BU Level-2|
+:6.Approval:\nStock Reduction/\nRecall/\nRe-allocation (if any);
+stop
+@enduml
