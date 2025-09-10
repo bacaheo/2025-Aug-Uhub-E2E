@@ -8,10 +8,10 @@
 - **Nội dung chính**:
   - Thỏa thuận mechanics campaign với khách hàng
   - **CẢI TIẾN MỚI**: Thống nhất rõ ràng về Gift Recall Alignment từ đầu
-  - Xác định điều kiện và thời gian thu hồi quà thừa
+  - Xác định điều kiện và thời gian thu hồi quà sau khi campaign end
 
 #### 2. Setup Gift trên UGMS - BU
-- **Quy trình**: BU cập nhật thông tin Setup Gift lên UGMS
+- **Quy trình**: BU cập nhật thông tin Setup Gift Vol lên UGMS
 - **Dữ liệu nhập**:
   - **GiftCode**: Mã định danh quà tặng
   - **Scheme**: Thông tin mechanics (Start, End, Mechanics, Quantity)

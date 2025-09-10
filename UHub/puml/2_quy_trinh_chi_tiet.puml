@@ -156,7 +156,13 @@ partition "Agency" {
   :B2_07. Nhập kho Agency theo thông tin\nAgency đã Digital Confirm/hoặc BU Approved;
   :B2_08.Xuất thông tin Allocation by store\non UHub;
   |B3.Gift Delivery to Stores|
+  
   :B3_01.Deliver to Stores\ntheo Allocation by store;
+    note right
+      <b>Phase 1</b>
+      * Chưa số hoá quy trình
+      B3.Gift Delivery to Stores
+    end note
 }
 
 partition "Sales" {
@@ -220,6 +226,12 @@ partition "BU" {
 }
 
 partition "BU" {
+  note right
+      <b>Phase 1</b>
+      * Chưa số hoá quy trình
+      B3.Gift Delivery to Stores
+      --> Nên chưa số hoá 03 quy trình này
+    end note
   :B4_03.BU Trigger quy trình luân chuyển quà giữa các Store (Nếu có);
   :B4_04.BU Trigger quy trình thu hồi quà từ Stores về Agency WHs (Nếu có);
   :B4_05.BU Trigger quy trình thay đổi Agency (Nếu có);
