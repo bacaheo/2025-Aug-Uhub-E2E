@@ -1,0 +1,288 @@
+@startuml
+title Gift Management x UHub — Activity Diagram (Swimlanes)
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+
+|B1.Gift Planning|
+start
+
+partition "KA" {
+  :B1_01.Customer Alignment\n(Gift Recall Alignment);
+}
+note right
+  <b>Quy trình internal Unilever</b>
+  * Team KA của Unilever plan campaign/quy trình
+   thu hồi quà với KA
+  ====
+  * Bước này để thống nhất giữa Unilever và KA
+  * Không số hoá bước này
+end note
+
+
+partition "BU" {
+  :B1_02.Setup Gift --> App UGMS\n(GiftCode,Scheme,Customer,Ship_to);
+  note right
+    <b>Quy trình internal Unilever</b>
+    * Cần triển khai trước ngày campaign live 15-30 ngày
+    ====
+    * 
+  end note
+  :B1_03.Sync Setup Gift\nUGMS --> UHub\n(\nGiftCode, \nScheme (Start,End,Mechanics,Giftcode,Quantity),\nCustomer, \nShip_to\n) ;
+    note right
+      <b>Quy trình Unilever-Utop</b>
+      * BU cập nhật thông tin Setup Gift
+      lên UGMS (từ thông tin đã thống nhất với KA)
+      * UGMS (New Feature): đẩy thông tin Setup Gift
+      cho UHub qua API
+      ====
+      * UHub (New Feature): nhận thông tin Setup Gift
+      qua API từ bước này
+    end note
+  :B1_04.Request Setup Campaign --> ITU Log Form\n(GiftCode, Scheme, Allocation by store);
+  note right
+    <b>Quy trình Unilever-Utop</b>
+    * Cần triển khai trước ngày campaign live 10-15 ngày
+    ====
+    * 
+  end note
+  :B1_05.Sync Request Setup Campaign\nITU Log Form --> UHub Admin via auto email\n(\nGiftCode, \nScheme (Start,End,Mechanics,Giftcode,Quantity),\nThông tin SKUs in trên hoá đơn\nAllocation by store\nThông tin Agency vận hành campaign\n) ;
+    note right
+      <b>Quy trình Unilever-Utop</b>
+      * BU cập nhật thông tin Request Setup Campaign
+      lên ITU Log Form (từ thông tin đã thống nhất với KA)
+      * ITU Log Form (Đã có): đẩy thông tin Request Setup Campaign
+      cho UHub Admin qua Auto Email
+      * ITU Log Form (Cần bổ sung thêm trường dữ liệu từ UGMS):
+      + Scheme ID
+      + Giftcode ID
+      + Agency ID
+      * Chú ý trường hợp New Gift Code
+      ====
+      * Bước này để Unilever gửi Request Setup Campaign cho Utop Admin
+      * Không số hoá bước này ở phase này
+    end note
+  
+}
+
+partition "Utop Admin" {
+  :B1_06.Init thông tin campaign\nTrên Utop Admin Portal;
+}
+note right
+  <b>Quy trình Unilever-Utop</b>
+  * Utop Admin nhận email thông tin Log Form,
+  thông tin campaign trên Admin Portal
+  * UHub (CR Bổ sung tính năng):
+  + Cập nhật Email BU (Theo Scheme ID)
+  + Cập nhật thông tin Agency vận hành campaign (Theo Scheme ID)
+  + Cập nhật Scheme ID khi tạo Campaign
+  + Cập nhật Allocation by store theo Scheme ID + Campaign ID
+  + Cập nhật GiftCode cho mỗi lượt redemption
+  ====
+  * Point này cần phân tích kiến trúc
+  * Về sau sẽ bỏ ITU Log Form để BU nhập trực tiếp trên Admin Portal
+end note
+
+
+partition "DC" {
+  :B1_07.Linfox Delivery --> Agency WHs;
+}
+note right
+  <b>Quy trình internal Unilever</b>
+  * Quy trình kho vận
+  từ Kho Unilever sang kho Agency
+  ====
+  * Không số hoá bước này
+end note
+|B2.Gift Delivery to Agency WHs|
+partition "Agency" {
+  :B2_01.Nhận phiếu xuất từ kho Unilever\nvà kiểm tra hàng;
+  note right
+    <b>Quy trình nhập kho Agency</b>
+    * Quy trình điều chỉnh Gift Vol/Allocation by store
+     trước go-live campaign
+    * Trường hợp nhập kho khác số giao từ kho Unilever,
+    cần BU cập nhật ITU Log Form để đồng bộ 
+    (Giftcode, Quantity, Allocation by store)
+    ====
+    * 
+  end note
+  
+  if (B2_02.Đủ hàng & không hư hỏng?) then (Yes)
+    :B2_03_01.Agency chọn Allocation by store\non UHub\n(Phụ thuộc B1_04 & B1_06, để có thông tin Allocation by store);
+    :B2_03_02.Agency Digital confirm nhận hàng\ntheo Gift Vol on UHub\n(Agency WHs);
+    note right
+    <b>Quy trình nhập kho Agency</b>
+    * Nếu chưa có "Allocation by store"
+    sẽ không Digital Confirm được
+    ====
+    * 
+  end note
+  else (No)
+  repeat
+  :B2_04.Agency tạo ticket nhận hàng\ntheo số thực tế \n& nguyên nhân on UHub\n(Agency WHs);
+  note right
+    <b>Quy trình nhập kho Agency</b>
+    * Agency phải tạo ticket trước ngày live,
+    7 day x 24 giờ: 168 giờ
+    * Trường hợp cần tạo ticket cận ngày live 
+    <168 giờ, Agency phải nhờ BU Log Form CR 
+    để yêu cầu Admin Utop hỗ trợ
+    ====
+    * 
+  end note
+  :B2_05.BU review,\ncập nhật Giftcode, Quantity, Allocation by store\nvà approval ticket\non UHub;
+  note right
+    <b>Quy trình nhập kho Agency</b>
+    * BU phải re-allocation trước khi 
+    approval ticket
+    * BU phải approval ticket trong vòng 
+    24 giờ, tính từ lúc tạo
+    * Quá 24 giờ ticket sẽ hết hạn
+    ====
+    * 
+  end note
+  repeat while (B2_06.BU Approved?) is (Rejected) not (Approved)
+  endif
+  :B2_07. Nhập kho Agency theo thông tin\nAgency đã Digital Confirm/hoặc BU Approved;
+  :B2_08.Xuất thông tin Allocation by store\non UHub;
+  |B3.Gift Delivery to Stores|
+  :B3_01.Deliver to Stores\ntheo Allocation by store;
+}
+
+partition "Sales" {
+  :B3_02.Kiểm tra hàng so với Allocation by store;
+    note right
+      <b>Quy trình nhập kho Store</b>
+      * Quy trình điều chỉnh Gift Vol / Allocation by store
+      trước go-live campaign
+      * Trường hợp nhập kho khác số giao từ kho Unilever,
+      cần BU cập nhật ITU Log Form để đồng bộ 
+      (Giftcode, Quantity, Allocation by store)
+      ====
+      * 
+    end note
+
+  if (B3_03.Đủ hàng theo Allocation by store\n & không hư hỏng?) Then (Yes)
+  :B3_04_01.Sale chọn Allocation by store của mình\non UHub;
+  :B3_04_02.Sales Confirm nhận hàng\ntheo Allocation by store\non UHub\n(at Store);
+  Else (No)
+  repeat
+    :B3_05.Sales tạo ticket nhận hàng\ntheo số thực tế & nguyên nhân\non UHub\n(at Store);
+    note right
+      <b>Quy trình điều chỉnh kho Store</b>
+      * Sale chỉ được thực hiện trước Campaign Live 48 giờ.
+      * Trường hợp cần tạo ticket cận ngày live <48 giờ, Agency phải nhờ
+      BU Log Form CR để yêu cầu Admin Utop hỗ trợ
+      ====
+      * 
+    end note
+    :B3_06.BU review,\ncập nhật Giftcode, Quantity, Allocation by store\nvà approval ticket\non UHub;
+    note right
+      <b>Quy trình điều chỉnh kho Store</b>
+      * BU phải re-allocation trước khi approval ticket
+      * BU phải approval ticket trong vòng 12 giờ, tính từ lúc tạo
+      * Quá 12 giờ, ticket sẽ hết hạn
+      ====
+      * 
+    end note
+  repeat while (B3_07.BU Approved?) is (Rejected) not (Approved)
+
+  :B3_07. Nhập kho cửa hàng theo thông tin\nAgency Digital Confirm/hoặc BU Approved;
+    
+  Endif
+}
+
+'--- Campaign setup & readiness gate (loop until ready)
+repeat
+  partition "Utop Admin" {
+    :B3_09.UTOP Setup UHub Campaign\nVà Go-live theo Request setup campaign của BU;
+  }
+  
+repeat while (B3_10.Campaign ready?) is (No)
+
+|B4. Gift Usage|
+partition "Agency" {
+  :B4_01.PG operates campaign on UHub\n(UHub Sampling, UHub Redemption);
+}
+
+partition "BU" {
+  :B4_02.BU xem UHub PowerBI Report (refresh 3 lần/ngày)\n- (NEW) Gift Report\n- Campaign Performance;
+}
+
+partition "BU" {
+  :B4_03.BU Trigger quy trình luân chuyển quà giữa các Store (Nếu có);
+  :B4_04.BU Trigger quy trình thu hồi quà từ Stores về Agency WHs (Nếu có);
+  :B4_05.BU Trigger quy trình thay đổi Agency (Nếu có);
+}
+
+|B5. Gift Recall to Agency WHs|
+'--- Recall & reconciliation cycle
+partition "Agency" {
+  :B5_01.Recall Gifts\nto Agency WHs;
+  note right
+    <b>Quy trình thu hồi quà từ Store</b>
+    * Khi End-campaign, Agency thu hồi quà
+    từ Store về Kho Agency
+    * Hoạt động thu hồi trong vòng 5 ngày
+    tính từ ngày end-campaign
+    ====
+    * Bước này Agency tự vận hành, chưa số hoá
+  end note
+}
+
+|B6. Stock Management|
+'--- Reconciliation loop until inventory is balanced
+' repeat
+  repeat
+  partition "Agency" {
+    
+    :B6_01.Kiểm tra tổng hàng thu hồi thực tế\nso với report đối soát on UHub\n(Số tồn ban đầu B2_07,\nsố đã phát trên UHub B4_01\nSố còn lại: B2_07 - B4_01);
+
+    if (B6_02.Thu hồi đủ số còn lại & không hư hỏng?) Then (Yes)
+      :B6_03.Agency Digital confirm report đối soát\nthu hồi đủ số còn lại\non UHub;
+      :B6_04.Sync\nUHub --> UGMS \n(Cập nhật số Gift Usage B4_01\npost-camapign cho UGMS);
+    else (No)
+      :B6_05.Agency submit ticket đối soát\ntheo số điều chỉnh thực tế & nguyên nhân\non UHub;
+      :B6_06.UHub gửi auto email thông tin ticket cho BU\n(Phụ thuộc B1_06 & B1_04,\nđể có thông tin email của BU);
+      |B6. Stock Reduction/Recall/ Re-allocation (if any)|
+    partition "BU" {
+      :B6_07.BU Raise & Forward Ticket via Email\n(Get Level-2 Approval);
+    }
+    partition "BU Level-2" {
+      :B6_08.Review & Approval Ticket via Email;
+    }
+      if (B6_09.BU Level-2 Approved?) then (Approved via email)
+        partition "Utop Admin" {
+          :B6_10_01.Utop Admin Digital confirm ticket;
+          :B6_10_02.Sync\nUHub --> UGMS \n(Điều chỉnh tồn post-camapign\n& evidences BU Level-2 Approved);
+        }
+      else (Rejected via email)
+        partition "BU" {
+          :B6_11_01.BU Rejected ticket;
+          :B6_11_02.Request/Work with\nAgency correction / re-check;
+        }
+      endif
+    ' }
+    Endif
+    
+  }
+  repeat while (B6_12.BU Level-2 Approved?) is (Rejected) Not (Approved)
+  
+  :B6_13. Nhập Gift thu hồi vào kho Agency,\nready để tái sử dụng;
+
+  :B6_14.Quy trình tái sử dụng Gift;
+
+:END;
+
+stop
+@enduml

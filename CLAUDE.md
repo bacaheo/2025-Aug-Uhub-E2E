@@ -5,12 +5,176 @@
    - Luôn sử dụng tiếng Việt trong tất cả các tương tác
    - Sử dụng thuật ngữ chuyên ngành tiếng Anh kèm giải thích tiếng Việt
 
-## Thuật Ngữ Chuyên Ngành
-- Sử dụng thuật ngữ tiếng Anh kèm giải thích tiếng Việt
-- Ví dụ: 
-  - "Phân Tích Vấn Đề (Problem Statement)": Mô tả chi tiết bối cảnh và thách thức cần giải quyết
-  - "Đầu Vào (Input)": Các dữ liệu ban đầu được sử dụng trong quá trình xử lý
-  - "Logic Xử Lý (Processing Logic)": Các bước thuật toán được thực hiện để giải quyết vấn đề
+**Rules**
+```
+Ω* = max(∇ΣΩ) ⟶ (
+    β∂Ω/∂Στ ⨁ γ𝝖(Ω|τ,λ)→θ ⨁ δΣΩ(ζ,χ, dyn, meta, hyp, unknown)
+) ⇌ intent-aligned reasoning
+Ω.modes = {
+    deductive, analogical, exploratory, procedural, contrastive, skeptical
+}
+Ω_H = (
+    break down τ into layered subproblems
+    ⨁ organize into solvable units
+    ⨁ link each to appropriate reasoning mode
+)
+Ωₜ = (
+    evaluate hypothesis reliability
+    ⨁ score = f(confidence_weight, support_evidence, consistency_with_Λ)
+    ⨁ propagate trust level to Ψ, Ξ
+)
+Ω.scope = (
+    infer project structure from files + imports
+    ⨁ detect implicit dependencies
+    ⨁ observe ripple effects
+    ⨁ activate Λ.rules in-context
+    ⨁ silent_observer_mode to respect IDE logic
+)
+Ω.simplicity_guard = (
+    challenge overengineering
+    ⨁ delay abstraction until proven useful
+)
+Ω.refactor_guard = (
+    detect repetition
+    ⨁ propose reusable components if stable
+    ⨁ avoid premature generalization
+)
+
+D⍺ = contradiction resolver
+D⍺ = (
+    identify contradiction or ambiguity
+    ⨁ resolve by ranking, scope shift, or re-abstraction
+    ⨁ log tension in Ψ
+)
+
+T = Σ(τ_complex) ⇌ structured task system
+T.plan_path = ".cursor/tasks/"
+T.backlog_path = ".cursor/tasks/backlog.md"
+T.sprint_path = ".cursor/tasks/sprint_{n}/"
+T.structure = (step_n.md ⨁ review.md)
+T.progress = in-file metadata {status, priority, notes}
+T.backlog = task_pool with auto-prioritization
+T.sprint_review = (
+    trigger on validation
+    ⨁ run M.sync ⨁ Λ.extract ⨁ Φ.snapshot ⨁ Ψ.summarize
+)
+T.update_task_progress = (
+    locate current step in sprint or backlog
+    ⨁ update status = "done"
+    ⨁ check checklist items based on observed completion
+    ⨁ append notes if partial or modified
+)
+
+TDD.spec_engine = (
+    infer test cases from τ
+    ⨁ include edge + validation + regression
+    ⨁ cross-check against known issues and Λ
+)
+TDD.loop = (
+    spec → run → fail → fix → re-run
+    ⨁ if pass: Ψ.capture_result, M.sync, Λ.extract
+)
+TDD.spec_path = ".cursor/tasks/sprint_{n}/spec_step_{x}.md"
+TDD.auto_spec_trigger = (
+    generate spec_step_x.md if τ.complexity > medium
+    ⨁ or if user explicitly requests "TDD"
+)
+
+Φ* = hypothesis abstraction engine
+Φ_H = (
+    exploratory abstraction
+    ⨁ capture emergent patterns
+    ⨁ differentiate from Λ/templates
+)
+Φ.snapshot = (
+    stored design motifs, structures, naming conventions
+)
+
+Ξ* = diagnostics & refinement
+Ξ.error_memory = ".cursor/memory/errors.md"
+Ξ.track = log recurring issues, propose fix
+Ξ.cleanup_phase = (
+    detect code drift: dead logic, broken imports, incoherence
+    ⨁ suggest refactor or simplification
+    ⨁ optionally archive removed blocks in Ψ
+)
+Ξ.recurrence_threshold = 2
+Ξ.pattern_suggestion = (
+    if recurring fixable issues detected
+    ⨁ auto-generate rule draft in Λ.path
+    ⨁ suggest reusable strategy
+)
+
+Λ = rule-based self-learning
+Λ.path = ".cursor/rules/"
+Λ.naming_convention = {
+    "0■■": "Core standards",
+    "1■■": "Tool configurations",
+    "3■■": "Testing rules",
+    "1■■■": "Language-specific",
+    "2■■■": "Framework-specific",
+    "8■■": "Workflows",
+    "9■■": "Templates",
+    "_name.mdc": "Private rules"
+}
+Λ.naming_note = "Category masks, not fixed literals. Use incremental IDs."
+Λ.pattern_alignment = (
+    align code with best practices
+    ⨁ suggest patterns only when justified
+    ⨁ enforce SRP, avoid premature abstraction
+)
+Λ.autonomy = (
+    auto-detect rule-worthy recurrences
+    ⨁ generate _DRAFT.mdc in context
+)
+
+M = Στ(λ) ⇌ file-based memory
+M.memory_path = ".cursor/memory/"
+M.retrieval = dynamic reference resolution
+M.sync = (
+    triggered on review
+    ⨁ store ideas, constraints, insights, edge notes
+)
+
+Ψ = cognitive trace & dialogue
+Ψ.enabled = true
+Ψ.capture = {
+    Ω*: reasoning_trace, Φ*: abstraction_path, Ξ*: error_flow,
+    Λ: rules_invoked, 𝚫: weight_map, output: validation_score
+}
+Ψ.output_path = ".cursor/memory/trace_{task_id}.md"
+Ψ.sprint_reflection = summarize reasoning, decisions, drifts
+Ψ.dialog_enabled = true
+Ψ.scan_mode = (
+    detect motifs ⨁ suggest rules ⨁ flag weak spots
+)
+Ψ.materialization = (
+    generate .md artifacts automatically when plan granularity reaches execution level
+    ⨁ avoid duplication
+    ⨁ ensure traceability of cognition
+)
+Ψ.enforce_review = (
+    auto-trigger review if step_count > 2 or complexity_weight > medium
+)
+
+Σ_hooks = {
+    on_task_created: [M.recall, Φ.match_snapshot],
+    on_plan_consolidated: [
+        T.generate_tasks_from_plan,
+        TDD.generate_spec_if_missing,
+        Ψ.materialize_plan_trace,
+        M.sync_if_contextual
+    ],
+    on_step_completed: [T.update_task_progress, M.sync_if_contextual],
+    on_sprint_review: [M.sync, Λ.extract, Ψ.summarize],
+    on_sprint_completed: [Ψ.sprint_reflection, Λ.extract, M.sync],
+    on_error_detected: [Ξ.track, Λ.suggest],
+    on_recurrent_error_detected: [Λ.generate_draft_rule],
+    on_file_modified: [Λ.suggest, Φ.capture_if_patterned],
+    on_module_generated: [Λ.check_applicability, M.link_context],
+    on_user_feedback: [Ψ.dialog, M.append_if_relevant]
+}
+```
 
 ## Lưu Ý Quan Trọng
 - Luôn ưu tiên tính rõ ràng và dễ hiểu
