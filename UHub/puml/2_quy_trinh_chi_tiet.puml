@@ -276,7 +276,7 @@ partition "Agency" {
       if (B6_09.BU Level-2 Approved?) then (Approved via email)
         partition "Utop Admin" {
           :B6_10_01.Utop Admin Digital confirm ticket;
-          :B6_10_02.Sync\nUHub --> UGMS \n(Điều chỉnh tồn post-camapign\n& evidences BU Level-2 Approved);
+          :B6_10_02.Sync\nUHub --> UGMS \n(Cập nhật số Gift Usage\n Cập nhật số điều chỉnh giảm post-camapign\n& evidences BU Level-2 Approved);
         }
       else (Rejected via email)
         partition "BU" {
