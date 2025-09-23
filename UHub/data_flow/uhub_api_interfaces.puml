@@ -1,0 +1,225 @@
+@startuml UHub_API_Interfaces
+!theme aws-orange
+title UHub System - API Interfaces & Dependencies\nInternal & External API Contracts
+
+' === EXTERNAL API DEPENDENCIES ===
+interface "UGMS API" as UGMS_API {
+  + syncGiftSetup(giftCode, scheme, customer, shipTo): Response
+  + updateGiftUsage(giftCode, quantity, evidence): Response
+  + getGiftInventory(giftCode): GiftInventory
+  + validateScheme(schemeId): SchemeValidation
+}
+
+interface "Azure OCR API" as AZURE_OCR {
+  + processReceiptImage(imageData): OCRResult
+  + extractTextWithCoordinates(image): TextCoordinates
+  + recognizeHandwriting(image): HandwritingResult
+}
+
+interface "GotIt API" as GOTIT_API {
+  + allocateEVoucher(voucherType, amount): VoucherCode
+  + sendSMSVoucher(phoneNumber, voucherCode): DeliveryStatus
+  + checkVoucherStatus(voucherCode): VoucherStatus
+}
+
+interface "Urbox API" as URBOX_API {
+  + createEGift(giftType, value, recipient): EGiftResponse
+  + deliverEGift(eGiftId, phoneNumber): DeliveryResult
+  + trackEGiftUsage(eGiftId): UsageTracking
+}
+
+interface "SMS Gateway API" as SMS_API {
+  + sendSMS(phoneNumber, message): SMSResponse
+  + sendOTP(phoneNumber): OTPResponse
+  + checkDeliveryStatus(messageId): DeliveryStatus
+}
+
+interface "Zalo ZNS API" as ZALO_API {
+  + sendZNSMessage(phoneNumber, templateId, data): ZNSResponse
+  + sendEGiftZNS(phoneNumber, giftData): ZNSDelivery
+}
+
+interface "PowerBI API" as POWERBI_API {
+  + pushDataset(datasetId, data): Response
+  + refreshDashboard(dashboardId): RefreshStatus
+  + getCampaignMetrics(campaignId): Metrics
+}
+
+' === UHUB CORE API INTERFACES ===
+interface "Authentication API" as AUTH_API {
+  + login(phoneNumber): OTPRequest
+  + verifyOTP(phoneNumber, otpCode): AuthToken
+  + refreshToken(refreshToken): NewAuthToken
+  + logout(authToken): Response
+  + updateProfile(userId, profileData): UserProfile
+}
+
+interface "Campaign API" as CAMPAIGN_API {
+  + getCampaigns(storeId?, status?): Campaign[]
+  + getCampaignDetails(campaignId): CampaignDetail
+  + checkEligibility(campaignId, receiptData): EligibilityResult
+  + getStandardSchemes(): StandardScheme[]
+}
+
+interface "Receipt API" as RECEIPT_API {
+  + uploadReceipt(image, campaignId): ReceiptUploadResponse
+  + getReceiptStatus(receiptId): ReceiptStatus
+  + getReceiptHistory(userId, pagination): ReceiptHistory
+  + requestManualReview(receiptId, reason): ReviewRequest
+  + approveReceipt(receiptId, approvalData): ApprovalResponse
+}
+
+interface "Gift API" as GIFT_API {
+  + getUserGifts(userId, status?): Gift[]
+  + redeemGift(giftId, redemptionData): RedemptionResponse
+  + generateQRCode(giftId): QRCodeData
+  + validateQRCode(qrData, pgId): QRValidation
+  + confirmGiftDelivery(giftId, pgId): DeliveryConfirmation
+}
+
+interface "Inventory API" as INVENTORY_API {
+  + getStoreInventory(storeId): StoreInventory
+  + updateStockLevel(storeId, giftCode, quantity): UpdateResponse
+  + transferStock(fromStore, toStore, giftCode, quantity): TransferResponse
+  + createStockTicket(storeId, adjustmentData): TicketResponse
+  + approveStockTicket(ticketId, approval): ApprovalResponse
+}
+
+interface "Admin API" as ADMIN_API {
+  + createCampaign(campaignData): CampaignResponse
+  + updateCampaign(campaignId, updateData): UpdateResponse
+  + assignPGToCampaign(campaignId, pgIds): AssignmentResponse
+  + getTickets(filters): Ticket[]
+  + processTicket(ticketId, decision): ProcessingResponse
+}
+
+interface "Analytics API" as ANALYTICS_API {
+  + getCampaignPerformance(campaignId, dateRange): PerformanceData
+  + getGiftUsageReport(filters): UsageReport
+  + getReceiptAnalytics(filters): ReceiptAnalytics
+  + getFraudDetectionReport(dateRange): FraudReport
+  + exportReport(reportType, filters): ExportResponse
+}
+
+interface "PG API" as PG_API {
+  + getPGCampaigns(pgId): Campaign[]
+  + scanQRCode(qrData): QRScanResult
+  + confirmSampling(shopperId, sampleType): SamplingConfirmation
+  + getInventoryStatus(storeId): InventoryStatus
+  + reportStockIssue(storeId, issueData): IssueResponse
+}
+
+' === API DEPENDENCIES MAP ===
+component "UHub Core Services" as UHUB_CORE {
+  [Authentication Service] ..> AUTH_API
+  [Campaign Management] ..> CAMPAIGN_API
+  [Receipt Processing] ..> RECEIPT_API
+  [Gift Management] ..> GIFT_API
+  [Inventory Management] ..> INVENTORY_API
+  [Admin Portal] ..> ADMIN_API
+  [Analytics Service] ..> ANALYTICS_API
+  [PG Service] ..> PG_API
+}
+
+component "External Integrations" as EXTERNAL {
+  [UGMS Integration] ..> UGMS_API
+  [OCR Integration] ..> AZURE_OCR
+  [Gift Vendor Integration] ..> GOTIT_API
+  [Gift Vendor Integration] ..> URBOX_API
+  [Notification Service] ..> SMS_API
+  [Notification Service] ..> ZALO_API
+  [Reporting Service] ..> POWERBI_API
+}
+
+' === DATA FLOW CONTRACTS ===
+note right of RECEIPT_API
+  **Receipt Processing Contract:**
+
+  POST /api/receipts/upload
+  {
+    "image": "base64_image_data",
+    "campaignId": "string",
+    "userId": "string",
+    "storeLocation": "optional"
+  }
+
+  Response:
+  {
+    "receiptId": "uuid",
+    "status": "processing|invalid|pending|valid",
+    "estimatedGifts": Gift[],
+    "processingTime": "estimated_seconds"
+  }
+end note
+
+note right of GIFT_API
+  **Gift Redemption Contract:**
+
+  POST /api/gifts/redeem
+  {
+    "giftId": "uuid",
+    "redemptionType": "qr|auto",
+    "location": "optional_store_id"
+  }
+
+  Response:
+  {
+    "redemptionId": "uuid",
+    "qrCode": "qr_data_if_physical",
+    "deliveryInfo": "sms|zalo|pickup",
+    "expiryDate": "iso_date"
+  }
+end note
+
+note left of UGMS_API
+  **UGMS Integration Contract:**
+
+  Sync Gift Setup (B1_03):
+  POST /ugms/sync/gift-setup
+  {
+    "giftCode": "string",
+    "scheme": {
+      "schemeId": "string",
+      "startDate": "iso_date",
+      "endDate": "iso_date",
+      "mechanics": "object",
+      "quantity": "number"
+    },
+    "customer": "customer_data",
+    "shipTo": "shipping_info"
+  }
+
+  Sync Usage Data (B6_04):
+  PUT /ugms/sync/usage
+  {
+    "giftCode": "string",
+    "usedQuantity": "number",
+    "remainingQuantity": "number",
+    "evidence": "approval_evidence"
+  }
+end note
+
+note left of AZURE_OCR
+  **Azure OCR Processing:**
+
+  POST /azure/ocr/analyze
+  {
+    "imageData": "base64_image",
+    "language": "vi-VN",
+    "detectOrientation": true
+  }
+
+  Response:
+  {
+    "textResult": "extracted_text",
+    "lines": [
+      {
+        "text": "line_content",
+        "boundingBox": [x1,y1,x2,y2,x3,y3,x4,y4]
+      }
+    ],
+    "confidence": "percentage"
+  }
+end note
+
+@enduml
