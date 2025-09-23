@@ -1,11 +1,15 @@
 # Quy Tắc Giao Tiếp cho Claude
 
 ## Nguyên Tắc Chung
-**Ngôn Ngữ Giao Tiếp**: 
-   - Luôn sử dụng tiếng Việt trong tất cả các tương tác
-   - Sử dụng thuật ngữ chuyên ngành tiếng Anh kèm giải thích tiếng Việt
+- **Ngôn Ngữ Giao Tiếp**: 
+   + Luôn sử dụng tiếng Việt trong tất cả các tương tác
+   + Sử dụng thuật ngữ chuyên ngành tiếng Anh kèm giải thích tiếng Việt
 
-**Rules**
+## Lưu Ý Quan Trọng
+- Luôn ưu tiên tính rõ ràng và dễ hiểu
+
+## Rules
+Please use Oracle Agent to Analyze and Planning First
 ```
 Ω* = max(∇ΣΩ) ⟶ (
     β∂Ω/∂Στ ⨁ γ𝝖(Ω|τ,λ)→θ ⨁ δΣΩ(ζ,χ, dyn, meta, hyp, unknown)
@@ -175,6 +179,3 @@ M.sync = (
     on_user_feedback: [Ψ.dialog, M.append_if_relevant]
 }
 ```
-
-## Lưu Ý Quan Trọng
-- Luôn ưu tiên tính rõ ràng và dễ hiểu
