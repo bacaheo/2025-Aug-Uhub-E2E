@@ -3,7 +3,7 @@
   <bpmn:collaboration id="Collaboration_1sxobwr">
     <bpmn:participant id="Participant_0znodxy" name="UHub" processRef="Process_1" />
     <bpmn:participant id="Participant_1l00ivx" name="Shopper" processRef="Process_1k4bj0w" />
-    <bpmn:messageFlow id="Flow_0t9z5df" sourceRef="Activity_0o2ux98" targetRef="Activity_0xvsj8z" />
+    <bpmn:messageFlow id="Flow_0t9z5df" name="Request Login Page" sourceRef="Activity_0o2ux98" targetRef="Activity_0xvsj8z" />
     <bpmn:textAnnotation id="TextAnnotation_133hj1n">
       <bpmn:text>Shopper nhập đủ 10 số =&gt; Hệ thống ghi log</bpmn:text>
     </bpmn:textAnnotation>
@@ -117,7 +117,7 @@
         <bpmn:outgoing>Flow_03uyf8g</bpmn:outgoing>
       </bpmn:task>
       <bpmn:sequenceFlow id="Flow_03md70i" sourceRef="Gateway_0pnhd6g" targetRef="Activity_1dt0hk6" />
-      <bpmn:task id="Activity_1wzu73m">
+      <bpmn:task id="Activity_1wzu73m" name="Kiểm tra IP/Device fingerprint">
         <bpmn:incoming>Flow_0yhbo5f</bpmn:incoming>
         <bpmn:outgoing>Flow_1g0cldt</bpmn:outgoing>
       </bpmn:task>

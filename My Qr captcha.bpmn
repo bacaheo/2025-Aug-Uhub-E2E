@@ -3,8 +3,8 @@
   <bpmn:collaboration id="Collaboration_1sxobwr">
     <bpmn:participant id="Participant_0znodxy" name="UHub" processRef="Process_1" />
     <bpmn:participant id="Participant_1l00ivx" name="Shopper" processRef="Process_1k4bj0w" />
-    <bpmn:messageFlow id="Flow_1v5irh3" sourceRef="Activity_0o2ux98" targetRef="Activity_1yxggrn" />
-    <bpmn:messageFlow id="Flow_1q3ffev" sourceRef="Activity_0itylsc" targetRef="Activity_1yxggrn" />
+    <bpmn:messageFlow id="Flow_1v5irh3" name="Request My QR Page" sourceRef="Activity_0o2ux98" targetRef="Activity_1yxggrn" />
+    <bpmn:messageFlow id="Flow_1q3ffev" name="Reload Request" sourceRef="Activity_0itylsc" targetRef="Activity_1yxggrn" />
     <bpmn:textAnnotation id="TextAnnotation_0gdbfr2">
       <bpmn:text>Trang loading. Mở trang này khi chưa Verify lần nào / Hoặc lần verify trước đã quá hạn N Hour</bpmn:text>
     </bpmn:textAnnotation>
@@ -87,6 +87,54 @@
     <bpmn:subProcess id="Activity_1n13tx0" name="Quy trình liên hệ UHub hotline hỗ trợ">
       <bpmn:incoming>Flow_1ak7tsq</bpmn:incoming>
       <bpmn:outgoing>Flow_1uea1m3</bpmn:outgoing>
+      <bpmn:startEvent id="Event_1n13tx0_start">
+        <bpmn:outgoing>Flow_1n13tx0_1</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:task id="Activity_1n13tx0_check" name="Kiểm tra thông tin end-user">
+        <bpmn:incoming>Flow_1n13tx0_1</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_2</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_1n13tx0_1" sourceRef="Event_1n13tx0_start" targetRef="Activity_1n13tx0_check" />
+      <bpmn:sequenceFlow id="Flow_1n13tx0_2" sourceRef="Activity_1n13tx0_check" targetRef="Gateway_1n13tx0_parallel" />
+      <bpmn:parallelGateway id="Gateway_1n13tx0_parallel">
+        <bpmn:incoming>Flow_1n13tx0_2</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_3a</bpmn:outgoing>
+        <bpmn:outgoing>Flow_1n13tx0_3b</bpmn:outgoing>
+        <bpmn:outgoing>Flow_1n13tx0_3c</bpmn:outgoing>
+      </bpmn:parallelGateway>
+      <bpmn:task id="Activity_1n13tx0_phone" name="Kiểm tra đầu số không nằm trong danh sách tạo TK liên tục">
+        <bpmn:incoming>Flow_1n13tx0_3a</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_4a</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:task id="Activity_1n13tx0_history" name="Lịch sử giao dịch không có bất thường">
+        <bpmn:incoming>Flow_1n13tx0_3b</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_4b</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:task id="Activity_1n13tx0_ip" name="Kiểm tra IP/Device fingerprint">
+        <bpmn:incoming>Flow_1n13tx0_3c</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_4c</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_1n13tx0_3a" sourceRef="Gateway_1n13tx0_parallel" targetRef="Activity_1n13tx0_phone" />
+      <bpmn:sequenceFlow id="Flow_1n13tx0_3b" sourceRef="Gateway_1n13tx0_parallel" targetRef="Activity_1n13tx0_history" />
+      <bpmn:sequenceFlow id="Flow_1n13tx0_3c" sourceRef="Gateway_1n13tx0_parallel" targetRef="Activity_1n13tx0_ip" />
+      <bpmn:sequenceFlow id="Flow_1n13tx0_4a" sourceRef="Activity_1n13tx0_phone" targetRef="Gateway_1n13tx0_join" />
+      <bpmn:parallelGateway id="Gateway_1n13tx0_join">
+        <bpmn:incoming>Flow_1n13tx0_4a</bpmn:incoming>
+        <bpmn:incoming>Flow_1n13tx0_4b</bpmn:incoming>
+        <bpmn:incoming>Flow_1n13tx0_4c</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_5</bpmn:outgoing>
+      </bpmn:parallelGateway>
+      <bpmn:sequenceFlow id="Flow_1n13tx0_4b" sourceRef="Activity_1n13tx0_history" targetRef="Gateway_1n13tx0_join" />
+      <bpmn:sequenceFlow id="Flow_1n13tx0_4c" sourceRef="Activity_1n13tx0_ip" targetRef="Gateway_1n13tx0_join" />
+      <bpmn:task id="Activity_1n13tx0_whitelist" name="White list số điện thoại">
+        <bpmn:incoming>Flow_1n13tx0_5</bpmn:incoming>
+        <bpmn:outgoing>Flow_1n13tx0_6</bpmn:outgoing>
+      </bpmn:task>
+      <bpmn:sequenceFlow id="Flow_1n13tx0_5" sourceRef="Gateway_1n13tx0_join" targetRef="Activity_1n13tx0_whitelist" />
+      <bpmn:endEvent id="Event_1n13tx0_end">
+        <bpmn:incoming>Flow_1n13tx0_6</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1n13tx0_6" sourceRef="Activity_1n13tx0_whitelist" targetRef="Event_1n13tx0_end" />
     </bpmn:subProcess>
     <bpmn:endEvent id="Event_0n1x777">
       <bpmn:incoming>Flow_1uea1m3</bpmn:incoming>
