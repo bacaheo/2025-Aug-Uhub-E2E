@@ -1,0 +1,107 @@
+@startuml B1_Gift_Planning_Scheme_Setup
+title B1. Gift Planning & Scheme Setup - Hoạch định quà tặng và thiết lập Scheme
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+
+|KA (Key Account)|
+start
+:B1_01. Customer Alignment\n(Gift Recall Alignment);
+note right
+  <b>Quy trình internal Unilever</b>
+  * Team KA của Unilever plan campaign/quy trình
+   thu hồi quà với KA
+  ====
+  * Thống nhất gift recall agreement
+  * Không số hóa bước này trong Phase 1
+end note
+
+|BU Team|
+:B1_02. Setup Gift trên UGMS\n(GiftCode, Scheme, Customer, Ship_to);
+note right
+  <b>Input:</b>
+  * KA agreement từ B1_01
+  * Gift specifications
+  * Campaign requirements
+  ====
+  <b>Output:</b>
+  * Scheme ID
+  * Gift Code
+  * Customer mapping
+  * Ship_to locations
+end note
+
+:B1_03. Sync Setup Gift\nUGMS → UHub\n(GiftCode, Scheme, Customer, Ship_to);
+note right
+  <b>UGMS API Integration</b>
+  * Auto sync qua API
+  * Real-time data transfer
+  ====
+  <b>Epic 1 - Story 1.2:</b>
+  UGMS API Integration Framework
+end note
+
+:B1_04. Request Setup Campaign\n→ ITU Log Form\n(GiftCode, Scheme, Allocation by store);
+note right
+  <b>Campaign Request Details:</b>
+  * GiftCode
+  * Scheme (Start, End, Mechanics, Quantity)
+  * SKU information
+  * Allocation by store
+  * Agency thông tin
+  ====
+  * Cần triển khai trước campaign live 10-15 ngày
+end note
+
+|ITU Team|
+:B1_05. Sync Request Setup Campaign\nITU Log Form → UHub Admin\nvia Auto Email;
+note right
+  <b>Auto Email Content:</b>
+  * Scheme ID (NEW field)
+  * GiftCode ID (NEW field)
+  * Agency ID (NEW field)
+  * Allocation by store
+  * SKU information
+  * Campaign mechanics
+  ====
+  <b>Enhancement needed:</b>
+  ITU Log Form cần bổ sung trường dữ liệu từ UGMS
+end note
+
+|Utop Admin|
+:B1_06. Init Campaign\ntrên Utop Admin Portal;
+note right
+  <b>UHub CR - Bổ sung tính năng:</b>
+  * Cập nhật Email BU (theo Scheme ID)
+  * Cập nhật Agency info (theo Scheme ID)
+  * Cập nhật Scheme ID khi tạo Campaign
+  * Cập nhật Allocation by store
+  * Cập nhật GiftCode cho mỗi redemption
+  ====
+  <b>Epic 1 - Story 1.3:</b>
+  Basic Gift Tracking Data Model
+end note
+
+|DC/Linfox|
+:B1_07. Delivery\nUnilever DC → Agency WHs;
+note right
+  <b>Quy trình internal Unilever</b>
+  * Logistics vận chuyển
+  * Không số hóa bước này
+  ====
+  <b>Next Process:</b>
+  → B2. Gift Delivery to Agency Warehouse
+end note
+
+stop
+
+@enduml

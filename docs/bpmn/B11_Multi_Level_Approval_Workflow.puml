@@ -1,0 +1,277 @@
+@startuml B11_Multi_Level_Approval_Workflow
+title B11. Multi-Level Approval Workflow - Quy trình phê duyệt đa cấp
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+
+|Trigger Source|
+start
+
+partition "Ticket Creation from Multiple Sources" {
+  :Ticket created from:
+  * B7 (Agency Stock Adjustment)
+  * B8 (Store Stock Adjustment)
+  * B10 (Reconciliation GAP ≥5%);
+  note right
+    <b>Ticket Types:</b>
+    * Stock adjustment (Agency)
+    * Stock adjustment (Store)
+    * Reconciliation discrepancy
+    * Gift recall adjustment
+    ====
+    <b>Common Attributes:</b>
+    * Ticket ID
+    * Source process
+    * Adjustment amount
+    * Evidence package
+  end note
+}
+
+|BU L1|
+:Receive ticket notification;
+
+:Review ticket details\n& evidence;
+note right
+  <b>Level 1 Review Checklist:</b>
+  * Adjustment amount & %
+  * Root cause analysis
+  * Photo evidence quality
+  * Historical pattern
+  * Financial impact
+end note
+
+if (Trigger Level 2 Approval?) then (Yes - Escalate)
+  
+  partition "Escalation Criteria" {
+    :Check escalation rules:
+    * Sai lệch ≥5%?
+    * High value (>threshold)?
+    * Unclear root cause?
+    * Multiple exceptions?
+    * Policy violation?;
+  }
+  
+  :B6_07. BU L1 Raise & Forward\nTicket via Email;
+  note right
+    <b>Email Template:</b>
+    * Subject: Level 2 Approval Required
+    * Ticket summary
+    * Adjustment details
+    * Evidence attachments
+    * L1 recommendation
+    * Financial impact
+    * Risk assessment
+    ====
+    <b>Recipients:</b>
+    * BU L2 Manager
+    * CC: BU L1, Utop Admin
+  end note
+  
+  |BU L2|
+  :B6_08. BU L2 Review Ticket;
+  note right
+    <b>Level 2 Deep Dive:</b>
+    * Strategic impact
+    * Pattern analysis across campaigns
+    * Risk mitigation plan
+    * Financial authorization
+    * Compliance check
+    * Audit trail completeness
+    ====
+    <b>Decision Timeline:</b>
+    * SLA: 48 hours
+    * Escalation: 72 hours → CFO
+  end note
+  
+  if (B6_09. BU L2 Decision?) then (Approved via email)
+    
+    :BU L2 sends Approval Email;
+    note right
+      <b>Approval Email Content:</b>
+      * Approval decision
+      * Approval code
+      * Conditions (if any)
+      * Valid until date
+      * Digital signature
+      ====
+      <b>Auto-forwarded to:</b>
+      * Utop Admin
+      * BU L1
+      * System notification inbox
+    end note
+    
+    |Utop Admin|
+    :B6_10_01. Utop Admin\nDigital Confirm Ticket;
+    note right
+      <b>Admin Verification:</b>
+      * Verify email authenticity
+      * Check approval code
+      * Validate conditions met
+      * Digital confirm trên UHub Admin Portal
+      ====
+      <b>Epic 3 - Story 3.4:</b>
+      Level 1 Approval Workflow
+      <b>Epic 4 - Story 4.1:</b>
+      Advanced Approval Workflows
+    end note
+    
+    |System - Workflow Engine|
+    :Execute approved adjustment;
+    note right
+      <b>Automatic Actions:</b>
+      * Update inventory (UHub)
+      * Adjust allocation if needed
+      * Trigger reconciliation recount
+      * Update campaign metrics
+      ====
+      <b>Workflow Engine:</b>
+      * Event-driven architecture
+      * Queue management
+      * Batch processing ready
+    end note
+    
+    :B6_10_02. Sync UHub → UGMS\n(Complete Package);
+    note right
+      <b>UGMS Sync Package:</b>
+      * Original ticket data
+      * Gift usage actual
+      * Adjustment details
+      * BU L2 approval evidence:
+        - Email thread
+        - Approval code
+        - Timestamp
+        - Digital signatures
+      * Complete audit trail
+      * Photos/documents
+      ====
+      <b>FR8:</b> Multi-level Approval workflow
+      với automatic UGMS-UHub sync
+      <b>NFR7:</b> Zero data loss bi-directional sync
+    end note
+    
+    :Create immutable audit trail;
+    note right
+      <b>Audit Trail Components:</b>
+      * Ticket lifecycle log
+      * L1 review notes
+      * L2 review notes
+      * Approval email archive
+      * System actions log
+      * Timestamp chain
+      * User identity verification
+      ====
+      <b>FR8:</b> Comprehensive audit trail
+      <b>NFR6:</b> Complete audit trail với
+      immutable logging & encryption
+    end note
+    
+    |Ticket Creator|
+    :Receive approval notification;
+    note right
+      <b>Notification channels:</b>
+      * Email
+      * UHub in-app notification
+      * SMS (critical cases)
+    end note
+    
+    stop
+    
+  else (Rejected via email)
+    
+    |BU L2|
+    :BU L2 sends Rejection Email;
+    note right
+      <b>Rejection Email Content:</b>
+      * Rejection decision
+      * Rejection reasons
+      * Required actions
+      * Re-submission requirements
+      * Alternative solutions
+    end note
+    
+    |BU L1|
+    :B6_11_01. BU L1 Process Rejection;
+    
+    :B6_11_02. Communicate with\nTicket Creator\n(Agency/Sales/System);
+    note right
+      <b>Rejection Handling:</b>
+      * Explain rejection reasons
+      * Request additional evidence
+      * Request physical recount
+      * Provide guidance
+      * Set re-submission deadline
+    end note
+    
+    |Ticket Creator|
+    :Ticket Creator takes\ncorrective actions;
+    note right
+      <b>Possible Actions:</b>
+      * Physical recount
+      * Additional photos
+      * Root cause analysis
+      * Process improvement
+      * Data correction
+    end note
+    
+    if (Resubmit ticket?) then (Yes)
+      :Create new/updated ticket;
+      note right
+        <b>Resubmission:</b>
+        * Reference original ticket
+        * Include new evidence
+        * Address rejection reasons
+        ====
+        <b>Loop back to:</b>
+        Start of approval process
+      end note
+      detach
+    else (No)
+      :Accept current state\n(no adjustment);
+      stop
+    endif
+    
+  endif
+
+else (No - L1 can approve)
+  
+  :BU L1 Approve directly;
+  note right
+    <b>Level 1 Authority:</b>
+    * Sai lệch <5%
+    * Clear root cause
+    * Standard procedures
+    * Low financial impact
+    ====
+    <b>Quick approval process:</b>
+    * Digital approval trên UHub
+    * No email required
+  end note
+  
+  |System|
+  :Auto execute adjustment;
+  
+  :Sync to UGMS\n(simplified package);
+  note right
+    <b>Simplified Sync:</b>
+    * Adjustment details
+    * L1 approval
+    * Basic audit trail
+  end note
+  
+  |Ticket Creator|
+  :Receive approval notification;
+  
+  stop
+  
+endif
+
+@enduml

@@ -1,0 +1,237 @@
+@startuml B10_Stock_Reconciliation_Verification
+title B10. Stock Reconciliation & Verification - Đối soát và xác minh tồn kho (Post-Campaign)
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+
+|Agency|
+start
+:B6_01. Kiểm tra tổng hàng thu hồi\nthực tế vs report đối soát\non UHub;
+note right
+  <b>Reconciliation Formula:</b>
+  * Số tồn ban đầu (B2_07)
+  * Số đã phát (B4_01 - PG distribution)
+  * Số còn lại = B2_07 - B4_01
+  ====
+  <b>Input:</b>
+  * Physical count sau recall (B9)
+  * UHub tracking data
+  * UGMS baseline
+  ====
+  <b>Epic 3 - Story 3.1:</b>
+  Reconciliation Engine Core Logic
+end note
+
+if (B6_02. Thu hồi đủ số còn lại\n& không hư hỏng?) then (Yes - Match)
+  
+  :B6_03. Agency Digital Confirm\nreport đối soát\nthu hồi đủ số còn lại;
+  note right
+    <b>Confirmation includes:</b>
+    * Physical count = System count
+    * Quality check results
+    * Photo evidence
+    * Digital signature
+    ====
+    <b>FR12:</b> BU Review & Confirm workflow
+  end note
+  
+  |BU Team|
+  :BU Review & Approve\nAgency reconciliation;
+  note right
+    <b>BU Dashboard:</b>
+    * View pending reconciliations
+    * Expected vs Actual comparison
+    * Quality assessment
+    ====
+    <b>Action:</b>
+    * Approve/Reject với comments
+  end note
+  
+  |System|
+  :B6_04. Sync UHub → UGMS\n(Cập nhật Gift Usage\npost-campaign);
+  note right
+    <b>UGMS Sync Data:</b>
+    * Actual gift usage (B4_01)
+    * Recalled quantity
+    * Quality status
+    * Reconciliation status: Approved
+    ====
+    <b>NFR7:</b> Zero data loss bi-directional sync
+  end note
+  
+  |Agency|
+  :B6_13. Nhập Gift thu hồi\nvào kho Agency,\nready để tái sử dụng;
+  note right
+    <b>Next Process:</b>
+    → B12. Gift Reuse & Liquidation
+  end note
+  
+  stop
+
+else (No - Có sai lệch)
+  
+  repeat
+    :B6_05. Agency submit ticket\nđối soát theo số điều chỉnh\nthực tế & nguyên nhân;
+    note right
+      <b>Ticket Details:</b>
+      * Discrepancy type:
+        - Shortage (thiếu)
+        - Damage (hư hỏng)
+        - Lost (mất mát)
+        - System error (sai hệ thống)
+      * Quantity adjustment
+      * Root cause analysis
+      * Photo evidence (mandatory)
+      * Corrective actions
+      ====
+      <b>Epic 3 - Story 3.2:</b>
+      Exception Reporting Dashboard
+    end note
+    
+    |System|
+    :B6_06. UHub gửi auto email\nthông tin ticket cho BU;
+    note right
+      <b>Email Content:</b>
+      * Campaign ID, Scheme ID
+      * Agency name
+      * Discrepancy details
+      * Adjustment amount
+      * Link to ticket
+      ====
+      <b>Phụ thuộc:</b>
+      * B1_06 (Email BU từ Scheme)
+    end note
+    
+    |BU L1|
+    :BU L1 Review Ticket;
+    
+    if (Sai lệch < 5%?) then (Yes - Small discrepancy)
+      
+      :BU L1 Approve trực tiếp;
+      note right
+        <b>Level 1 Authority:</b>
+        * Sai lệch <5%
+        * Root cause rõ ràng
+        * Evidence đầy đủ
+        ====
+        <b>Action:</b>
+        * Digital approval trên UHub
+        * Inventory adjustment tự động
+      end note
+      
+      |System|
+      :Auto adjust inventory\non UHub;
+      
+      :Sync adjustment\nto UGMS;
+      
+    else (No - Large discrepancy ≥5%)
+      
+      |BU L1|
+      :B6_07. BU L1 Raise & Forward\nTicket via Email\n(Get Level-2 Approval);
+      note right
+        <b>Escalation to Level 2:</b>
+        * Sai lệch ≥5%
+        * High value adjustment
+        * Unclear root cause
+        * Multiple exceptions
+        ====
+        <b>Next Process:</b>
+        → B11. Multi-Level Approval Workflow
+      end note
+      
+      |BU L2|
+      :B6_08. BU L2 Review\n& Approval via Email;
+      note right
+        <b>Level 2 Review:</b>
+        * Deep dive analysis
+        * Financial impact
+        * Pattern analysis
+        * Risk assessment
+        ====
+        <b>Epic 4 - Story 4.1:</b>
+        Gift Recall Workflow (Level 2 integration)
+      end note
+      
+      if (B6_09. BU L2 Approved?) then (Approved via email)
+        
+        |Utop Admin|
+        :B6_10_01. Utop Admin\nDigital Confirm ticket;
+        note right
+          <b>Admin Actions:</b>
+          * Verify email approval
+          * Digital confirm trên UHub
+          * Execute adjustment
+          * Create audit trail
+        end note
+        
+        |System|
+        :B6_10_02. Sync UHub → UGMS\n(Gift Usage + Adjustment\n+ Evidence BU L2 Approved);
+        note right
+          <b>Complete Sync Package:</b>
+          * Actual usage
+          * Adjustment details
+          * Approval evidence
+          * Audit trail
+          * Photos/Documents
+          ====
+          <b>FR8:</b> Multi-level Approval với
+          automatic UGMS-UHub sync
+        end note
+        
+      else (Rejected via email)
+        
+        |BU L1|
+        :B6_11_01. BU L1 Rejected ticket;
+        
+        :B6_11_02. Request Agency\ncorrection / re-check;
+        note right
+          <b>Rejection Reasons:</b>
+          * Insufficient evidence
+          * Unclear root cause
+          * Need physical recount
+          * Request additional docs
+          ====
+          <b>Action:</b>
+          * Agency re-check inventory
+          * Provide more evidence
+          * Correct data entry
+        end note
+        
+        |Agency|
+        :Agency correction\n& resubmit;
+        
+      endif
+      
+    endif
+    
+  repeat while (B6_12. BU Level-2 Approved?) is (Rejected) not (Approved)
+  
+  |Agency|
+  :B6_13. Nhập Gift thu hồi\nvào kho Agency,\nready để tái sử dụng;
+  
+endif
+
+:B6_14. Quy trình tái sử dụng Gift;
+note right
+  <b>Next Process:</b>
+  → B12. Gift Reuse & Liquidation
+  ====
+  <b>Goal Achieved:</b>
+  * 90% time savings (40h → 4h)
+  * <2% sai lệch inventory
+  * Complete audit trail
+  * Automatic UGMS sync
+end note
+
+stop
+
+@enduml

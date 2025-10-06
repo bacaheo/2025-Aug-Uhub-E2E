@@ -1,0 +1,121 @@
+@startuml B2_Gift_Delivery_Agency_Warehouse
+title B2. Gift Delivery to Agency Warehouse - Giao quà đến kho Agency
+
+skinparam activity {
+  BackgroundColor White
+  BarColor #999999
+}
+skinparam arrow {
+  Color #555555
+}
+skinparam partition {
+  BorderColor #888888
+  BackgroundColor #F9F9F9
+}
+
+|Agency|
+start
+:B2_01. Nhận phiếu xuất từ kho Unilever\nvà kiểm tra hàng;
+note right
+  <b>Input:</b>
+  * Phiếu xuất kho từ DC/Linfox
+  * Allocation by Store từ B1_06
+  ====
+  <b>Kiểm tra:</b>
+  * Số lượng thùng
+  * Nhãn dán trên thùng
+  * Tình trạng hàng (hư hỏng?)
+end note
+
+if (B2_02. Đủ hàng &\nkhông hư hỏng?) then (Yes)
+  
+  :B2_03_01. Agency chọn\nAllocation by store on UHub;
+  note right
+    <b>Digital Confirmation</b>
+    * Login UHub Agency Portal
+    * Chọn Campaign
+    * View Allocation by store
+    ====
+    <b>Epic 2 - Story 2.1:</b>
+    Agency Mobile Confirmation Interface
+  end note
+  
+  :B2_03_02. Agency Digital Confirm\nnhận hàng theo Gift Vol\n(Agency WHs);
+  note right
+    <b>Confirmation includes:</b>
+    * Quantity confirmed
+    * Photo upload (optional)
+    * Digital signature
+    * Timestamp
+    ====
+    <b>FR2:</b> Agency confirm digital nhận hàng
+  end note
+
+else (No - Thiếu/Hư hỏng)
+  
+  repeat
+    :B2_04. Agency tạo ticket\nnhận hàng theo số thực tế\n& nguyên nhân on UHub;
+    note right
+      <b>Ticket Requirements:</b>
+      * Số thực tế nhận
+      * Nguyên nhân (thiếu/hư hỏng/sai)
+      * Photo evidence (mandatory)
+      * Notes/Explanation
+      ====
+      <b>Điều kiện:</b>
+      * Phải tạo trước campaign live ≥168 giờ
+      * Nếu <168 giờ: BU Log Form CR → Utop Admin
+    end note
+    
+    |BU Team|
+    :B2_05. BU review,\ncập nhật Giftcode, Quantity,\nAllocation by store\nvà approval ticket;
+    note right
+      <b>BU Actions:</b>
+      * Review ticket & evidence
+      * Re-allocation nếu cần
+      * Update UGMS data
+      * Approval/Reject decision
+      ====
+      <b>SLA:</b> Approval trong 24 giờ
+      <b>Nếu quá 24h:</b> Ticket hết hạn
+    end note
+    
+    if (B2_06. BU Approved?) then (Rejected)
+      |Agency|
+      :Agency nhận feedback\nvà re-check;
+    else (Approved)
+      |Agency|
+      :Proceed to next step;
+    endif
+    
+  repeat while (B2_06. BU Approved?) is (Rejected) not (Approved)
+  
+endif
+
+|Agency|
+:B2_07. Nhập kho Agency\ntheo thông tin đã Digital Confirm\nhoặc BU Approved;
+note right
+  <b>Inventory Record Created:</b>
+  * Agency Warehouse
+  * Gift Code
+  * Quantity
+  * Allocation by store
+  * Status: Ready for Store Delivery
+  ====
+  <b>Epic 2 - Story 2.4:</b>
+  Real-time Inventory Synchronization
+end note
+
+:B2_08. Xuất thông tin\nAllocation by store on UHub;
+note right
+  <b>Output for next process:</b>
+  * Allocation by store confirmed
+  * Agency ready to deliver to stores
+  ====
+  <b>Next Process:</b>
+  → B3. Gift Delivery to Stores
+end note
+
+stop
+
+@enduml
