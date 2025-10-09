@@ -1,0 +1,170 @@
+@startuml Gift_Code_Lifecycle_State
+title Gift Code Lifecycle - State Diagram
+skinparam backgroundColor #FEFEFE
+skinparam state {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  FontColor #333333
+  FontSize 12
+  AttributeFontColor #666666
+  AttributeFontSize 10
+  BackgroundColor<<terminal>> #FFE6E6
+  BorderColor<<terminal>> #CC0000
+  BackgroundColor<<error>> #FFF0E6
+  BorderColor<<error>> #FF6600
+  BackgroundColor<<active>> #E6FFE6
+  BorderColor<<active>> #00CC00
+}
+
+' ============= Initial State =============
+[*] --> CREATED : Gift Code\nsinh ra
+
+' ============= Master Data States =============
+state "Master Data Setup" as MasterData {
+  state CREATED : Gift Code được tạo\n[No bindings]
+  state REGISTERED : Đã đăng ký\n[+ Scheme binding]
+  
+  CREATED --> REGISTERED : Gắn với Scheme\n(Plan sử dụng)
+}
+
+' ============= Planning States =============
+state "Planning & Allocation" as Planning {
+  state PLANNED : Đã lập kế hoạch\n[+ Allocation]\n[+ Campaign]
+  
+  REGISTERED --> PLANNED : B1. Gift Planning\nPhân bổ cho Campaign
+}
+
+' ============= Inventory Movement States =============
+state "Inventory Movement" as Inventory {
+  state AT_AGENCY : Tại kho Agency\n[In transit]
+  state AT_STORE : Tại cửa hàng\n[Ready for use]
+  
+  PLANNED --> AT_AGENCY : B2. Delivery to Agency
+  AT_AGENCY --> AT_STORE : B3. Transfer to Store
+}
+
+' ============= Usage States =============
+state "Usage & Distribution" as Usage {
+  state DELIVERED <<active>> : Đã giao cho Shopper\n[- Allocation]\n[- Campaign]
+  state CONSUMED <<terminal>> : Đã sử dụng\n[- All bindings]
+  
+  AT_STORE --> DELIVERED : B4. Deliver to Shopper\nGỡ Allocation & Campaign
+  DELIVERED --> CONSUMED : Shopper sử dụng\nEnd of lifecycle
+}
+
+' ============= Post-Campaign States =============
+state "Post-Campaign Processing" as PostCampaign {
+  state UNUSED : Không sử dụng\n[Surplus]
+  state RECALLED : Đã thu hồi\n[- Allocation]\n[- Campaign]
+  
+  AT_STORE --> UNUSED : Campaign kết thúc\nChưa phát
+  AT_AGENCY --> UNUSED : Campaign kết thúc\nChưa chuyển
+  UNUSED --> RECALLED : B5. Recall Process\nGỡ bindings
+}
+
+' ============= Reconciliation States =============
+state "Reconciliation & Reuse" as Reconciliation {
+  state RECONCILED : Đã đối soát\n[Verified]
+  state AVAILABLE : Sẵn sàng tái sử dụng\n[Keep Scheme]
+  state TRANSFERRED : Đã chuyển Scheme\n[New Scheme]
+  
+  RECALLED --> RECONCILED : B6. Stock Reconciliation\nKiểm tra số lượng
+  RECONCILED --> AVAILABLE : Đối soát khớp\nCó thể reuse
+  
+  AVAILABLE --> TRANSFERRED : BU quyết định\nChuyển sang Scheme mới
+  TRANSFERRED --> REGISTERED : Reset lifecycle\nScheme mới
+  AVAILABLE --> PLANNED : Reuse cùng Scheme\nAllocation mới
+}
+
+' ============= Error & Exception States =============
+state "Error & Exception Handling" as ErrorHandling {
+  state DAMAGED <<error>> : Bị hỏng\n[At Store/Agency]
+  state DISCREPANCY <<error>> : Số lượng không khớp\n[Need investigation]
+  state WRITE_OFF <<error>> : Xóa khỏi kho\n[BU approved]
+  
+  AT_STORE --> DAMAGED : Phát hiện hỏng\nTại cửa hàng
+  AT_AGENCY --> DAMAGED : Phát hiện hỏng\nTại kho Agency
+  DAMAGED --> RECALLED : Thu hồi Gift hỏng\nGỡ bindings
+  
+  RECONCILED --> DISCREPANCY : B6. Discrepancy found\nSố lượng không khớp
+  DISCREPANCY --> WRITE_OFF : B7. BU Level-2 Approve\n+ Evidences
+}
+
+' ============= Terminal State =============
+state DISPOSED <<terminal>> : Đã hủy\n[End of lifecycle]
+
+WRITE_OFF --> DISPOSED : Utop Admin Confirm\nSync to UGMS
+CONSUMED --> [*] : Success Path
+DISPOSED --> [*] : Exception Path
+
+' ============= Notes for Key Processes =============
+note right of Planning
+  **B1. Gift Planning & Scheme Setup**
+  - Gắn Scheme (Plan sử dụng)
+  - Tạo Allocation cho Campaign
+  - Campaign live trên UHub
+end note
+
+note right of Inventory
+  **B2-B3. Delivery Process**
+  - B2: UGMS → Agency Warehouse
+  - B3: Agency → Store
+  - Tracking vận chuyển
+end note
+
+note right of Usage
+  **B4. Distribution to Shopper**
+  - Gỡ Allocation & Campaign
+  - Vẫn giữ Scheme binding
+  - Update UGMS status
+end note
+
+note right of PostCampaign
+  **B5. Recall Process**
+  - Thu hồi Gift không dùng
+  - Gỡ Allocation & Campaign
+  - Giữ Scheme để reuse
+end note
+
+note right of Reconciliation
+  **B6. Stock Reconciliation**
+  - Đối soát số lượng
+  - Xác nhận trạng thái
+  - Quyết định reuse/transfer
+  
+  **Reuse Options:**
+  1. Same Scheme → New Allocation
+  2. New Scheme → Transfer & Reset
+end note
+
+note right of ErrorHandling
+  **B7. Multi-Level Approval**
+  - BU Review discrepancy
+  - BU Level-2 approval
+  - Attach evidences
+  - Utop Admin final confirm
+end note
+
+' ============= Legend =============
+legend right
+  |= Symbol |= Meaning |
+  | <color:#00CC00>Green states</color> | Active/In-use states |
+  | <color:#FF6600>Orange states</color> | Error/Exception states |
+  | <color:#CC0000>Red states</color> | Terminal states |
+  | → | State transition |
+  | [+ binding] | Add binding/relationship |
+  | [- binding] | Remove binding/relationship |
+  
+  **Binding Types:**
+  • **Scheme** = Plan sử dụng (loại Gift)
+  • **Allocation** = Phân bổ cho Campaign cụ thể
+  • **Campaign** = Sử dụng thực tế trên UHub
+  
+  **Key Rules:**
+  • Gift Code luôn cần Scheme để active
+  • Allocation & Campaign gỡ khi DELIVERED/RECALLED
+  • Scheme chỉ gỡ khi CONSUMED/DISPOSED
+  • Có thể reuse với cùng Scheme hoặc transfer Scheme mới
+endlegend
+
+@enduml

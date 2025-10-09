@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Gift Code Lifecycle Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800;900&display=swap');
+        html, body { margin:0; padding:0; overflow:hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+        .slide { width:1280px; min-height:720px; padding:60px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+    </style>
+</head>
+<body>
+    <div class="slide bg-gradient-to-br from-[#FF6600]/10 to-white">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-4xl font-bold text-[#FF6600]">Gift Code Lifecycle Management</h1>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-3xl text-[#FF6600]">cycle</span>
+                <span class="text-2xl font-bold text-gray-600">12 States</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- State Flow Diagram -->
+            <div class="bg-white rounded-xl p-6 shadow-lg mb-4">
+                <h2 class="text-xl font-bold text-[#000080] mb-4 text-center">Complete State Transition Flow</h2>
+                
+                <!-- Primary Flow -->
+                <div class="flex justify-between items-center mb-6">
+                    <!-- Created -->
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-[#6F2DA8] to-[#6F2DA8]/80 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto shadow-lg">
+                            <span class="material-symbols-outlined text-2xl">add_circle</span>
+                        </div>
+                        <p class="text-xs font-bold mt-2">CREATED</p>
+                        <p class="text-xs text-gray-500">UGMS</p>
+                    </div>
+                    
+                    <span class="material-symbols-outlined text-gray-400">arrow_forward</span>
+                    
+                    <!-- Registered -->
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-blue-600 to-blue-500 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto shadow-lg">
+                            <span class="material-symbols-outlined text-2xl">app_registration</span>
+                        </div>
+                        <p class="text-xs font-bold mt-2">REGISTERED</p>
+                        <p class="text-xs text-gray-500">UHub</p>
+                    </div>
+                    
+                    <span class="material-symbols-outlined text-gray-400">arrow_forward</span>
+                    
+                    <!-- Planned -->
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-purple-600 to-purple-500 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto shadow-lg">
+                            <span class="material-symbols-outlined text-2xl">event</span>
+                        </div>
+                        <p class="text-xs font-bold mt-2">PLANNED</p>
+                        <p class="text-xs text-gray-500">Campaign</p>
+                    </div>
+                    
+                    <span class="material-symbols-outlined text-gray-400">arrow_forward</span>
+                    
+                    <!-- At Agency -->
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-[#FF6600] to-[#FF6600]/80 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto shadow-lg">
+                            <span class="material-symbols-outlined text-2xl">warehouse</span>
+                        </div>
+                        <p class="text-xs font-bold mt-2">AT_AGENCY</p>
+                        <p class="text-xs text-gray-500">Warehouse</p>
+                    </div>
+                    
+                    <span class="material-symbols-outlined text-gray-400">arrow_forward</span>
+                    
+                    <!-- At Store -->
+                    <div class="text-center">
+                        <div class="bg-gradient-to-br from-[#00BFFF] to-[#00BFFF]/80 text-white rounded-full w-20 h-20 flex items-center justify-center mx-auto shadow-lg">
+                            <span class="material-symbols-outlined text-2xl">store</span>
+                        </div>
+                        <p class="text-xs font-bold mt-2">AT_STORE</p>
+                        <p class="text-xs text-gray-500">Retail</p>
+                    </div>
+                </div>
+
+                <!-- Branch States -->
+                <div class="grid grid-cols-3 gap-4">
+                    <!-- Delivered Path -->
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <h3 class="text-sm font-bold text-green-700 mb-3 text-center">Success Path</h3>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="bg-green-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-md">
+                                <span class="material-symbols-outlined">redeem</span>
+                            </div>
+                            <p class="text-xs font-bold">DELIVERED</p>
+                            <span class="material-symbols-outlined text-gray-400 text-sm">arrow_downward</span>
+                            <div class="bg-green-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-md">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </div>
+                            <p class="text-xs font-bold">CONSUMED</p>
+                        </div>
+                    </div>
+
+                    <!-- Recall Path -->
+                    <div class="bg-yellow-50 rounded-lg p-4">
+                        <h3 class="text-sm font-bold text-yellow-700 mb-3 text-center">Reuse Path</h3>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="bg-yellow-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-md">
+                                <span class="material-symbols-outlined">keyboard_return</span>
+                            </div>
+                            <p class="text-xs font-bold">RECALLED</p>
+                            <span class="material-symbols-outlined text-gray-400 text-sm">arrow_downward</span>
+                            <div class="bg-yellow-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-md">
+                                <span class="material-symbols-outlined">recycling</span>
+                            </div>
+                            <p class="text-xs font-bold">AVAILABLE</p>
+                        </div>
+                    </div>
+
+                    <!-- Write-off Path -->
+                    <div class="bg-red-50 rounded-lg p-4">
+                        <h3 class="text-sm font-bold text-red-700 mb-3 text-center">Write-off Path</h3>
+                        <div class="flex flex-col items-center gap-2">
+                            <div class="bg-red-500 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-md">
+                                <span class="material-symbols-outlined">report_problem</span>
+                            </div>
+                            <p class="text-xs font-bold">DISCREPANCY</p>
+                            <span class="material-symbols-outlined text-gray-400 text-sm">arrow_downward</span>
+                            <div class="bg-red-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-md">
+                                <span class="material-symbols-outlined">delete_forever</span>
+                            </div>
+                            <p class="text-xs font-bold">DISPOSED</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Features Grid -->
+            <div class="grid grid-cols-4 gap-4">
+                <!-- State Management -->
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <h3 class="font-bold text-[#6F2DA8] mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">settings_applications</span>
+                        State Management
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <div>• 12 defined states</div>
+                        <div>• Automated transitions</div>
+                        <div>• Audit trail tracking</div>
+                        <div>• Real-time status</div>
+                    </div>
+                </div>
+
+                <!-- Reuse Optimization -->
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <h3 class="font-bold text-[#FF6600] mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">recycling</span>
+                        Reuse Features
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <div>• Same scheme reuse</div>
+                        <div>• Cross-scheme transfer</div>
+                        <div>• FIFO policy</div>
+                        <div>• Target: >70% reuse</div>
+                    </div>
+                </div>
+
+                <!-- Write-off Control -->
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <h3 class="font-bold text-[#00BFFF] mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">rule_folder</span>
+                        Write-off Control
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <div>• Evidence required</div>
+                        <div>• Multi-level approval</div>
+                        <div>• Reason tracking</div>
+                        <div>• Target: <5% rate</div>
+                    </div>
+                </div>
+
+                <!-- Analytics -->
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <h3 class="font-bold text-green-600 mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">analytics</span>
+                        Lifecycle Analytics
+                    </h3>
+                    <div class="space-y-2 text-xs">
+                        <div>• Duration tracking</div>
+                        <div>• State distribution</div>
+                        <div>• Performance KPIs</div>
+                        <div>• Predictive insights</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Bar -->
+            <div class="mt-4 bg-gradient-to-r from-[#6F2DA8]/10 via-[#FF6600]/10 to-[#00BFFF]/10 rounded-xl p-4">
+                <div class="flex justify-between items-center">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-[#6F2DA8]">12</div>
+                        <div class="text-xs text-gray-600">State Types</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-[#FF6600]">>80%</div>
+                        <div class="text-xs text-gray-600">Usage Rate</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-[#00BFFF]">>70%</div>
+                        <div class="text-xs text-gray-600">Reuse Rate</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600"><5%</div>
+                        <div class="text-xs text-gray-600">Write-off</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600">100%</div>
+                        <div class="text-xs text-gray-600">Tracked</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

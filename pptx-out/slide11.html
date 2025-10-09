@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Implementation Roadmap</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800;900&display=swap');
+        html, body { margin:0; padding:0; overflow:hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+        .slide { width:1280px; min-height:720px; padding:60px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+    </style>
+</head>
+<body>
+    <div class="slide bg-gradient-to-br from-[#FF6600]/10 to-white">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <h1 class="text-4xl font-bold text-[#FF6600]">Implementation Roadmap</h1>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-3xl text-[#FF6600]">timeline</span>
+                <span class="text-2xl font-bold text-gray-600">12-Month Plan</span>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="flex-1 flex flex-col">
+            <!-- Phase Headers -->
+            <div class="grid grid-cols-3 gap-4 mb-6">
+                <!-- Phase 1 -->
+                <div class="bg-gradient-to-r from-[#6F2DA8] to-[#6F2DA8]/80 text-white rounded-lg p-4 text-center shadow-lg">
+                    <span class="material-symbols-outlined text-3xl mb-2">foundation</span>
+                    <h2 class="text-xl font-bold">Phase 1: Foundation</h2>
+                    <p class="text-sm mt-1">Month 1-3</p>
+                </div>
+
+                <!-- Phase 2 -->
+                <div class="bg-gradient-to-r from-[#00BFFF] to-[#00BFFF]/80 text-white rounded-lg p-4 text-center shadow-lg">
+                    <span class="material-symbols-outlined text-3xl mb-2">rocket_launch</span>
+                    <h2 class="text-xl font-bold">Phase 2: Rollout</h2>
+                    <p class="text-sm mt-1">Month 4-6</p>
+                </div>
+
+                <!-- Phase 3 -->
+                <div class="bg-gradient-to-r from-green-600 to-green-500 text-white rounded-lg p-4 text-center shadow-lg">
+                    <span class="material-symbols-outlined text-3xl mb-2">auto_awesome</span>
+                    <h2 class="text-xl font-bold">Phase 3: Enhancement</h2>
+                    <p class="text-sm mt-1">Month 7-12</p>
+                </div>
+            </div>
+
+            <!-- Detailed Timeline Grid -->
+            <div class="grid grid-cols-3 gap-4 flex-1">
+                <!-- Phase 1 Details -->
+                <div class="space-y-3">
+                    <!-- Month 1 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#6F2DA8]">
+                        <h3 class="font-bold text-[#6F2DA8] mb-2">Month 1</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-green-500 text-lg">task_alt</span>
+                                <span>Kick-off & requirements</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-green-500 text-lg">task_alt</span>
+                                <span>UGMS API development</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-green-500 text-lg">task_alt</span>
+                                <span>Environment setup</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Month 2 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#6F2DA8]">
+                        <h3 class="font-bold text-[#6F2DA8] mb-2">Month 2</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-500 text-lg">task_alt</span>
+                                <span>Core platform deployment</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-500 text-lg">task_alt</span>
+                                <span>Integration development</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-500 text-lg">task_alt</span>
+                                <span>Admin portal completion</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Month 3 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#6F2DA8]">
+                        <h3 class="font-bold text-[#6F2DA8] mb-2">Month 3</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">task_alt</span>
+                                <span>UAT preparation</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">task_alt</span>
+                                <span>User training</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">task_alt</span>
+                                <span>Pilot campaign setup</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2 Details -->
+                <div class="space-y-3">
+                    <!-- Month 4 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#00BFFF]">
+                        <h3 class="font-bold text-[#00BFFF] mb-2">Month 4</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-green-500 text-lg">task_alt</span>
+                                <span>Pilot with 2-3 campaigns</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-green-500 text-lg">task_alt</span>
+                                <span>Feedback incorporation</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-green-500 text-lg">task_alt</span>
+                                <span>Performance tuning</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Month 5 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#00BFFF]">
+                        <h3 class="font-bold text-[#00BFFF] mb-2">Month 5</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-500 text-lg">task_alt</span>
+                                <span>Full rollout preparation</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-500 text-lg">task_alt</span>
+                                <span>All KA onboarding</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-blue-500 text-lg">task_alt</span>
+                                <span>Data migration</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Month 6 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#00BFFF]">
+                        <h3 class="font-bold text-[#00BFFF] mb-2">Month 6</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">task_alt</span>
+                                <span>Go-live all campaigns</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">task_alt</span>
+                                <span>Hypercare support</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">task_alt</span>
+                                <span>Optimization</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 3 Details -->
+                <div class="space-y-3">
+                    <!-- Q3 2025 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-green-600">
+                        <h3 class="font-bold text-green-600 mb-2">Q3 2025</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols_outlined text-purple-500 text-lg">task_alt</span>
+                                <span>Mobile app for Agency</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-purple-500 text-lg">task_alt</span>
+                                <span>Predictive analytics</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-purple-500 text-lg">task_alt</span>
+                                <span>Advanced reporting</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q4 2025 -->
+                    <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-green-600">
+                        <h3 class="font-bold text-green-600 mb-2">Q4 2025</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-yellow-500 text-lg">task_alt</span>
+                                <span>AI-powered allocation</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-yellow-500 text-lg">task_alt</span>
+                                <span>Blockchain audit trail</span>
+                            </div>
+                            <div class="flex items-start gap-2">
+                                <span class="material-symbols-outlined text-yellow-500 text-lg">task_alt</span>
+                                <span>Cross-scheme optimization</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Milestones -->
+            <div class="mt-6 bg-gradient-to-r from-[#6F2DA8]/10 via-[#00BFFF]/10 to-green-100 rounded-xl p-4">
+                <h3 class="font-bold text-[#000080] mb-3 text-center">Key Milestones</h3>
+                <div class="flex justify-between items-center">
+                    <div class="text-center flex-1">
+                        <div class="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 shadow-md">
+                            <span class="material-symbols-outlined text-[#6F2DA8]">flag</span>
+                        </div>
+                        <div class="text-xs font-semibold">Month 3</div>
+                        <div class="text-xs text-gray-600">UAT Complete</div>
+                    </div>
+                    
+                    <div class="text-gray-400">→</div>
+                    
+                    <div class="text-center flex-1">
+                        <div class="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 shadow-md">
+                            <span class="material-symbols-outlined text-[#00BFFF]">flag</span>
+                        </div>
+                        <div class="text-xs font-semibold">Month 4</div>
+                        <div class="text-xs text-gray-600">Pilot Launch</div>
+                    </div>
+                    
+                    <div class="text-gray-400">→</div>
+                    
+                    <div class="text-center flex-1">
+                        <div class="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 shadow-md">
+                            <span class="material-symbols-outlined text-[#FF6600]">flag</span>
+                        </div>
+                        <div class="text-xs font-semibold">Month 6</div>
+                        <div class="text-xs text-gray-600">Full Go-Live</div>
+                    </div>
+                    
+                    <div class="text-gray-400">→</div>
+                    
+                    <div class="text-center flex-1">
+                        <div class="bg-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-2 shadow-md">
+                            <span class="material-symbols-outlined text-green-600">flag</span>
+                        </div>
+                        <div class="text-xs font-semibold">Month 12</div>
+                        <div class="text-xs text-gray-600">V2.0 Release</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

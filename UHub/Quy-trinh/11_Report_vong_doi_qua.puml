@@ -1,0 +1,224 @@
+@startuml Report_vong_doi_qua
+title Report vòng đời quà theo Scheme
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|User Request|
+|#LightGreen|Report Engine|
+|#LightYellow|Data Processing|
+|#Pink|UHub Database|
+|#Orange|Output Generation|
+
+|User Request|
+start
+:Select report type;
+note right
+  **Report Types:**
+  • Lifecycle Summary
+  • Detailed Tracking
+  • Scheme Performance
+  • Status Distribution
+  • Aging Analysis
+end note
+
+:Define parameters;
+note right
+  **Parameters:**
+  • Date range
+  • Scheme(s)
+  • Status filter
+  • Agency/Store
+  • Campaign
+end note
+
+:Submit request;
+
+|Report Engine|
+:Validate request;
+:Check user permissions;
+if (Authorized?) then (yes)
+  :Process request;
+else (no)
+  :Return error;
+  stop
+endif
+
+|Data Processing|
+:Build query;
+partition "Query Construction" {
+  :Select base tables;
+  :Apply filters;
+  :Add joins;
+  note left
+    **Tables:**
+    • gift_codes
+    • schemes
+    • allocations
+    • campaigns
+    • status_history
+  end note
+  :Optimize query;
+}
+
+|UHub Database|
+:Execute query;
+:Retrieve gift data;
+:Fetch status history;
+:Get scheme details;
+:Pull transaction logs;
+
+|Data Processing|
+:Process raw data;
+partition "Data Transformation" {
+  :Group by scheme;
+  :Calculate lifecycle stages;
+  note left
+    **Stages:**
+    1. Created → Registered
+    2. Registered → Planned
+    3. Planned → In Transit
+    4. In Transit → Available
+    5. Available → Delivered
+    6. Delivered → Consumed
+  end note
+  
+  :Calculate duration per stage;
+  :Compute statistics;
+  note left
+    **Metrics:**
+    • Avg time per stage
+    • Conversion rates
+    • Bottleneck identification
+    • Success rate
+    • Loss rate
+  end note
+}
+
+partition "Analytics Generation" {
+  :Trend analysis;
+  :Performance metrics;
+  :Scheme comparison;
+  :Anomaly detection;
+}
+
+|Output Generation|
+:Format report;
+if (Report type?) then (Summary)
+  :Create dashboard view;
+  partition "Summary Report" {
+    :Scheme overview;
+    :Key metrics;
+    :Status pie chart;
+    :Timeline graph;
+  }
+elseif (Detailed)
+  :Create detailed table;
+  partition "Detailed Report" {
+    :Gift-by-gift listing;
+    :Complete history;
+    :All transitions;
+    :Timestamps;
+  }
+elseif (Performance)
+  :Create analytics;
+  partition "Performance Report" {
+    :Scheme efficiency;
+    :Campaign ROI;
+    :Distribution effectiveness;
+    :Redemption rates;
+  }
+else (Aging)
+  :Create aging report;
+  partition "Aging Analysis" {
+    :Days in each status;
+    :Stuck items;
+    :Expiry warnings;
+    :Action recommendations;
+  }
+endif
+
+:Add visualizations;
+note right
+  **Charts:**
+  • Lifecycle funnel
+  • Status distribution
+  • Time series
+  • Heat maps
+  • Comparison charts
+end note
+
+:Generate export options;
+if (Export format?) then (Excel)
+  :Create XLSX file;
+  :Add multiple sheets;
+  :Include formulas;
+elseif (PDF)
+  :Create PDF report;
+  :Add branding;
+  :Include charts;
+elseif (CSV)
+  :Create CSV file;
+  :Raw data export;
+else (Dashboard)
+  :Update live dashboard;
+  :Enable drill-down;
+endif
+
+|User Request|
+:Receive report;
+:Review results;
+if (Need adjustments?) then (yes)
+  :Modify parameters;
+  :Regenerate report;
+else (no)
+  :Download/Share report;
+endif
+
+:Schedule recurring report?;
+if (Schedule?) then (yes)
+  |Report Engine|
+  :Create schedule;
+  :Set up automation;
+  :Configure distribution;
+else (no)
+  :Complete;
+endif
+
+stop
+
+legend right
+  **Key Metrics Tracked:**
+  • Total gifts per scheme
+  • Active vs Inactive ratio
+  • Average lifecycle duration
+  • Redemption rate
+  • Loss/damage rate
+  • Reuse frequency
+  
+  **Report Sections:**
+  1. Executive Summary
+  2. Scheme Overview
+  3. Lifecycle Analysis
+  4. Performance Metrics
+  5. Recommendations
+  
+  **Delivery Options:**
+  • On-demand
+  • Daily automated
+  • Weekly summary
+  • Monthly analysis
+  • Real-time dashboard
+  
+  **Access Levels:**
+  • View Only
+  • Export Enabled
+  • Modify Parameters
+  • Schedule Reports
+endlegend
+
+@enduml

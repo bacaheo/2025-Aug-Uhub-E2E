@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                   xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+                   id="Definitions_E2EGift"
+                   targetNamespace="http://bpmn.io/schema/bpmn">
+
+  <!-- Main Process -->
+  <bpmn:collaboration id="Collaboration_E2EGift">
+    <bpmn:participant id="Participant_Agency" name="Agency Operations Manager" processRef="Process_Agency"/>
+    <bpmn:participant id="Participant_BU" name="BU Team Member/Lead" processRef="Process_BU"/>
+    <bpmn:participant id="Participant_Admin" name="Utop Admin" processRef="Process_Admin"/>
+    <bpmn:participant id="Participant_UGMS" name="UGMS System" processRef="Process_UGMS"/>
+
+    <!-- Message Flows -->
+    <bpmn:messageFlow id="Flow_UGMS_Sync" sourceRef="Task_UGMS_Push" targetRef="Task_UGMS_Sync"/>
+    <bpmn:messageFlow id="Flow_Ticket_Create" sourceRef="Task_Create_Ticket" targetRef="Task_Review_Ticket"/>
+    <bpmn:messageFlow id="Flow_Approval_Result" sourceRef="Task_Approve_Ticket" targetRef="Task_Receive_Approval"/>
+    <bpmn:messageFlow id="Flow_L2_Approval" sourceRef="Task_Trigger_L2" targetRef="Task_L2_Confirm"/>
+  </bpmn:collaboration>
+
+  <!-- Agency Process -->
+  <bpmn:process id="Process_Agency" name="Agency Workflow" isExecutable="false">
+
+    <!-- Authentication -->
+    <bpmn:startEvent id="Start_Agency_Login" name="Agency Login">
+      <bpmn:outgoing>Flow_A1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Task_Login" name="UC01: Đăng nhập&#10;(SMS OTP)">
+      <bpmn:incoming>Flow_A1</bpmn:incoming>
+      <bpmn:outgoing>Flow_A2</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Digital GRN Workflow -->
+    <bpmn:task id="Task_Digital_GRN" name="UC09: Xác nhận&#10;nhập kho Agency&#10;(Digital GRN)">
+      <bpmn:incoming>Flow_A2</bpmn:incoming>
+      <bpmn:outgoing>Flow_A3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_Discrepancy" name="Có sai lệch?">
+      <bpmn:incoming>Flow_A3</bpmn:incoming>
+      <bpmn:outgoing>Flow_A4_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_A4_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_Create_Ticket" name="UC16: Tạo Ticket&#10;Discrepancy">
+      <bpmn:incoming>Flow_A4_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_A5</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_UGMS_Sync" name="UC19: Sync UGMS&#10;API Integration">
+      <bpmn:incoming>Flow_A4_No</bpmn:incoming>
+      <bpmn:incoming>Flow_A5</bpmn:incoming>
+      <bpmn:outgoing>Flow_A6</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Allocation Request -->
+    <bpmn:task id="Task_Request_Allocation" name="UC08: Phân bổ quà&#10;(Request)">
+      <bpmn:incoming>Flow_A6</bpmn:incoming>
+      <bpmn:outgoing>Flow_A7</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Receive_Approval" name="Nhận kết quả&#10;phê duyệt">
+      <bpmn:incoming>Flow_A7</bpmn:incoming>
+      <bpmn:outgoing>Flow_A8</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Reconciliation -->
+    <bpmn:task id="Task_Recall_Submit" name="UC14: Đối soát&#10;& Recall tự động&#10;(Submit)">
+      <bpmn:incoming>Flow_A8</bpmn:incoming>
+      <bpmn:outgoing>Flow_A9</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Receive_UGMS" name="Nhận thông báo&#10;từ hệ thống">
+      <bpmn:incoming>Flow_A9</bpmn:incoming>
+      <bpmn:outgoing>Flow_A10</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="End_Agency" name="Hoàn thành&#10;quy trình">
+      <bpmn:incoming>Flow_A10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_A1" sourceRef="Start_Agency_Login" targetRef="Task_Login"/>
+    <bpmn:sequenceFlow id="Flow_A2" sourceRef="Task_Login" targetRef="Task_Digital_GRN"/>
+    <bpmn:sequenceFlow id="Flow_A3" sourceRef="Task_Digital_GRN" targetRef="Gateway_Discrepancy"/>
+    <bpmn:sequenceFlow id="Flow_A4_Yes" name="Có" sourceRef="Gateway_Discrepancy" targetRef="Task_Create_Ticket"/>
+    <bpmn:sequenceFlow id="Flow_A4_No" name="Không" sourceRef="Gateway_Discrepancy" targetRef="Task_UGMS_Sync"/>
+    <bpmn:sequenceFlow id="Flow_A5" sourceRef="Task_Create_Ticket" targetRef="Task_UGMS_Sync"/>
+    <bpmn:sequenceFlow id="Flow_A6" sourceRef="Task_UGMS_Sync" targetRef="Task_Request_Allocation"/>
+    <bpmn:sequenceFlow id="Flow_A7" sourceRef="Task_Request_Allocation" targetRef="Task_Receive_Approval"/>
+    <bpmn:sequenceFlow id="Flow_A8" sourceRef="Task_Receive_Approval" targetRef="Task_Recall_Submit"/>
+    <bpmn:sequenceFlow id="Flow_A9" sourceRef="Task_Recall_Submit" targetRef="Task_Receive_UGMS"/>
+    <bpmn:sequenceFlow id="Flow_A10" sourceRef="Task_Receive_UGMS" targetRef="End_Agency"/>
+  </bpmn:process>
+
+  <!-- BU Process -->
+  <bpmn:process id="Process_BU" name="BU Team Workflow" isExecutable="false">
+
+    <bpmn:startEvent id="Start_BU" name="BU Login">
+      <bpmn:outgoing>Flow_B1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Task_BU_Login" name="UC01: Đăng nhập">
+      <bpmn:incoming>Flow_B1</bpmn:incoming>
+      <bpmn:outgoing>Flow_B2</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Dashboard Monitoring -->
+    <bpmn:task id="Task_View_Dashboard" name="UC06: Dashboard&#10;UHub Campaign">
+      <bpmn:incoming>Flow_B2</bpmn:incoming>
+      <bpmn:outgoing>Flow_B3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_View_Report" name="UC07: Báo cáo&#10;vòng đời GiftCode">
+      <bpmn:incoming>Flow_B3</bpmn:incoming>
+      <bpmn:outgoing>Flow_B4</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Ticket Review -->
+    <bpmn:task id="Task_Review_Ticket" name="UC17: BU Review&#10;& Approve Ticket">
+      <bpmn:incoming>Flow_B4</bpmn:incoming>
+      <bpmn:outgoing>Flow_B5</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:exclusiveGateway id="Gateway_HighValue" name="High-value&#10;adjustment?">
+      <bpmn:incoming>Flow_B5</bpmn:incoming>
+      <bpmn:outgoing>Flow_B6_Yes</bpmn:outgoing>
+      <bpmn:outgoing>Flow_B6_No</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+
+    <bpmn:task id="Task_Trigger_L2" name="UC15: Trigger&#10;Level-2 Approval">
+      <bpmn:incoming>Flow_B6_Yes</bpmn:incoming>
+      <bpmn:outgoing>Flow_B7</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Approve_Ticket" name="UC17: Approve&#10;Ticket">
+      <bpmn:incoming>Flow_B6_No</bpmn:incoming>
+      <bpmn:incoming>Flow_B7</bpmn:incoming>
+      <bpmn:outgoing>Flow_B8</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Reconciliation Review -->
+    <bpmn:task id="Task_Review_Recall" name="UC14: Review&#10;Reconciliation">
+      <bpmn:incoming>Flow_B8</bpmn:incoming>
+      <bpmn:outgoing>Flow_B9</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_SLA_Monitor" name="UC18: Theo dõi&#10;SLA & Escalation">
+      <bpmn:incoming>Flow_B9</bpmn:incoming>
+      <bpmn:outgoing>Flow_B10</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="End_BU" name="Hoàn thành">
+      <bpmn:incoming>Flow_B10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_B1" sourceRef="Start_BU" targetRef="Task_BU_Login"/>
+    <bpmn:sequenceFlow id="Flow_B2" sourceRef="Task_BU_Login" targetRef="Task_View_Dashboard"/>
+    <bpmn:sequenceFlow id="Flow_B3" sourceRef="Task_View_Dashboard" targetRef="Task_View_Report"/>
+    <bpmn:sequenceFlow id="Flow_B4" sourceRef="Task_View_Report" targetRef="Task_Review_Ticket"/>
+    <bpmn:sequenceFlow id="Flow_B5" sourceRef="Task_Review_Ticket" targetRef="Gateway_HighValue"/>
+    <bpmn:sequenceFlow id="Flow_B6_Yes" name="Có" sourceRef="Gateway_HighValue" targetRef="Task_Trigger_L2"/>
+    <bpmn:sequenceFlow id="Flow_B6_No" name="Không" sourceRef="Gateway_HighValue" targetRef="Task_Approve_Ticket"/>
+    <bpmn:sequenceFlow id="Flow_B7" sourceRef="Task_Trigger_L2" targetRef="Task_Approve_Ticket"/>
+    <bpmn:sequenceFlow id="Flow_B8" sourceRef="Task_Approve_Ticket" targetRef="Task_Review_Recall"/>
+    <bpmn:sequenceFlow id="Flow_B9" sourceRef="Task_Review_Recall" targetRef="Task_SLA_Monitor"/>
+    <bpmn:sequenceFlow id="Flow_B10" sourceRef="Task_SLA_Monitor" targetRef="End_BU"/>
+  </bpmn:process>
+
+  <!-- Admin Process -->
+  <bpmn:process id="Process_Admin" name="Admin Workflow" isExecutable="false">
+
+    <bpmn:startEvent id="Start_Admin" name="Admin Login">
+      <bpmn:outgoing>Flow_C1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:task id="Task_Admin_Login" name="UC01: Đăng nhập">
+      <bpmn:incoming>Flow_C1</bpmn:incoming>
+      <bpmn:outgoing>Flow_C2</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Master Data -->
+    <bpmn:task id="Task_Manage_Agency" name="UC03: Quản lý&#10;Agency (CRUD)">
+      <bpmn:incoming>Flow_C2</bpmn:incoming>
+      <bpmn:outgoing>Flow_C3</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Manage_Scheme" name="UC04: Quản lý&#10;Scheme">
+      <bpmn:incoming>Flow_C3</bpmn:incoming>
+      <bpmn:outgoing>Flow_C4</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Manage_GiftCode" name="UC05: Quản lý&#10;GiftCode">
+      <bpmn:incoming>Flow_C4</bpmn:incoming>
+      <bpmn:outgoing>Flow_C5</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Transfer Operations -->
+    <bpmn:task id="Task_Transfer_Scheme" name="UC12: Điều chuyển&#10;quà giữa Schemes">
+      <bpmn:incoming>Flow_C5</bpmn:incoming>
+      <bpmn:outgoing>Flow_C6</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Transfer_Agency" name="UC13: Điều chuyển&#10;quà giữa Agencies">
+      <bpmn:incoming>Flow_C6</bpmn:incoming>
+      <bpmn:outgoing>Flow_C7</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- L2 Approval -->
+    <bpmn:task id="Task_L2_Confirm" name="UC15: Level-2&#10;Email Approval&#10;(Confirm)">
+      <bpmn:incoming>Flow_C7</bpmn:incoming>
+      <bpmn:outgoing>Flow_C8</bpmn:outgoing>
+    </bpmn:task>
+
+    <!-- Infrastructure -->
+    <bpmn:task id="Task_Audit_Trail" name="UC20: Audit Trail&#10;& Evidence">
+      <bpmn:incoming>Flow_C8</bpmn:incoming>
+      <bpmn:outgoing>Flow_C9</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:task id="Task_Alert_Config" name="UC21: Cấu hình&#10;thông báo">
+      <bpmn:incoming>Flow_C9</bpmn:incoming>
+      <bpmn:outgoing>Flow_C10</bpmn:outgoing>
+    </bpmn:task>
+
+    <bpmn:endEvent id="End_Admin" name="Hoàn thành">
+      <bpmn:incoming>Flow_C10</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_C1" sourceRef="Start_Admin" targetRef="Task_Admin_Login"/>
+    <bpmn:sequenceFlow id="Flow_C2" sourceRef="Task_Admin_Login" targetRef="Task_Manage_Agency"/>
+    <bpmn:sequenceFlow id="Flow_C3" sourceRef="Task_Manage_Agency" targetRef="Task_Manage_Scheme"/>
+    <bpmn:sequenceFlow id="Flow_C4" sourceRef="Task_Manage_Scheme" targetRef="Task_Manage_GiftCode"/>
+    <bpmn:sequenceFlow id="Flow_C5" sourceRef="Task_Manage_GiftCode" targetRef="Task_Transfer_Scheme"/>
+    <bpmn:sequenceFlow id="Flow_C6" sourceRef="Task_Transfer_Scheme" targetRef="Task_Transfer_Agency"/>
+    <bpmn:sequenceFlow id="Flow_C7" sourceRef="Task_Transfer_Agency" targetRef="Task_L2_Confirm"/>
+    <bpmn:sequenceFlow id="Flow_C8" sourceRef="Task_L2_Confirm" targetRef="Task_Audit_Trail"/>
+    <bpmn:sequenceFlow id="Flow_C9" sourceRef="Task_Audit_Trail" targetRef="Task_Alert_Config"/>
+    <bpmn:sequenceFlow id="Flow_C10" sourceRef="Task_Alert_Config" targetRef="End_Admin"/>
+  </bpmn:process>
+
+  <!-- UGMS Process -->
+  <bpmn:process id="Process_UGMS" name="UGMS System Process" isExecutable="false">
+
+    <bpmn:startEvent id="Start_UGMS" name="Data Ready">
+      <bpmn:outgoing>Flow_U1</bpmn:outgoing>
+    </bpmn:startEvent>
+
+    <bpmn:sendTask id="Task_UGMS_Push" name="Push data&#10;to UHub">
+      <bpmn:incoming>Flow_U1</bpmn:incoming>
+      <bpmn:outgoing>Flow_U2</bpmn:outgoing>
+    </bpmn:sendTask>
+
+    <bpmn:endEvent id="End_UGMS" name="Data Sent">
+      <bpmn:incoming>Flow_U2</bpmn:incoming>
+    </bpmn:endEvent>
+
+    <!-- Sequence Flows -->
+    <bpmn:sequenceFlow id="Flow_U1" sourceRef="Start_UGMS" targetRef="Task_UGMS_Push"/>
+    <bpmn:sequenceFlow id="Flow_U2" sourceRef="Task_UGMS_Push" targetRef="End_UGMS"/>
+  </bpmn:process>
+
+  <!-- Diagram Information (Optional - for BPMN editors) -->
+  <bpmndi:BPMNDiagram id="BPMNDiagram_E2EGift">
+    <bpmndi:BPMNPlane id="BPMNPlane_E2EGift" bpmnElement="Collaboration_E2EGift">
+
+      <!-- Agency Pool -->
+      <bpmndi:BPMNShape id="Participant_Agency_di" bpmnElement="Participant_Agency" isHorizontal="true">
+        <dc:Bounds x="160" y="80" width="1400" height="300"/>
+      </bpmndi:BPMNShape>
+
+      <!-- BU Pool -->
+      <bpmndi:BPMNShape id="Participant_BU_di" bpmnElement="Participant_BU" isHorizontal="true">
+        <dc:Bounds x="160" y="400" width="1400" height="300"/>
+      </bpmndi:BPMNShape>
+
+      <!-- Admin Pool -->
+      <bpmndi:BPMNShape id="Participant_Admin_di" bpmnElement="Participant_Admin" isHorizontal="true">
+        <dc:Bounds x="160" y="720" width="1400" height="300"/>
+      </bpmndi:BPMNShape>
+
+      <!-- UGMS Pool -->
+      <bpmndi:BPMNShape id="Participant_UGMS_di" bpmnElement="Participant_UGMS" isHorizontal="true">
+        <dc:Bounds x="160" y="1040" width="1400" height="100"/>
+      </bpmndi:BPMNShape>
+
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</bpmn:definitions>

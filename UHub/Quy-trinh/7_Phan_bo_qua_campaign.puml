@@ -1,0 +1,159 @@
+@startuml Phan_bo_qua_campaign
+title Quy trình phân bổ quà cho Campaign
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|Marketing/BU|
+|#LightGreen|UHub Admin|
+|#LightYellow|UGMS System|
+|#Pink|UHub System|
+|#Orange|Store/Agency|
+
+|Marketing/BU|
+start
+:Define campaign requirements;
+:Determine gift needs;
+note right
+  **Requirements:**
+  • Campaign duration
+  • Target audience size
+  • Geographic coverage
+  • Gift types needed
+  • Budget limits
+end note
+
+:Submit allocation request;
+
+|UHub Admin|
+:Review request;
+:Check gift inventory;
+if (Inventory sufficient?) then (yes)
+  :Proceed with allocation;
+else (no)
+  :Request additional gifts;
+  |UGMS System|
+  :Check available pool;
+  if (Gifts available?) then (yes)
+    :Reserve gifts;
+  else (no)
+    :Create new gifts;
+  endif
+  :Update inventory;
+  |UHub Admin|
+endif
+
+|UHub System|
+:Create allocation plan;
+partition "Allocation Logic" {
+  :Calculate distribution;
+  note left
+    **Distribution factors:**
+    • Store traffic
+    • Historical performance
+    • Geographic priority
+    • Campaign objectives
+  end note
+  
+  :Apply allocation rules;
+  note left
+    **Rules:**
+    • Min/Max per store
+    • Reserve percentage
+    • Priority stores first
+  end note
+  
+  :Generate allocation matrix;
+}
+
+:Display proposed allocation;
+:Show store-by-store breakdown;
+
+|UHub Admin|
+:Review allocation proposal;
+if (Allocation optimal?) then (yes)
+  :Approve allocation;
+else (no)
+  :Manual adjustment;
+  :Override quantities;
+  :Re-balance allocation;
+endif
+
+:Confirm final allocation;
+
+|UHub System|
+:Lock allocation;
+:Link gifts to campaign;
+:Update gift status;
+note left
+  Status: PLANNED
+  + Allocation ID
+  + Campaign ID
+end note
+
+:Generate distribution orders;
+
+|Store/Agency|
+:Receive allocation notice;
+:Review assigned quantity;
+if (Can accommodate?) then (yes)
+  :Acknowledge allocation;
+  :Prepare for receipt;
+else (no)
+  :Request adjustment;
+  :Provide constraints;
+  |UHub Admin|
+  :Review adjustment request;
+  :Modify if needed;
+  |Store/Agency|
+endif
+
+|UGMS System|
+:Sync allocation data;
+:Update master records;
+:Track gift movement;
+:Generate reports;
+
+|UHub System|
+:Activate campaign;
+:Enable gift distribution;
+:Start monitoring;
+:Real-time tracking;
+
+|Marketing/BU|
+:Receive confirmation;
+:Monitor allocation usage;
+:Track campaign progress;
+stop
+
+legend right
+  **Allocation Methods:**
+  • Equal: Same quantity per store
+  • Weighted: Based on metrics
+  • Tiered: By store category
+  • Custom: Manual assignment
+  
+  **Priority Levels:**
+  • P1: Flagship stores
+  • P2: High-traffic stores
+  • P3: Standard stores
+  • P4: New/Small stores
+  
+  **Constraints:**
+  • Store capacity
+  • Campaign budget
+  • Gift availability
+  • Time limitations
+  
+  **Monitoring:**
+  • Real-time usage
+  • Burn rate
+  • Store performance
+  • Reallocation alerts
+endlegend
+
+@enduml

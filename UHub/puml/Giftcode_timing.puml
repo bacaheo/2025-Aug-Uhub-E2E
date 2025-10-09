@@ -1,0 +1,280 @@
+@startuml Gift_Code_Lifecycle_Timing
+title Gift Code Lifecycle - Timing Diagram với Scheme, Allocation, Campaign
+
+' Define timelines
+robust "Gift Code State" as GCS
+concise "Scheme Binding" as SB
+concise "Allocation Binding" as AB
+concise "Campaign Binding" as CB
+concise "Lifecycle Phase" as LP
+
+' ============= Scenario 1: Normal Usage (Sử Dụng Bình Thường) =============
+@0
+GCS is CREATED
+SB is {-}
+AB is {-}
+CB is {-}
+LP is Creation
+
+@5
+GCS is REGISTERED
+@10
+SB is Scheme_A
+LP is Planning
+note bottom of LP : Gift Code sinh ra\nGắn với Scheme_A\n(Plan sử dụng)
+
+@15
+GCS is PLANNED
+AB is Alloc_1
+
+@20
+CB is Campaign_1
+LP is Execution
+note bottom of LP : B1. Planning\nGắn Allocation_1\nCampaign_1 live trên UHub
+
+@25
+GCS is AT_AGENCY
+@30
+GCS is AT_STORE
+
+@40
+GCS is DELIVERED
+CB is {-}
+AB is {-}
+LP is Completed
+note bottom of LP : B4. DELIVERED to Shopper\nGỡ Allocation & Campaign\nVẫn còn Scheme_A
+
+@45
+GCS is CONSUMED
+SB is {-}
+LP is End_Life
+note bottom of LP : End Life - CONSUMED\nGỡ tất cả bindings
+
+
+' ============= Scenario 2: Reuse Same Scheme (Tái Sử Dụng Cùng Scheme) =============
+@50
+GCS is CREATED
+SB is {-}
+AB is {-}
+CB is {-}
+LP is Creation
+
+@55
+GCS is REGISTERED
+@60
+SB is Scheme_A
+LP is Planning
+
+@65
+GCS is PLANNED
+AB is Alloc_1
+@70
+CB is Campaign_1
+LP is Execution
+
+@75
+GCS is AT_AGENCY
+@80
+GCS is AT_STORE
+
+@90
+GCS is UNUSED
+LP is Surplus
+note bottom of LP : UNUSED (Surplus)\nChưa phát cho Shopper
+
+@95
+GCS is RECALLED
+CB is {-}
+AB is {-}
+LP is Post_Campaign
+note bottom of LP : B5. Recall\nGỡ Allocation & Campaign\nVẫn còn Scheme_A
+
+@100
+GCS is RECONCILED
+
+@105
+GCS is AVAILABLE
+LP is Ready_Reuse
+note bottom of LP : AVAILABLE FOR REUSE\nVẫn gắn Scheme_A\n(Plan sử dụng)
+
+@110
+GCS is PLANNED
+AB is Alloc_2
+LP is Planning
+note bottom of LP : Reuse cùng Scheme_A\nGắn Allocation_2 mới\ncho Campaign_2
+
+@115
+CB is Campaign_2
+LP is Execution
+
+@120
+GCS is AT_AGENCY
+@125
+GCS is AT_STORE
+
+@135
+GCS is DELIVERED
+CB is {-}
+AB is {-}
+LP is Completed
+
+@140
+GCS is CONSUMED
+SB is {-}
+LP is End_Life
+
+
+' ============= Scenario 3: Transfer Scheme (Chuyển Scheme Mới) =============
+@150
+GCS is CREATED
+SB is {-}
+AB is {-}
+CB is {-}
+LP is Creation
+
+@155
+GCS is REGISTERED
+@160
+SB is Scheme_A
+LP is Planning
+
+@165
+GCS is PLANNED
+AB is Alloc_1
+@170
+CB is Campaign_1
+LP is Execution
+
+@175
+GCS is AT_STORE
+
+@185
+GCS is UNUSED
+LP is Surplus
+
+@190
+GCS is RECALLED
+CB is {-}
+AB is {-}
+LP is Post_Campaign
+
+@195
+GCS is RECONCILED
+@200
+GCS is AVAILABLE
+LP is Ready_Reuse
+note bottom of LP : AVAILABLE FOR REUSE\nVẫn gắn Scheme_A
+
+@205
+GCS is TRANSFERRED
+SB is Scheme_B
+LP is Transfer
+note bottom of LP : BU quyết định chuyển sang Scheme_B\nGỡ Scheme_A, gắn Scheme_B\n(New Lifecycle starts)
+
+@210
+GCS is REGISTERED
+LP is Planning
+note bottom of LP : Reset lifecycle\nBắt đầu lại từ REGISTERED
+
+@215
+GCS is PLANNED
+AB is Alloc_3
+@220
+CB is Campaign_X
+LP is Execution
+note bottom of LP : Plan cho Campaign_X\n(thuộc Scheme_B)
+
+@230
+GCS is DELIVERED
+CB is {-}
+AB is {-}
+LP is Completed
+
+@235
+GCS is CONSUMED
+SB is {-}
+LP is End_Life
+
+
+' ============= Scenario 4: Damaged & Write-off (Bị Hỏng & Xóa Khỏi Kho) =============
+@250
+GCS is CREATED
+SB is {-}
+AB is {-}
+CB is {-}
+LP is Creation
+
+@255
+GCS is REGISTERED
+@260
+SB is Scheme_A
+LP is Planning
+
+@265
+GCS is PLANNED
+AB is Alloc_1
+@270
+CB is Campaign_1
+LP is Execution
+
+@275
+GCS is AT_STORE
+
+@285
+GCS is DAMAGED
+CB is {-}
+AB is {-}
+LP is Incident
+note bottom of LP : DAMAGED at Store\nGỡ Allocation & Campaign ngay\nVẫn còn Scheme_A\n(để audit trail)
+
+@290
+GCS is RECALLED
+LP is Post_Campaign
+
+@295
+GCS is DISCREPANCY
+LP is Reconciliation
+note bottom of LP : B6. Discrepancy\nSố lượng không khớp\ndo hư hỏng
+
+@300
+LP is Approval
+note bottom of LP : B7. BU Review\nBU Level-2 Review\n+ Evidences\n(photos, reports)
+
+@305
+GCS is WRITE_OFF
+LP is Write_Off
+note bottom of LP : BU Level-2 Approved\nWrite-off với evidences\nUtop Admin Confirm
+
+@310
+GCS is DISPOSED
+SB is {-}
+LP is End_Life
+note bottom of LP : End Life - DISPOSED\nGỡ tất cả bindings\nSync to UGMS
+
+
+' ============= Legend =============
+legend right
+  |= Timeline |= Mô tả |
+  | **Gift Code State** | Trạng thái của Gift Code |
+  | **Scheme Binding** | Quan hệ với Scheme (Plan sử dụng) |
+  | **Allocation Binding** | Quan hệ với Allocation (Phân bổ cụ thể) |
+  | **Campaign Binding** | Quan hệ với Campaign UHub (Sử dụng thực tế) |
+  | **Lifecycle Phase** | Giai đoạn tổng quát |
+  
+  **Binding Rules:**
+  • **Scheme** = Plan sử dụng cho Campaign
+  • **Allocation** = Phân bổ cụ thể cho 1 Campaign
+  • **Campaign** = Sử dụng thực tế trên UHub
+  
+  **Gỡ Bindings khi:**
+  • Allocation & Campaign: DELIVERED, RECALLED, DAMAGED
+  • Scheme: CONSUMED, DISPOSED, hoặc TRANSFERRED
+  
+  **4 Scenarios:**
+  1. Normal Usage (@0-45): Delivered → Consumed
+  2. Reuse Same Scheme (@50-140): Unused → Reuse
+  3. Transfer Scheme (@150-235): Transfer A→B
+  4. Damaged & Write-off (@250-310): Damaged → Disposed
+endlegend
+
+@enduml

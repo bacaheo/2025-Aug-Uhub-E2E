@@ -1,0 +1,192 @@
+@startuml Dieu_chinh_kho_Agency
+title Quy trình điều chỉnh kho Agency -> Ticket
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|Agency|
+|#LightGreen|UHub Support|
+|#LightYellow|UHub System|
+|#Pink|Operations Team|
+|#Orange|Audit|
+
+|Agency|
+start
+:Detect inventory discrepancy;
+note right
+  **Discrepancy types:**
+  • Physical vs System count
+  • Damaged goods found
+  • Missing items
+  • Excess items
+  • Wrong items received
+end note
+
+:Perform recount;
+:Document evidence;
+if (Discrepancy confirmed?) then (yes)
+  :Create adjustment ticket;
+else (no)
+  :Update count;
+  stop
+endif
+
+|UHub System|
+:Generate ticket;
+:Assign ticket number;
+:Categorize issue;
+note left
+  **Categories:**
+  • P1: Critical (> 500 units)
+  • P2: High (100-500 units)
+  • P3: Medium (10-100 units)
+  • P4: Low (< 10 units)
+end note
+
+:Route to support queue;
+:Send notification;
+
+|UHub Support|
+:Receive ticket;
+:Review initial information;
+:Check ticket history;
+if (Recurring issue?) then (yes)
+  :Escalate to Operations;
+  |Operations Team|
+  :Analyze pattern;
+  :Identify root cause;
+  :Create prevention plan;
+  |UHub Support|
+else (no)
+  :Proceed with investigation;
+endif
+
+:Request additional info;
+
+|Agency|
+:Provide details;
+note right
+  **Required info:**
+  • Photos of inventory
+  • Count sheets
+  • Receiving documents
+  • Damage reports
+  • Staff statements
+end note
+
+:Upload documents;
+
+|UHub Support|
+:Analyze evidence;
+:Cross-check with system;
+partition "Investigation" {
+  :Check delivery records;
+  :Verify allocation history;
+  :Review transaction logs;
+  :Compare with other agencies;
+}
+
+if (Valid adjustment?) then (yes)
+  :Prepare adjustment;
+  :Calculate impact;
+else (no)
+  :Request more evidence;
+  :Schedule physical audit;
+  
+  |Audit|
+  :Conduct on-site audit;
+  :Count inventory;
+  :Review processes;
+  :Submit findings;
+  |UHub Support|
+endif
+
+|UHub System|
+:Process adjustment;
+partition "Adjustment Types" {
+  if (Shortage?) then (yes)
+    :Reduce system count;
+    :Update available quantity;
+  elseif (Excess?) then (yes)
+    :Increase system count;
+    :Add to available pool;
+  elseif (Damage?) then (yes)
+    :Mark as damaged;
+    :Remove from available;
+    :Create write-off request;
+  else (Wrong items)
+    :Correct item mapping;
+    :Transfer to right category;
+  endif
+}
+
+:Update inventory records;
+:Generate adjustment report;
+:Create audit trail;
+
+|Operations Team|
+:Review adjustment;
+if (Approval needed?) then (yes)
+  if (Value > threshold?) then (yes)
+    :Escalate to management;
+    :Get written approval;
+  else (no)
+    :Auto-approve;
+  endif
+else (no)
+  :System auto-process;
+endif
+
+|UHub System|
+:Finalize adjustment;
+:Update all related records;
+:Sync with UGMS;
+:Close ticket;
+:Send confirmation;
+
+|Agency|
+:Receive confirmation;
+:Verify new balance;
+:Update local records;
+if (Issue resolved?) then (yes)
+  :Confirm and close;
+  :Rate support service;
+else (no)
+  :Reopen ticket;
+  :Provide feedback;
+  |UHub Support|
+  :Review reopened ticket;
+  :Investigate further;
+endif
+
+stop
+
+legend right
+  **Ticket Priority:**
+  • P1: Response in 2 hours
+  • P2: Response in 4 hours
+  • P3: Response in 1 day
+  • P4: Response in 2 days
+  
+  **Approval Matrix:**
+  • < $500: Auto-approve
+  • $500-2000: Supervisor
+  • $2000-5000: Manager
+  • > $5000: Director
+  
+  **SLA Targets:**
+  • First response: 95% on time
+  • Resolution: 90% within SLA
+  • Customer satisfaction: > 4.0
+  
+  **Audit Requirements:**
+  • Monthly random checks
+  • All P1 tickets audited
+  • Quarterly process review
+endlegend
+
+@enduml

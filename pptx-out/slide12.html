@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>KPIs & Success Metrics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800;900&display=swap');
+        html, body { margin:0; padding:0; overflow:hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+        .slide { width:1280px; min-height:720px; padding:60px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+    </style>
+</head>
+<body>
+    <div class="slide bg-gradient-to-br from-[#6F2DA8]/10 to-white">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-4xl font-bold text-[#6F2DA8]">KPIs & Success Metrics</h1>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-3xl text-[#6F2DA8]">analytics</span>
+                <span class="text-2xl font-bold text-gray-600">Success Criteria</span>
+            </div>
+        </div>
+
+        <!-- Main Grid -->
+        <div class="flex-1 grid grid-cols-2 gap-6">
+            <!-- Left Column - Operational KPIs -->
+            <div class="space-y-4">
+                <!-- System Performance -->
+                <div class="bg-white rounded-xl p-5 shadow-lg border-l-4 border-[#6F2DA8]">
+                    <h2 class="text-xl font-bold text-[#000080] mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#6F2DA8]">speed</span>
+                        System Performance KPIs
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <!-- Uptime -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">System Uptime</span>
+                                <span class="text-lg font-bold text-[#6F2DA8]">99.9%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-[#6F2DA8] to-purple-500 h-2 rounded-full" style="width: 99.9%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Response Time -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">API Response Time</span>
+                                <span class="text-lg font-bold text-[#FF6600]"><2s</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-[#FF6600] to-orange-400 h-2 rounded-full" style="width: 95%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Concurrent Users -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">Concurrent Users</span>
+                                <span class="text-lg font-bold text-[#00BFFF]">10K+</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-gradient-to-r from-[#00BFFF] to-blue-400 h-2 rounded-full" style="width: 85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Process Efficiency -->
+                <div class="bg-white rounded-xl p-5 shadow-lg border-l-4 border-green-500">
+                    <h2 class="text-xl font-bold text-[#000080] mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-green-500">timer</span>
+                        Process Efficiency KPIs
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-green-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600">1 Day</div>
+                            <div class="text-xs text-gray-600">Reconciliation Time</div>
+                            <div class="text-xs text-green-500 mt-1">↓ from 7 days</div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-blue-600">24h</div>
+                            <div class="text-xs text-gray-600">Agency SLA</div>
+                            <div class="text-xs text-blue-500 mt-1">Approval time</div>
+                        </div>
+                        
+                        <div class="bg-orange-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-orange-600">12h</div>
+                            <div class="text-xs text-gray-600">Store SLA</div>
+                            <div class="text-xs text-orange-500 mt-1">Approval time</div>
+                        </div>
+                        
+                        <div class="bg-purple-50 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-purple-600">100%</div>
+                            <div class="text-xs text-gray-600">Digital Process</div>
+                            <div class="text-xs text-purple-500 mt-1">Automated</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Business KPIs -->
+            <div class="space-y-4">
+                <!-- Gift Management KPIs -->
+                <div class="bg-white rounded-xl p-5 shadow-lg border-l-4 border-[#FF6600]">
+                    <h2 class="text-xl font-bold text-[#000080] mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#FF6600]">inventory_2</span>
+                        Gift Management KPIs
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <!-- Gift Usage Rate -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">Gift Usage Rate</span>
+                                <span class="text-lg font-bold text-green-600">>80%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full" style="width: 80%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Gift Reuse Rate -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">Gift Reuse Rate</span>
+                                <span class="text-lg font-bold text-blue-600">>70%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-blue-400 to-blue-600 h-3 rounded-full" style="width: 70%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Write-off Rate -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">Write-off Rate</span>
+                                <span class="text-lg font-bold text-red-600"><5%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-red-400 to-red-600 h-3 rounded-full" style="width: 5%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Reconciliation Match -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-sm font-semibold">Reconciliation Match</span>
+                                <span class="text-lg font-bold text-purple-600">>90%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-gradient-to-r from-purple-400 to-purple-600 h-3 rounded-full" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Satisfaction -->
+                <div class="bg-white rounded-xl p-5 shadow-lg border-l-4 border-[#00BFFF]">
+                    <h2 class="text-xl font-bold text-[#000080] mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[#00BFFF]">sentiment_satisfied</span>
+                        User Satisfaction KPIs
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-[#6F2DA8]/10 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-[#6F2DA8]">4.5/5</div>
+                            <div class="text-xs text-gray-600">Shopper Rating</div>
+                        </div>
+                        
+                        <div class="bg-[#FF6600]/10 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-[#FF6600]">95%</div>
+                            <div class="text-xs text-gray-600">PG Satisfaction</div>
+                        </div>
+                        
+                        <div class="bg-[#00BFFF]/10 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-[#00BFFF]"><2%</div>
+                            <div class="text-xs text-gray-600">Error Rate</div>
+                        </div>
+                        
+                        <div class="bg-green-100 rounded-lg p-3 text-center">
+                            <div class="text-2xl font-bold text-green-600">24/7</div>
+                            <div class="text-xs text-gray-600">Support Available</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Success Dashboard Preview -->
+        <div class="mt-4 bg-gradient-to-r from-[#6F2DA8] via-[#FF6600] to-[#00BFFF] p-1 rounded-xl">
+            <div class="bg-white rounded-lg p-4">
+                <h3 class="text-lg font-bold text-[#000080] mb-3 text-center flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined">dashboard</span>
+                    Real-time Dashboard Monitoring
+                </h3>
+                <div class="flex justify-between items-center">
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-2xl text-[#6F2DA8] mb-1">campaign</span>
+                        <div class="text-xs font-semibold">Active Campaigns</div>
+                        <div class="text-sm font-bold">Live Tracking</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-2xl text-[#FF6600] mb-1">inventory</span>
+                        <div class="text-xs font-semibold">Inventory Status</div>
+                        <div class="text-sm font-bold">Real-time</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-2xl text-[#00BFFF] mb-1">insights</span>
+                        <div class="text-xs font-semibold">PowerBI Reports</div>
+                        <div class="text-sm font-bold">3x Daily</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-2xl text-green-600 mb-1">notifications</span>
+                        <div class="text-xs font-semibold">Alert System</div>
+                        <div class="text-sm font-bold">Automated</div>
+                    </div>
+                    <div class="text-center">
+                        <span class="material-symbols-outlined text-2xl text-purple-600 mb-1">trending_up</span>
+                        <div class="text-xs font-semibold">ROI Tracking</div>
+                        <div class="text-sm font-bold">Monthly</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

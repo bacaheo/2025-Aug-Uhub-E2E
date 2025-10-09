@@ -1,0 +1,107 @@
+@startuml Bo_sung_qua_cung_scheme
+title Quy trình bổ sung quà cùng Scheme
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|BU/Marketing|
+|#LightGreen|UHub Admin|
+|#LightYellow|UGMS System|
+|#Pink|UHub System|
+
+|BU/Marketing|
+start
+:Identify need for more gifts;
+:Check current campaign;
+note right
+  **Triggers:**
+  • Campaign extension
+  • Higher demand
+  • Stock shortage
+end note
+
+:Submit request;
+note right
+  **Request includes:**
+  • Campaign ID
+  • Current Scheme
+  • Quantity needed
+  • Justification
+end note
+
+|UHub Admin|
+:Review request;
+:Check available inventory;
+if (Inventory available?) then (yes)
+  :Check same scheme pool;
+  if (Same scheme available?) then (yes)
+    :Allocate from existing pool;
+  else (no)
+    :Request UGMS creation;
+  endif
+else (no)
+  :Escalate to UGMS;
+endif
+
+|UGMS System|
+:Receive allocation request;
+:Validate scheme exists;
+if (Scheme active?) then (yes)
+  :Check gift pool;
+  if (Sufficient quantity?) then (yes)
+    :Reserve gifts;
+    :Create new allocation;
+  else (no)
+    :Generate new gift codes;
+    :Bind to same scheme;
+  endif
+  :Update inventory;
+else (no)
+  :Alert: Scheme inactive;
+  :Suggest alternatives;
+  stop
+endif
+
+|UHub System|
+:Receive allocation update;
+:Link to existing campaign;
+:Maintain scheme binding;
+note left
+  **Important:**
+  Keep same scheme
+  to ensure consistency
+end note
+
+:Update campaign allocation;
+:Notify stakeholders;
+
+|BU/Marketing|
+:Receive confirmation;
+:Verify allocation details;
+if (Allocation correct?) then (yes)
+  :Approve and proceed;
+  :Update campaign plan;
+else (no)
+  :Raise issue;
+  :Request correction;
+endif
+
+stop
+
+legend right
+  **Business Rules:**
+  • Must use same scheme for consistency
+  • Approval required for quantity > 1000
+  • Auto-approval for quantity < 100
+  
+  **SLA:**
+  • Standard: 2 business days
+  • Urgent: 4 hours
+  • Emergency: 1 hour
+endlegend
+
+@enduml

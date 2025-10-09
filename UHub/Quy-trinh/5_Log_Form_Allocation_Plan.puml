@@ -1,0 +1,150 @@
+@startuml Log_Form_Allocation_Plan
+title Quy trình Log Form / Allocation / Plan Mechanic
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|Marketing Team|
+|#LightGreen|UHub Admin|
+|#LightYellow|System Automation|
+|#Pink|Approval Chain|
+
+|Marketing Team|
+start
+:Design campaign mechanics;
+:Define gift distribution rules;
+note right
+  **Mechanics include:**
+  • Eligibility criteria
+  • Gift tiers/types
+  • Distribution timeline
+  • Redemption rules
+  • Budget allocation
+end note
+
+:Fill campaign form;
+note right
+  **Form sections:**
+  • Campaign details
+  • Target audience
+  • Gift allocation
+  • Distribution channels
+  • Success metrics
+end note
+
+:Submit for approval;
+
+|Approval Chain|
+:Receive submission;
+:Review campaign details;
+if (Budget approved?) then (yes)
+  if (Compliance check OK?) then (yes)
+    :Approve campaign;
+  else (no)
+    :Request modifications;
+    :Return to Marketing;
+    |Marketing Team|
+    :Modify campaign;
+    :Resubmit;
+    |Approval Chain|
+  endif
+else (no)
+  :Reject - Budget issues;
+  stop
+endif
+
+|UHub Admin|
+:Create campaign in system;
+:Configure mechanics;
+partition "Allocation Setup" {
+  :Define allocation rules;
+  :Set distribution quotas;
+  :Configure triggers;
+  note left
+    **Allocation rules:**
+    • Per store limits
+    • Daily/weekly caps
+    • Priority groups
+    • Reserve pool
+  end note
+}
+
+partition "Plan Mechanic Setup" {
+  :Configure eligibility engine;
+  :Set up validation rules;
+  :Define reward tiers;
+  :Create automation workflows;
+}
+
+|System Automation|
+:Validate configuration;
+:Run test scenarios;
+if (Tests pass?) then (yes)
+  :Generate allocation plan;
+  :Create distribution matrix;
+  note left
+    Distribution Matrix:
+    Store × Time × Quantity
+  end note
+else (no)
+  :Report configuration errors;
+  |UHub Admin|
+  :Fix configuration;
+  :Re-test;
+  |System Automation|
+endif
+
+:Initialize tracking;
+:Set up monitoring;
+:Create dashboards;
+
+|UHub Admin|
+:Review automated setup;
+:Make final adjustments;
+if (Ready to launch?) then (yes)
+  :Activate campaign;
+  :Enable allocations;
+  :Start distribution;
+else (no)
+  :Hold campaign;
+  :Document issues;
+endif
+
+|System Automation|
+:Log all configurations;
+:Create audit trail;
+:Generate documentation;
+:Send notifications;
+
+|Marketing Team|
+:Receive launch confirmation;
+:Monitor initial performance;
+:Track KPIs;
+stop
+
+legend right
+  **Form Types:**
+  • Standard Campaign
+  • Flash Sale
+  • Loyalty Program
+  • Partnership Campaign
+  
+  **Allocation Methods:**
+  • Fixed: Predetermined quantity
+  • Dynamic: Based on demand
+  • Tiered: By customer segment
+  • Progressive: Increases over time
+  
+  **Plan Mechanics:**
+  • First-come-first-served
+  • Random selection
+  • Points-based
+  • Achievement-based
+  • Purchase-triggered
+endlegend
+
+@enduml

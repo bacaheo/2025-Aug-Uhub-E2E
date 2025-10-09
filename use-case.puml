@@ -1,0 +1,177 @@
+@startuml E2E Gift Management System - Use Case Diagram
+
+skinparam actorStyle awesome
+skinparam packageStyle rectangle
+skinparam backgroundColor #FEFEFE
+skinparam shadowing false
+
+title E2E Gift Management System - Use Case Diagram
+
+' Actors
+actor "BU Team\nMember/Lead" as BU #lightblue
+actor "Agency\nOperations Manager" as Agency #lightgreen
+actor "Utop\nAdmin" as Admin #lightyellow
+
+' External System
+rectangle "UGMS\nSystem" as UGMS #lightgray
+
+' Package: Authentication & Authorization
+package "Authentication & Authorization" {
+  usecase "UC01: Đăng nhập hệ thống" as UC01
+  usecase "UC02: Quản lý phân quyền\ntheo vai trò" as UC02
+}
+
+' Package: Master Data Management
+package "Master Data Management" {
+  usecase "UC03: Quản lý danh mục\nAgency (CRUD)" as UC03
+  usecase "UC04: Quản lý Scheme\n(Campaign)" as UC04
+  usecase "UC05: Quản lý GiftCode\n& Allocation" as UC05
+}
+
+' Package: Campaign Operations
+package "Campaign Operations" {
+  usecase "UC06: Xem Dashboard\nUHub Campaign" as UC06
+  usecase "UC07: Báo cáo vòng đời\nGiftCode" as UC07
+  usecase "UC08: Phân bổ quà\ncho Campaign" as UC08
+}
+
+' Package: Warehouse & Inventory
+package "Warehouse & Inventory Management" {
+  usecase "UC09: Xác nhận nhập kho\nAgency" as UC09
+  usecase "UC10: Điều chỉnh phân bổ\ntrong Campaign" as UC10
+  usecase "UC11: Điều chỉnh tồn kho\nngoài Campaign" as UC11
+  usecase "UC12: Điều chuyển quà\ngiữa Schemes" as UC12
+  usecase "UC13: Điều chuyển quà\ngiữa Agencies" as UC13
+}
+
+' Package: Reconciliation & Recall
+package "Reconciliation & Recall" {
+  usecase "UC14: Đối soát & Recall\ntự động" as UC14
+  usecase "UC15: BU Level-2\nEmail Approval" as UC15
+}
+
+' Package: Ticket & Workflow
+package "Ticket & SLA Management" {
+  usecase "UC16: Tạo Ticket\nDiscrepancy" as UC16
+  usecase "UC17: BU Review &\nApprove Ticket" as UC17
+  usecase "UC18: Theo dõi SLA\n& Escalation" as UC18
+}
+
+' Package: Integration & Infrastructure
+package "Integration & Infrastructure" {
+  usecase "UC19: UGMS Sync\nAPI Integration" as UC19
+  usecase "UC20: Audit Trail &\nEvidence Repository" as UC20
+  usecase "UC21: Hệ thống thông báo\ntập trung" as UC21
+}
+
+' Relationships - Authentication
+BU --> UC01
+Agency --> UC01
+Admin --> UC01
+Admin --> UC02
+
+' Relationships - Master Data
+Admin --> UC03
+Admin --> UC04
+BU --> UC04 : view/update
+Admin --> UC05
+BU --> UC05 : view/update
+
+' Relationships - Campaign Operations
+BU --> UC06
+Agency --> UC06 : limited view
+BU --> UC07
+Admin --> UC07 : system view
+Agency --> UC08 : request
+BU --> UC08 : approve
+
+' Relationships - Warehouse & Inventory
+Agency --> UC09
+Agency --> UC10 : request
+BU --> UC10 : approve
+Agency --> UC11 : request
+BU --> UC11 : approve
+Admin --> UC12
+Admin --> UC13
+
+' Relationships - Reconciliation & Recall
+Agency --> UC14 : submit
+BU --> UC14 : review/approve
+BU --> UC15 : trigger
+Admin --> UC15 : confirm after L2
+
+' Relationships - Ticket & SLA
+Agency --> UC16 : create
+BU --> UC17
+BU --> UC18
+Admin --> UC18 : monitor
+
+' Relationships - Integration & Infrastructure
+UGMS --> UC19 : push data
+UC19 --> UGMS : sync back
+Admin --> UC20 : view/manage
+BU --> UC21 : configure
+Agency --> UC21 : receive
+Admin --> UC21 : receive
+
+' Include relationships
+UC09 .> UC16 : <<include>>\nif discrepancy
+UC10 .> UC17 : <<include>>
+UC11 .> UC15 : <<include>>\nif high-value
+UC14 .> UC17 : <<include>>\nif variance
+UC16 .> UC21 : <<include>>\nnotify
+UC17 .> UC21 : <<include>>\nnotify
+UC09 .> UC19 : <<include>>\nsync UGMS
+
+' Extend relationships
+UC15 ..> UC17 : <<extend>>\nL2 override
+UC18 ..> UC21 : <<extend>>\nauto-alert
+
+' Notes
+note right of UC01
+  - OAuth 2.0 + JWT
+  - Session 8h expiry
+  - Audit logging
+end note
+
+note right of UC09
+  - PWA mobile-first
+  - Photo evidence upload
+  - Digital signature
+  - Offline-capable
+  - Real-time sync
+end note
+
+note right of UC14
+  - 3-way comparison
+  - Auto-reconciliation
+  - GAP analysis
+  - Re-use mechanism
+end note
+
+note right of UC19
+  - RSA 2048-bit auth
+  - <30s latency
+  - Retry logic
+  - Bi-directional sync
+end note
+
+note bottom of UGMS
+  External System
+  Unilever Gift
+  Management System
+end note
+
+' Legend
+legend right
+  |= Symbol |= Meaning |
+  | <<include>> | Mandatory dependency |
+  | <<extend>> | Optional extension |
+  |= Actor |= Role |
+  | BU (Blue) | BU Team Member/Lead |
+  | Agency (Green) | Agency Operations Manager |
+  | Admin (Yellow) | Utop System Administrator |
+  | UGMS (Gray) | External Integration System |
+endlegend
+
+@enduml

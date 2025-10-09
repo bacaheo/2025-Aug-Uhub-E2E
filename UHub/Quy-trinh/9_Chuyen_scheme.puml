@@ -1,0 +1,167 @@
+@startuml Chuyen_scheme
+title Quy trình chuyển Scheme
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|BU/Marketing|
+|#LightGreen|UHub Admin|
+|#LightYellow|UGMS System|
+|#Pink|Finance|
+|#Orange|UHub System|
+
+|BU/Marketing|
+start
+:Identify need for scheme change;
+note right
+  **Reasons:**
+  • Campaign pivot
+  • Budget changes
+  • Target audience shift
+  • Product changes
+  • Seasonal adjustment
+end note
+
+:Analyze current scheme usage;
+:Define new scheme requirements;
+:Submit change request;
+
+|UHub Admin|
+:Review change request;
+:Check affected gifts;
+partition "Impact Analysis" {
+  :Count gifts on old scheme;
+  :Check gift status;
+  note left
+    Only AVAILABLE/UNUSED
+    gifts can be transferred
+  end note
+  :Identify campaigns affected;
+  :Calculate financial impact;
+}
+
+if (Impact acceptable?) then (yes)
+  :Approve scheme change;
+else (no)
+  :Request justification;
+  |BU/Marketing|
+  :Provide business case;
+  :Get senior approval;
+  |UHub Admin|
+endif
+
+|Finance|
+:Review financial impact;
+:Check budget allocation;
+if (Budget approved?) then (yes)
+  :Approve transfer;
+else (no)
+  :Reject request;
+  stop
+endif
+
+|UGMS System|
+:Validate new scheme;
+if (New scheme exists?) then (yes)
+  :Check compatibility;
+else (no)
+  :Create new scheme;
+  :Configure parameters;
+endif
+
+:Prepare for transfer;
+:Lock affected gifts;
+
+|UHub System|
+:Select gifts for transfer;
+partition "Transfer Process" {
+  :Remove old scheme binding;
+  :Apply new scheme binding;
+  :Update gift properties;
+  :Maintain history log;
+  note left
+    Keep audit trail:
+    • Old scheme ID
+    • New scheme ID
+    • Transfer date
+    • Approval chain
+  end note
+}
+
+:Update campaign mappings;
+:Recalculate allocations;
+
+|UGMS System|
+:Process bulk update;
+:Update master records;
+if (Update successful?) then (yes)
+  :Commit changes;
+  :Generate confirmation;
+else (no)
+  :Rollback changes;
+  :Alert administrators;
+  stop
+endif
+
+|UHub System|
+:Sync updated data;
+:Verify all transfers;
+partition "Verification" {
+  :Count transferred gifts;
+  :Verify new bindings;
+  :Check data integrity;
+}
+
+if (All verified?) then (yes)
+  :Complete transfer;
+  :Update statuses;
+else (no)
+  :Flag exceptions;
+  :Manual intervention;
+  |UHub Admin|
+  :Review exceptions;
+  :Fix issues;
+  |UHub System|
+endif
+
+:Generate reports;
+:Send notifications;
+
+|BU/Marketing|
+:Review completion report;
+:Verify new scheme active;
+:Update campaign materials;
+:Communicate changes;
+stop
+
+legend right
+  **Scheme Types:**
+  • Standard Gift
+  • Premium Gift
+  • Seasonal Promotion
+  • Partner Rewards
+  • Loyalty Points
+  
+  **Transfer Rules:**
+  • Only AVAILABLE status
+  • No active allocations
+  • Approval required
+  • Audit trail mandatory
+  
+  **Impact Levels:**
+  • Low: < 100 gifts
+  • Medium: 100-1000 gifts
+  • High: > 1000 gifts
+  • Critical: Active campaign
+  
+  **Rollback Plan:**
+  • Automatic backup
+  • One-click restore
+  • Maximum 24 hours
+endlegend
+
+@enduml

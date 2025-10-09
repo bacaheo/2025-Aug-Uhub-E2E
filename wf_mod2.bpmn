@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn2:collaboration id="Collaboration_SmartReceiptAPI">
+    <bpmn2:participant id="Participant_ClientSystem" name="Client System (External)" processRef="Process_ClientSystem" />
+    <bpmn2:participant id="Participant_SmartReceiptAPI" name="Smart Receipt Scan API" processRef="Process_SmartReceiptAPI" />
+    <bpmn2:messageFlow id="MessageFlow_APIRequest" sourceRef="Task_SendAPIRequest" targetRef="StartEvent_1" />
+    <bpmn2:messageFlow id="MessageFlow_SuccessResponse" sourceRef="Task_GenerateResponse" targetRef="Task_ReceiveResponse" />
+    <bpmn2:messageFlow id="MessageFlow_ErrorResponse2" sourceRef="Task_ErrorResponse2" targetRef="Task_ReceiveResponse" />
+    <bpmn2:messageFlow id="MessageFlow_ErrorResponse3" sourceRef="Task_ErrorResponse3" targetRef="Task_ReceiveResponse" />
+    <bpmn2:messageFlow id="MessageFlow_ErrorResponse1" sourceRef="Task_ErrorResponse1" targetRef="Task_ReceiveResponse" />
+  </bpmn2:collaboration>
+  <bpmn2:process id="Process_ClientSystem" name="Client System Process" isExecutable="false">
+    <bpmn2:startEvent id="StartEvent_Client" name="Need Receipt Processing">
+      <bpmn2:outgoing>SequenceFlow_Client1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="Task_SendAPIRequest" name="Send API Request with Receipt Image">
+      <bpmn2:incoming>SequenceFlow_Client1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_Client2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_ReceiveResponse" name="Receive API Response">
+      <bpmn2:incoming>SequenceFlow_Client2</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_Client3</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_Client" name="Processing Complete">
+      <bpmn2:incoming>SequenceFlow_Client3</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_Client1" sourceRef="StartEvent_Client" targetRef="Task_SendAPIRequest" />
+    <bpmn2:sequenceFlow id="SequenceFlow_Client2" sourceRef="Task_SendAPIRequest" targetRef="Task_ReceiveResponse" />
+    <bpmn2:sequenceFlow id="SequenceFlow_Client3" sourceRef="Task_ReceiveResponse" targetRef="EndEvent_Client" />
+  </bpmn2:process>
+  <bpmn2:process id="Process_SmartReceiptAPI" name="Smart Receipt Scan API Process" isExecutable="false">
+    <bpmn2:laneSet id="LaneSet_SmartReceiptAPI">
+      <bpmn2:lane id="Lane_BusinessLogic" name="Business Logic">
+        <bpmn2:flowNodeRef>Task_UnileverRecognition</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+      <bpmn2:lane id="Lane_ImageProcessing" name="Image Processing">
+        <bpmn2:flowNodeRef>Task_ReceiveReceipt</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_QualityCheck</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_TemplateValid</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_TemplateValidation</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Activity_1pdx3g4</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+      <bpmn2:lane id="Lane_APIGateway" name="API Gateway">
+        <bpmn2:flowNodeRef>StartEvent_1</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_ValidateRequest</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>EndEvent_Error1</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>EndEvent_Error2</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_GenerateResponse</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>EndEvent_Success</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_ErrorResponse2</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_ErrorResponse1</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_RequestValid</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_ErrorResponse3</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>EndEvent_Error3</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+    </bpmn2:laneSet>
+    <bpmn2:startEvent id="StartEvent_1" name="API Request Received">
+      <bpmn2:outgoing>SequenceFlow_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="Task_ValidateRequest" name="Validate API Request">
+      <bpmn2:incoming>SequenceFlow_1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="SequenceFlow_1" sourceRef="StartEvent_1" targetRef="Task_ValidateRequest" />
+    <bpmn2:sequenceFlow id="SequenceFlow_2" sourceRef="Task_ValidateRequest" targetRef="Gateway_RequestValid" />
+    <bpmn2:sequenceFlow id="SequenceFlow_4" sourceRef="Task_ReceiveReceipt" targetRef="Gateway_QualityCheck" />
+    <bpmn2:sequenceFlow id="SequenceFlow_10" sourceRef="Task_UnileverRecognition" targetRef="Task_GenerateResponse" />
+    <bpmn2:sequenceFlow id="SequenceFlow_12" sourceRef="Task_GenerateResponse" targetRef="EndEvent_Success" />
+    <bpmn2:sequenceFlow id="SequenceFlow_6" name="Passed" sourceRef="Gateway_QualityCheck" targetRef="Activity_1pdx3g4" />
+    <bpmn2:sequenceFlow id="SequenceFlow_Error2" name="Failed" sourceRef="Gateway_QualityCheck" targetRef="Task_ErrorResponse2" />
+    <bpmn2:sequenceFlow id="SequenceFlow_7" sourceRef="Task_TemplateValidation" targetRef="Gateway_TemplateValid" />
+    <bpmn2:sequenceFlow id="SequenceFlow_8" name="Valid" sourceRef="Gateway_TemplateValid" targetRef="Task_UnileverRecognition" />
+    <bpmn2:sequenceFlow id="SequenceFlow_Error2_End" sourceRef="Task_ErrorResponse2" targetRef="EndEvent_Error2" />
+    <bpmn2:endEvent id="EndEvent_Error1" name="Validation Error">
+      <bpmn2:incoming>SequenceFlow_Error1_End</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_Error1_End" sourceRef="Task_ErrorResponse1" targetRef="EndEvent_Error1" />
+    <bpmn2:endEvent id="EndEvent_Error2" name="Quality Error">
+      <bpmn2:incoming>SequenceFlow_Error2_End</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:task id="Task_GenerateResponse" name="Generate API Response&#10;(Processed Results)">
+      <bpmn2:incoming>SequenceFlow_10</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_12</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_Success" name="Success Response">
+      <bpmn2:incoming>SequenceFlow_12</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:task id="Task_ErrorResponse2" name="Return Quality Check Error">
+      <bpmn2:incoming>SequenceFlow_Error2</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_Error2_End</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_ErrorResponse1" name="Return Validation Error">
+      <bpmn2:incoming>SequenceFlow_Error1</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_Error1_End</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_RequestValid" name="Request Valid?">
+      <bpmn2:incoming>SequenceFlow_2</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_3</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_Error1</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_ReceiveReceipt" name="Receive Receipt Image">
+      <bpmn2:incoming>SequenceFlow_3</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_4</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="SequenceFlow_Error1" name="Invalid" sourceRef="Gateway_RequestValid" targetRef="Task_ErrorResponse1" />
+    <bpmn2:sequenceFlow id="SequenceFlow_3" name="Valid" sourceRef="Gateway_RequestValid" targetRef="Task_ReceiveReceipt" />
+    <bpmn2:exclusiveGateway id="Gateway_QualityCheck" name="Quality Check&#10;Passed?">
+      <bpmn2:incoming>SequenceFlow_4</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_6</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_Error2</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:sequenceFlow id="Flow_09zt4v5" sourceRef="Activity_1pdx3g4" targetRef="Task_TemplateValidation" />
+    <bpmn2:exclusiveGateway id="Gateway_TemplateValid" name="Template&#10;Valid?">
+      <bpmn2:incoming>SequenceFlow_7</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_8</bpmn2:outgoing>
+      <bpmn2:outgoing>SequenceFlow_Error3</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_ErrorResponse3" name="Return Template Error">
+      <bpmn2:incoming>SequenceFlow_Error3</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_Error3_End</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_Error3" name="Template Error">
+      <bpmn2:incoming>SequenceFlow_Error3_End</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="SequenceFlow_Error3" name="Invalid" sourceRef="Gateway_TemplateValid" targetRef="Task_ErrorResponse3" />
+    <bpmn2:sequenceFlow id="SequenceFlow_Error3_End" sourceRef="Task_ErrorResponse3" targetRef="EndEvent_Error3" />
+    <bpmn2:task id="Task_TemplateValidation" name="Validate Against&#10;Fixed Receipt Template">
+      <bpmn2:incoming>Flow_09zt4v5</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_7</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Activity_1pdx3g4" name="OCR Processing">
+      <bpmn2:incoming>SequenceFlow_6</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_09zt4v5</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UnileverRecognition" name="Unilever Product&#10;Recognition &#38; Filtering">
+      <bpmn2:incoming>SequenceFlow_8</bpmn2:incoming>
+      <bpmn2:outgoing>SequenceFlow_10</bpmn2:outgoing>
+    </bpmn2:task>
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_SmartReceiptAPI">
+      <bpmndi:BPMNShape id="Participant_ClientSystem_di" bpmnElement="Participant_ClientSystem" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="1600" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Client_di" bpmnElement="StartEvent_Client">
+        <dc:Bounds x="200" y="150" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="190" y="193" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_SendAPIRequest_di" bpmnElement="Task_SendAPIRequest">
+        <dc:Bounds x="300" y="128" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveResponse_di" bpmnElement="Task_ReceiveResponse">
+        <dc:Bounds x="1450" y="128" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Client_di" bpmnElement="EndEvent_Client">
+        <dc:Bounds x="1600" y="150" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1590" y="193" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_Client1_di" bpmnElement="SequenceFlow_Client1">
+        <di:waypoint x="236" y="168" />
+        <di:waypoint x="300" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Client2_di" bpmnElement="SequenceFlow_Client2">
+        <di:waypoint x="400" y="168" />
+        <di:waypoint x="1450" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Client3_di" bpmnElement="SequenceFlow_Client3">
+        <di:waypoint x="1550" y="168" />
+        <di:waypoint x="1600" y="168" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_SmartReceiptAPI_di" bpmnElement="Participant_SmartReceiptAPI" isHorizontal="true">
+        <dc:Bounds x="120" y="380" width="1600" height="560" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_BusinessLogic_di" bpmnElement="Lane_BusinessLogic" isHorizontal="true">
+        <dc:Bounds x="150" y="810" width="1570" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ImageProcessing_di" bpmnElement="Lane_ImageProcessing" isHorizontal="true">
+        <dc:Bounds x="150" y="630" width="1570" height="180" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_APIGateway_di" bpmnElement="Lane_APIGateway" isHorizontal="true">
+        <dc:Bounds x="150" y="380" width="1570" height="250" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="200" y="540" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="187" y="583" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ValidateRequest_di" bpmnElement="Task_ValidateRequest">
+        <dc:Bounds x="280" y="518" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Error1_di" bpmnElement="EndEvent_Error1">
+        <dc:Bounds x="552" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="532" y="465" width="76" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Error2_di" bpmnElement="EndEvent_Error2">
+        <dc:Bounds x="822" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="814" y="465" width="62" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_GenerateResponse_di" bpmnElement="Task_GenerateResponse" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="1200" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Success_di" bpmnElement="EndEvent_Success">
+        <dc:Bounds x="1350" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1343" y="465" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ErrorResponse2_di" bpmnElement="Task_ErrorResponse2" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="651" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ErrorResponse1_di" bpmnElement="Task_ErrorResponse1" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="413" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_RequestValid_di" bpmnElement="Gateway_RequestValid" isMarkerVisible="true">
+        <dc:Bounds x="438" y="533" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="498" y="551" width="74" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ReceiveReceipt_di" bpmnElement="Task_ReceiveReceipt">
+        <dc:Bounds x="413" y="680" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_QualityCheck_di" bpmnElement="Gateway_QualityCheck" isMarkerVisible="true">
+        <dc:Bounds x="595" y="695" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="585" y="755" width="69" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_TemplateValid_di" bpmnElement="Gateway_TemplateValid" isMarkerVisible="true">
+        <dc:Bounds x="1006" y="695" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1065.5" y="706" width="45" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_ErrorResponse3_di" bpmnElement="Task_ErrorResponse3" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="981" y="400" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Error3_di" bpmnElement="EndEvent_Error3">
+        <dc:Bounds x="1124" y="422" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1106" y="465" width="73" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_TemplateValidation_di" bpmnElement="Task_TemplateValidation">
+        <dc:Bounds x="855" y="680" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pdx3g4_di" bpmnElement="Activity_1pdx3g4">
+        <dc:Bounds x="714" y="680" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UnileverRecognition_di" bpmnElement="Task_UnileverRecognition">
+        <dc:Bounds x="1090" y="836" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="SequenceFlow_1_di" bpmnElement="SequenceFlow_1">
+        <di:waypoint x="236" y="558" />
+        <di:waypoint x="280" y="558" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_2_di" bpmnElement="SequenceFlow_2">
+        <di:waypoint x="380" y="558" />
+        <di:waypoint x="438" y="558" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_4_di" bpmnElement="SequenceFlow_4">
+        <di:waypoint x="513" y="720" />
+        <di:waypoint x="595" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_10_di" bpmnElement="SequenceFlow_10">
+        <di:waypoint x="1190" y="876" />
+        <di:waypoint x="1250" y="876" />
+        <di:waypoint x="1250" y="480" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_12_di" bpmnElement="SequenceFlow_12">
+        <di:waypoint x="1300" y="440" />
+        <di:waypoint x="1350" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_6_di" bpmnElement="SequenceFlow_6">
+        <di:waypoint x="645" y="720" />
+        <di:waypoint x="714" y="720" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="651" y="702" width="37" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Error2_di" bpmnElement="SequenceFlow_Error2">
+        <di:waypoint x="620" y="695" />
+        <di:waypoint x="620" y="440" />
+        <di:waypoint x="651" y="440" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="585" y="671" width="30" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_7_di" bpmnElement="SequenceFlow_7">
+        <di:waypoint x="955" y="720" />
+        <di:waypoint x="1006" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_8_di" bpmnElement="SequenceFlow_8">
+        <di:waypoint x="1031" y="745" />
+        <di:waypoint x="1031" y="876" />
+        <di:waypoint x="1090" y="876" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1034" y="751" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Error2_End_di" bpmnElement="SequenceFlow_Error2_End">
+        <di:waypoint x="751" y="440" />
+        <di:waypoint x="822" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Error1_End_di" bpmnElement="SequenceFlow_Error1_End">
+        <di:waypoint x="513" y="440" />
+        <di:waypoint x="552" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Error1_di" bpmnElement="SequenceFlow_Error1">
+        <di:waypoint x="463" y="533" />
+        <di:waypoint x="463" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="469" y="513" width="32" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_3_di" bpmnElement="SequenceFlow_3">
+        <di:waypoint x="463" y="583" />
+        <di:waypoint x="463" y="680" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="469" y="592" width="24" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_09zt4v5_di" bpmnElement="Flow_09zt4v5">
+        <di:waypoint x="814" y="720" />
+        <di:waypoint x="855" y="720" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Error3_di" bpmnElement="SequenceFlow_Error3">
+        <di:waypoint x="1031" y="695" />
+        <di:waypoint x="1031" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1035" y="675" width="32" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="SequenceFlow_Error3_End_di" bpmnElement="SequenceFlow_Error3_End">
+        <di:waypoint x="1081" y="440" />
+        <di:waypoint x="1124" y="440" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_APIRequest_di" bpmnElement="MessageFlow_APIRequest">
+        <di:waypoint x="381" y="208" />
+        <di:waypoint x="381" y="339" />
+        <di:waypoint x="218" y="339" />
+        <di:waypoint x="218" y="540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="260" y="280" width="70" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SuccessResponse_di" bpmnElement="MessageFlow_SuccessResponse">
+        <di:waypoint x="1250" y="400" />
+        <di:waypoint x="1250" y="360" />
+        <di:waypoint x="1500" y="360" />
+        <di:waypoint x="1500" y="208" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1340" y="280" width="90" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ErrorResponse1_di" bpmnElement="MessageFlow_ErrorResponse1">
+        <di:waypoint x="463" y="400" />
+        <di:waypoint x="463" y="300" />
+        <di:waypoint x="1500" y="300" />
+        <di:waypoint x="1500" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ErrorResponse2_di" bpmnElement="MessageFlow_ErrorResponse2">
+        <di:waypoint x="701" y="400" />
+        <di:waypoint x="701" y="320" />
+        <di:waypoint x="1500" y="320" />
+        <di:waypoint x="1500" y="208" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ErrorResponse3_di" bpmnElement="MessageFlow_ErrorResponse3">
+        <di:waypoint x="1031" y="400" />
+        <di:waypoint x="1031" y="340" />
+        <di:waypoint x="1500" y="340" />
+        <di:waypoint x="1500" y="208" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

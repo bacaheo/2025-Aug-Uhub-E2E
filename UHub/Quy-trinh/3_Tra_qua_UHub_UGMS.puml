@@ -1,0 +1,123 @@
+@startuml Tra_qua_UHub_UGMS
+title Quy trình trả quà về từ UHub sang UGMS
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|Store/Agency|
+|#LightGreen|UHub System|
+|#LightYellow|UGMS System|
+|#Pink|Finance/Audit|
+
+|Store/Agency|
+start
+:Identify unused gifts;
+:Count and verify;
+note right
+  **Return reasons:**
+  • Campaign ended
+  • Excess inventory
+  • Damaged goods
+  • Expired gifts
+end note
+
+:Create return request;
+:Upload evidence;
+note right
+  Evidence:
+  • Photos
+  • Count sheets
+  • Damage reports
+end note
+
+|UHub System|
+:Receive return request;
+:Validate request data;
+if (Request valid?) then (yes)
+  :Check gift status;
+  if (Status = UNUSED?) then (yes)
+    :Mark for return;
+    :Remove allocation;
+    :Remove campaign binding;
+    note left
+      Keep Scheme binding
+      for potential reuse
+    end note
+  elseif (Status = DAMAGED?) then (yes)
+    :Mark as damaged;
+    :Require approval;
+    |Finance/Audit|
+    :Review damage claim;
+    :Verify evidence;
+    if (Approve write-off?) then (yes)
+      :Approve disposal;
+    else (no)
+      :Request more info;
+      stop
+    endif
+    |UHub System|
+  else
+    :Alert: Invalid status;
+    stop
+  endif
+else (no)
+  :Reject request;
+  :Return errors;
+  stop
+endif
+
+:Update status to RECALLED;
+:Generate return batch;
+:Create sync request;
+
+|UGMS System|
+:Receive return notification;
+:Validate gift codes;
+if (All codes valid?) then (yes)
+  :Update master inventory;
+  :Change status to AVAILABLE;
+  if (Damaged goods?) then (yes)
+    :Mark as WRITE_OFF;
+    :Update accounting;
+  else (no)
+    :Add to available pool;
+    :Ready for reallocation;
+  endif
+  :Generate receipt;
+  :Send confirmation;
+else (no)
+  :Flag discrepancies;
+  :Request reconciliation;
+endif
+
+|UHub System|
+:Process confirmation;
+:Update local records;
+:Archive transaction;
+:Notify stakeholders;
+
+|Store/Agency|
+:Receive confirmation;
+:Update local inventory;
+:File documentation;
+stop
+
+legend right
+  **Return Types:**
+  • Standard Return (unused)
+  • Damage Return (write-off)
+  • Recall Return (quality issue)
+  • Expiry Return (date-based)
+  
+  **Approval Matrix:**
+  • < 100 units: Auto-approve
+  • 100-500 units: Manager
+  • > 500 units: BU Head
+  • Damage: Finance required
+endlegend
+
+@enduml

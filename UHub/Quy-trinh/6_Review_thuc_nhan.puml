@@ -1,0 +1,165 @@
+@startuml Review_thuc_nhan
+title Quy trình Review thực nhận & Show danh sách Store phân bổ
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|Store Manager|
+|#LightGreen|Regional Manager|
+|#LightYellow|UHub System|
+|#Pink|Agency|
+|#Orange|Audit Team|
+
+|Store Manager|
+start
+:Receive delivery notification;
+:Physical receipt of gifts;
+:Count actual quantity;
+note right
+  **Verification steps:**
+  • Open packages
+  • Count by type
+  • Check condition
+  • Verify serial numbers
+end note
+
+:Input actual received;
+
+|UHub System|
+:Display allocation list;
+note left
+  **Show information:**
+  • Store name & code
+  • Allocated quantity
+  • Expected delivery date
+  • Gift types/schemes
+  • Campaign details
+end note
+
+:Compare allocated vs actual;
+:Calculate variance;
+if (Variance = 0?) then (yes)
+  :Mark as matched;
+  :Auto-confirm receipt;
+else (no)
+  if (Shortage?) then (yes)
+    :Flag shortage;
+    :Create discrepancy report;
+  else (Excess)
+    :Flag excess;
+    :Create surplus report;
+  endif
+endif
+
+:Generate receipt report;
+:Update store inventory;
+
+|Store Manager|
+:Review system report;
+:Attach evidence;
+note right
+  Evidence:
+  • Photos of goods
+  • Delivery notes
+  • Count sheets
+  • Damage photos (if any)
+end note
+
+if (Discrepancy exists?) then (yes)
+  :Document reasons;
+  :Submit for review;
+  
+  |Regional Manager|
+  :Review discrepancy;
+  :Verify evidence;
+  if (Valid discrepancy?) then (yes)
+    :Approve adjustment;
+    :Escalate if needed;
+  else (no)
+    :Request recount;
+    |Store Manager|
+    :Perform recount;
+    :Update figures;
+    |Regional Manager|
+  endif
+else (no)
+  :Confirm receipt;
+endif
+
+|UHub System|
+partition "Dashboard Update" {
+  :Update allocation dashboard;
+  :Show store-wise status;
+  :Calculate fulfillment rate;
+  note left
+    **Dashboard shows:**
+    • Allocated vs Received
+    • Pending deliveries
+    • Discrepancy list
+    • Store performance
+    • Regional summary
+  end note
+}
+
+:Generate analytics;
+:Create distribution map;
+if (All stores received?) then (yes)
+  :Mark batch complete;
+else (no)
+  :Show pending stores;
+  :Send reminders;
+endif
+
+|Agency|
+:Receive discrepancy reports;
+:Investigate issues;
+if (Delivery issue?) then (yes)
+  :Check with logistics;
+  :Provide explanation;
+else (no)
+  :Verify pick-list;
+  :Reconcile quantities;
+endif
+
+|Audit Team|
+:Monthly review;
+:Analyze patterns;
+if (Systematic issues?) then (yes)
+  :Create improvement plan;
+  :Update SOPs;
+else (no)
+  :Document as normal;
+endif
+
+|Store Manager|
+:Access final report;
+:Acknowledge completion;
+stop
+
+legend right
+  **Store Allocation View:**
+  • Store details
+  • Campaign mapping
+  • Quantity allocated
+  • Delivery schedule
+  • Receipt status
+  • Discrepancy flag
+  
+  **Status Types:**
+  • ✅ Matched: Received = Allocated
+  • ⚠️ Shortage: Received < Allocated
+  • ⚠️ Excess: Received > Allocated
+  • 🔴 Not Received: Pending delivery
+  • ✔️ Confirmed: Manager approved
+  
+  **Review Levels:**
+  • Store: Initial verification
+  • Regional: Discrepancy review
+  • Audit: Pattern analysis
+endlegend
+
+@enduml

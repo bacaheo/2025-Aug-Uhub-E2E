@@ -1,0 +1,738 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn2:collaboration id="Collaboration_Stock_Reconciliation">
+    <bpmn2:participant id="Participant_Agency" name="Agency (Kho Agency)" processRef="Process_Agency" />
+    <bpmn2:participant id="Participant_UHub" name="UHub System" processRef="Process_UHub" />
+    <bpmn2:participant id="Participant_BU" name="BU (Business Unit)" processRef="Process_BU" />
+    <bpmn2:participant id="Participant_BU_Level2" name="BU Level-2 (Email Approval)" processRef="Process_BU_Level2" />
+    <bpmn2:participant id="Participant_UtopAdmin" name="Utop Admin" processRef="Process_UtopAdmin" />
+    <bpmn2:participant id="Participant_UGMS" name="UGMS System" processRef="Process_UGMS" />
+    <bpmn2:messageFlow id="MessageFlow_DigitalConfirm" name="Digital Confirm Report" sourceRef="Task_Agency_DigitalConfirm" targetRef="Task_UHub_ReceiveConfirm" />
+    <bpmn2:messageFlow id="MessageFlow_SubmitTicket" name="Submit Ticket Đối Soát" sourceRef="Task_Agency_SubmitTicket" targetRef="Task_UHub_ReceiveTicket" />
+    <bpmn2:messageFlow id="MessageFlow_EmailNotification" name="Auto Email Ticket Notification" sourceRef="Task_UHub_SendEmailToBU" targetRef="Task_BU_ReceiveTicket" />
+    <bpmn2:messageFlow id="MessageFlow_ForwardTicket" name="Forward Ticket for Level-2 Approval" sourceRef="Task_BU_ForwardTicket" targetRef="Task_BU_Level2_ReviewTicket" />
+    <bpmn2:messageFlow id="MessageFlow_ApprovalResult" name="Approval/Rejection via Email" sourceRef="Task_BU_Level2_SendDecision" targetRef="Task_BU_ReceiveDecision" />
+    <bpmn2:messageFlow id="MessageFlow_UtopConfirm" name="Utop Admin Confirm Ticket" sourceRef="Task_UtopAdmin_ConfirmTicket" targetRef="Task_UHub_ReceiveUtopConfirm" />
+    <bpmn2:messageFlow id="MessageFlow_SyncToUGMS_Normal" name="Sync Gift Usage (Normal)" sourceRef="Task_UHub_SyncNormal" targetRef="Task_UGMS_UpdateNormal" />
+    <bpmn2:messageFlow id="MessageFlow_SyncToUGMS_Adjustment" name="Sync Adjustment + Evidences" sourceRef="Task_UHub_SyncAdjustment" targetRef="Task_UGMS_UpdateAdjustment" />
+    <bpmn2:messageFlow id="MessageFlow_RequestCorrection" name="Request Correction/Re-check" sourceRef="Task_BU_RequestCorrection" targetRef="Task_Agency_Recheck" />
+  </bpmn2:collaboration>
+  <bpmn2:process id="Process_Agency" name="Agency Process" isExecutable="false">
+    <bpmn2:startEvent id="StartEvent_Agency" name="End Campaign&#10;+ 5 Days&#10;(Gift Recall Done)">
+      <bpmn2:outgoing>Flow_Agency_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="Task_Agency_CheckInventory" name="B6_01. Kiểm tra&#10;tổng hàng thu hồi&#10;thực tế vs Report&#10;trên UHub">
+      <bpmn2:incoming>Flow_Agency_1</bpmn2:incoming>
+      <bpmn2:incoming>Flow_Agency_Recheck</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_Agency_Recheck" name="Re-check Inventory&#10;(After BU Request)">
+      <bpmn2:incoming>Flow_Agency_FromBU</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_Recheck</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_Agency_CheckResult" name="B6_02.&#10;Thu hồi đủ&#10;số còn lại&#10;&#38; không hư?">
+      <bpmn2:incoming>Flow_Agency_2</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_3_Yes</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_Agency_3_No</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_Agency_DigitalConfirm" name="B6_03. Agency&#10;Digital Confirm&#10;Report Đối Soát">
+      <bpmn2:incoming>Flow_Agency_3_Yes</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_4</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_Agency_SubmitTicket" name="B6_05. Agency&#10;Submit Ticket&#10;Đối Soát&#10;(Số thực tế + Nguyên nhân)">
+      <bpmn2:incoming>Flow_Agency_3_No</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_5</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_Agency_Join">
+      <bpmn2:incoming>Flow_Agency_4</bpmn2:incoming>
+      <bpmn2:incoming>Flow_Agency_AfterApproval</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_6</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_Agency_StoreRecalled" name="B6_13. Nhập&#10;Gift thu hồi&#10;vào kho Agency&#10;(Ready tái sử dụng)">
+      <bpmn2:incoming>Flow_Agency_6</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_7</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_Agency_PrepareReuse" name="B6_14. Quy trình&#10;tái sử dụng Gift">
+      <bpmn2:incoming>Flow_Agency_7</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_Agency_8</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_Agency" name="Reconciliation&#10;Complete">
+      <bpmn2:incoming>Flow_Agency_8</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_Agency_1" sourceRef="StartEvent_Agency" targetRef="Task_Agency_CheckInventory" />
+    <bpmn2:sequenceFlow id="Flow_Agency_2" sourceRef="Task_Agency_CheckInventory" targetRef="Gateway_Agency_CheckResult" />
+    <bpmn2:sequenceFlow id="Flow_Agency_3_Yes" name="Yes&#10;(Normal)" sourceRef="Gateway_Agency_CheckResult" targetRef="Task_Agency_DigitalConfirm" />
+    <bpmn2:sequenceFlow id="Flow_Agency_3_No" name="No&#10;(Discrepancy)" sourceRef="Gateway_Agency_CheckResult" targetRef="Task_Agency_SubmitTicket" />
+    <bpmn2:sequenceFlow id="Flow_Agency_4" sourceRef="Task_Agency_DigitalConfirm" targetRef="Gateway_Agency_Join" />
+    <bpmn2:sequenceFlow id="Flow_Agency_5" sourceRef="Task_Agency_SubmitTicket" targetRef="EndEvent_Agency_Wait" />
+    <bpmn2:sequenceFlow id="Flow_Agency_6" sourceRef="Gateway_Agency_Join" targetRef="Task_Agency_StoreRecalled" />
+    <bpmn2:sequenceFlow id="Flow_Agency_7" sourceRef="Task_Agency_StoreRecalled" targetRef="Task_Agency_PrepareReuse" />
+    <bpmn2:sequenceFlow id="Flow_Agency_8" sourceRef="Task_Agency_PrepareReuse" targetRef="EndEvent_Agency" />
+    <bpmn2:sequenceFlow id="Flow_Agency_AfterApproval" sourceRef="StartEvent_Agency_AfterApproval" targetRef="Gateway_Agency_Join" />
+    <bpmn2:sequenceFlow id="Flow_Agency_FromBU" sourceRef="Task_Agency_Recheck" targetRef="Task_Agency_CheckInventory" />
+    <bpmn2:sequenceFlow id="Flow_Agency_Recheck" sourceRef="Task_Agency_Recheck" targetRef="Task_Agency_CheckInventory" />
+    <bpmn2:endEvent id="EndEvent_Agency_Wait" name="Wait for&#10;BU Approval">
+      <bpmn2:incoming>Flow_Agency_5</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:startEvent id="StartEvent_Agency_AfterApproval" name="After&#10;Ticket Approved">
+      <bpmn2:outgoing>Flow_Agency_AfterApproval</bpmn2:outgoing>
+    </bpmn2:startEvent>
+  </bpmn2:process>
+  <bpmn2:process id="Process_UHub" name="UHub System Process" isExecutable="false">
+    <bpmn2:laneSet id="LaneSet_UHub">
+      <bpmn2:lane id="Lane_UHub_Receiver" name="Data Receiver">
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveConfirm</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveTicket</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveUtopConfirm</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UHub_ReconciliationType</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+      <bpmn2:lane id="Lane_UHub_Processor" name="Data Processor">
+        <bpmn2:flowNodeRef>Task_UHub_ValidateConfirm</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ValidateTicket</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_SendEmailToBU</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ProcessUtopConfirm</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+      <bpmn2:lane id="Lane_UHub_Sender" name="Data Sender to UGMS">
+        <bpmn2:flowNodeRef>Task_UHub_SyncNormal</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_SyncAdjustment</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+    </bpmn2:laneSet>
+    <bpmn2:task id="Task_UHub_ReceiveConfirm" name="Receive&#10;Digital Confirm&#10;from Agency">
+      <bpmn2:outgoing>Flow_UHub_1a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ReceiveTicket" name="Receive&#10;Ticket Đối Soát&#10;from Agency">
+      <bpmn2:outgoing>Flow_UHub_1b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_UHub_ReconciliationType">
+      <bpmn2:incoming>Flow_UHub_1a</bpmn2:incoming>
+      <bpmn2:incoming>Flow_UHub_1b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_2a</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_UHub_2b</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_UHub_ValidateConfirm" name="B6_04a. Validate&#10;Confirm Data">
+      <bpmn2:incoming>Flow_UHub_2a</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_3a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_SyncNormal" name="B6_04b. Sync&#10;UHub → UGMS&#10;(Gift Usage&#10;Post-Campaign)">
+      <bpmn2:incoming>Flow_UHub_3a</bpmn2:incoming>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ValidateTicket" name="B6_06a. Validate&#10;Ticket Data">
+      <bpmn2:incoming>Flow_UHub_2b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_3b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_SendEmailToBU" name="B6_06b. Auto Email&#10;Ticket Notification&#10;to BU&#10;(Theo Scheme ID)">
+      <bpmn2:incoming>Flow_UHub_3b</bpmn2:incoming>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ReceiveUtopConfirm" name="Receive&#10;Utop Admin&#10;Confirmation">
+      <bpmn2:outgoing>Flow_UHub_4</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ProcessUtopConfirm" name="Process&#10;Confirmation&#10;&#38; Evidences">
+      <bpmn2:incoming>Flow_UHub_4</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_5</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_SyncAdjustment" name="B6_10_02. Sync&#10;UHub → UGMS&#10;(Gift Usage +&#10;Adjustment +&#10;Evidences)">
+      <bpmn2:incoming>Flow_UHub_5</bpmn2:incoming>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="Flow_UHub_1a" sourceRef="Task_UHub_ReceiveConfirm" targetRef="Gateway_UHub_ReconciliationType" />
+    <bpmn2:sequenceFlow id="Flow_UHub_1b" sourceRef="Task_UHub_ReceiveTicket" targetRef="Gateway_UHub_ReconciliationType" />
+    <bpmn2:sequenceFlow id="Flow_UHub_2a" name="Normal" sourceRef="Gateway_UHub_ReconciliationType" targetRef="Task_UHub_ValidateConfirm" />
+    <bpmn2:sequenceFlow id="Flow_UHub_2b" name="Discrepancy" sourceRef="Gateway_UHub_ReconciliationType" targetRef="Task_UHub_ValidateTicket" />
+    <bpmn2:sequenceFlow id="Flow_UHub_3a" sourceRef="Task_UHub_ValidateConfirm" targetRef="Task_UHub_SyncNormal" />
+    <bpmn2:sequenceFlow id="Flow_UHub_3b" sourceRef="Task_UHub_ValidateTicket" targetRef="Task_UHub_SendEmailToBU" />
+    <bpmn2:sequenceFlow id="Flow_UHub_4" sourceRef="Task_UHub_ReceiveUtopConfirm" targetRef="Task_UHub_ProcessUtopConfirm" />
+    <bpmn2:sequenceFlow id="Flow_UHub_5" sourceRef="Task_UHub_ProcessUtopConfirm" targetRef="Task_UHub_SyncAdjustment" />
+  </bpmn2:process>
+  <bpmn2:process id="Process_BU" name="BU Process" isExecutable="false">
+    <bpmn2:task id="Task_BU_ReceiveTicket" name="Receive Ticket&#10;Notification&#10;via Email">
+      <bpmn2:outgoing>Flow_BU_1</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_BU_ReviewTicket" name="B6_07a. BU Review&#10;Ticket Details&#10;&#38; Evidences">
+      <bpmn2:incoming>Flow_BU_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_BU_ForwardTicket" name="B6_07b. BU Raise&#10;&#38; Forward Ticket&#10;via Email&#10;(Get Level-2 Approval)">
+      <bpmn2:incoming>Flow_BU_2</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_3</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:intermediateCatchEvent id="Event_BU_WaitDecision" name="Wait for&#10;Level-2 Decision">
+      <bpmn2:incoming>Flow_BU_3</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_4</bpmn2:outgoing>
+    </bpmn2:intermediateCatchEvent>
+    <bpmn2:task id="Task_BU_ReceiveDecision" name="Receive&#10;Level-2 Decision&#10;via Email">
+      <bpmn2:incoming>Flow_BU_4</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_5</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_BU_Decision" name="B6_09.&#10;BU Level-2&#10;Approved?">
+      <bpmn2:incoming>Flow_BU_5</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_6_Approved</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_BU_6_Rejected</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_BU_NotifyUtopAdmin" name="Notify&#10;Utop Admin&#10;to Confirm">
+      <bpmn2:incoming>Flow_BU_6_Approved</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_7</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_BU_Approved" name="Ticket Approved&#10;→ Wait for&#10;Utop Confirm">
+      <bpmn2:incoming>Flow_BU_7</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:task id="Task_BU_RejectTicket" name="B6_11_01. BU&#10;Reject Ticket">
+      <bpmn2:incoming>Flow_BU_6_Rejected</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_8</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_BU_RequestCorrection" name="B6_11_02. Request&#10;Agency Correction&#10;/ Re-check">
+      <bpmn2:incoming>Flow_BU_8</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_9</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_BU_Loop" name="Loop to&#10;Agency Re-check">
+      <bpmn2:incoming>Flow_BU_9</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_BU_1" sourceRef="Task_BU_ReceiveTicket" targetRef="Task_BU_ReviewTicket" />
+    <bpmn2:sequenceFlow id="Flow_BU_2" sourceRef="Task_BU_ReviewTicket" targetRef="Task_BU_ForwardTicket" />
+    <bpmn2:sequenceFlow id="Flow_BU_3" sourceRef="Task_BU_ForwardTicket" targetRef="Event_BU_WaitDecision" />
+    <bpmn2:sequenceFlow id="Flow_BU_4" sourceRef="Event_BU_WaitDecision" targetRef="Task_BU_ReceiveDecision" />
+    <bpmn2:sequenceFlow id="Flow_BU_5" sourceRef="Task_BU_ReceiveDecision" targetRef="Gateway_BU_Decision" />
+    <bpmn2:sequenceFlow id="Flow_BU_6_Approved" name="Approved" sourceRef="Gateway_BU_Decision" targetRef="Task_BU_NotifyUtopAdmin" />
+    <bpmn2:sequenceFlow id="Flow_BU_6_Rejected" name="Rejected" sourceRef="Gateway_BU_Decision" targetRef="Task_BU_RejectTicket" />
+    <bpmn2:sequenceFlow id="Flow_BU_7" sourceRef="Task_BU_NotifyUtopAdmin" targetRef="EndEvent_BU_Approved" />
+    <bpmn2:sequenceFlow id="Flow_BU_8" sourceRef="Task_BU_RejectTicket" targetRef="Task_BU_RequestCorrection" />
+    <bpmn2:sequenceFlow id="Flow_BU_9" sourceRef="Task_BU_RequestCorrection" targetRef="EndEvent_BU_Loop" />
+  </bpmn2:process>
+  <bpmn2:process id="Process_BU_Level2" name="BU Level-2 Process" isExecutable="false">
+    <bpmn2:task id="Task_BU_Level2_ReviewTicket" name="B6_08. Review&#10;&#38; Approval Ticket&#10;via Email&#10;(With Evidences)">
+      <bpmn2:outgoing>Flow_BU_Level2_1</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_BU_Level2_Decision" name="Approve&#10;or&#10;Reject?">
+      <bpmn2:incoming>Flow_BU_Level2_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_BU_Level2_2_Approved</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_BU_Level2_2_Rejected</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_BU_Level2_SendDecision" name="Send Decision&#10;via Email&#10;to BU">
+      <bpmn2:incoming>Flow_BU_Level2_2_Approved</bpmn2:incoming>
+      <bpmn2:incoming>Flow_BU_Level2_2_Rejected</bpmn2:incoming>
+    </bpmn2:task>
+    <bpmn2:sequenceFlow id="Flow_BU_Level2_1" sourceRef="Task_BU_Level2_ReviewTicket" targetRef="Gateway_BU_Level2_Decision" />
+    <bpmn2:sequenceFlow id="Flow_BU_Level2_2_Approved" name="Approved" sourceRef="Gateway_BU_Level2_Decision" targetRef="Task_BU_Level2_SendDecision" />
+    <bpmn2:sequenceFlow id="Flow_BU_Level2_2_Rejected" name="Rejected" sourceRef="Gateway_BU_Level2_Decision" targetRef="Task_BU_Level2_SendDecision" />
+  </bpmn2:process>
+  <bpmn2:process id="Process_UtopAdmin" name="Utop Admin Process" isExecutable="false">
+    <bpmn2:startEvent id="StartEvent_UtopAdmin" name="Receive&#10;BU Notification">
+      <bpmn2:outgoing>Flow_UtopAdmin_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:task id="Task_UtopAdmin_ReviewTicket" name="Review&#10;Ticket Details&#10;&#38; Level-2 Approval">
+      <bpmn2:incoming>Flow_UtopAdmin_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UtopAdmin_2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UtopAdmin_ConfirmTicket" name="B6_10_01.&#10;Utop Admin&#10;Digital Confirm&#10;Ticket">
+      <bpmn2:incoming>Flow_UtopAdmin_2</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UtopAdmin_3</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_UtopAdmin" name="Ticket Confirmed&#10;→ UHub Sync">
+      <bpmn2:incoming>Flow_UtopAdmin_3</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_UtopAdmin_1" sourceRef="StartEvent_UtopAdmin" targetRef="Task_UtopAdmin_ReviewTicket" />
+    <bpmn2:sequenceFlow id="Flow_UtopAdmin_2" sourceRef="Task_UtopAdmin_ReviewTicket" targetRef="Task_UtopAdmin_ConfirmTicket" />
+    <bpmn2:sequenceFlow id="Flow_UtopAdmin_3" sourceRef="Task_UtopAdmin_ConfirmTicket" targetRef="EndEvent_UtopAdmin" />
+  </bpmn2:process>
+  <bpmn2:process id="Process_UGMS" name="UGMS Process" isExecutable="false">
+    <bpmn2:task id="Task_UGMS_UpdateNormal" name="Update Stock&#10;(Normal&#10;Reconciliation)">
+      <bpmn2:outgoing>Flow_UGMS_1</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_UpdateAdjustment" name="Update Stock&#10;(Adjustment +&#10;Evidences)">
+      <bpmn2:outgoing>Flow_UGMS_2</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:exclusiveGateway id="Gateway_UGMS_Join">
+      <bpmn2:incoming>Flow_UGMS_1</bpmn2:incoming>
+      <bpmn2:incoming>Flow_UGMS_2</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_3</bpmn2:outgoing>
+    </bpmn2:exclusiveGateway>
+    <bpmn2:task id="Task_UGMS_Log" name="Log Transaction&#10;&#38; Audit Trail">
+      <bpmn2:incoming>Flow_UGMS_3</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_4</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_UGMS" name="UGMS&#10;Stock Updated">
+      <bpmn2:incoming>Flow_UGMS_4</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_UGMS_1" sourceRef="Task_UGMS_UpdateNormal" targetRef="Gateway_UGMS_Join" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_2" sourceRef="Task_UGMS_UpdateAdjustment" targetRef="Gateway_UGMS_Join" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_3" sourceRef="Gateway_UGMS_Join" targetRef="Task_UGMS_Log" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_4" sourceRef="Task_UGMS_Log" targetRef="EndEvent_UGMS" />
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_Stock_Reconciliation">
+      <bpmndi:BPMNShape id="Participant_Agency_di" bpmnElement="Participant_Agency" isHorizontal="true">
+        <dc:Bounds x="120" y="30" width="1800" height="350" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Agency_di" bpmnElement="StartEvent_Agency">
+        <dc:Bounds x="200" y="200" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="188" y="243" width="60" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Agency_CheckInventory_di" bpmnElement="Task_Agency_CheckInventory">
+        <dc:Bounds x="290" y="178" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Agency_Recheck_di" bpmnElement="Task_Agency_Recheck">
+        <dc:Bounds x="290" y="290" width="120" height="70" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Agency_CheckResult_di" bpmnElement="Gateway_Agency_CheckResult" isMarkerVisible="true">
+        <dc:Bounds x="460" y="193" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="447" y="250" width="76" height="53" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Agency_DigitalConfirm_di" bpmnElement="Task_Agency_DigitalConfirm" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="560" y="110" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Agency_SubmitTicket_di" bpmnElement="Task_Agency_SubmitTicket" bioc:stroke="#831311" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#831311">
+        <dc:Bounds x="560" y="250" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_Agency_Join_di" bpmnElement="Gateway_Agency_Join" isMarkerVisible="true">
+        <dc:Bounds x="730" y="125" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Agency_StoreRecalled_di" bpmnElement="Task_Agency_StoreRecalled">
+        <dc:Bounds x="830" y="110" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_Agency_PrepareReuse_di" bpmnElement="Task_Agency_PrepareReuse">
+        <dc:Bounds x="1000" y="110" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Agency_di" bpmnElement="EndEvent_Agency">
+        <dc:Bounds x="1170" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1158" y="175" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_Agency_Wait_di" bpmnElement="EndEvent_Agency_Wait">
+        <dc:Bounds x="732" y="272" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="720" y="315" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_Agency_AfterApproval_di" bpmnElement="StartEvent_Agency_AfterApproval">
+        <dc:Bounds x="737" y="208" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="660" y="191" width="79" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_Agency_1_di" bpmnElement="Flow_Agency_1">
+        <di:waypoint x="236" y="218" />
+        <di:waypoint x="290" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_2_di" bpmnElement="Flow_Agency_2">
+        <di:waypoint x="410" y="218" />
+        <di:waypoint x="460" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_3_Yes_di" bpmnElement="Flow_Agency_3_Yes">
+        <di:waypoint x="485" y="193" />
+        <di:waypoint x="485" y="150" />
+        <di:waypoint x="560" y="150" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="488" y="163" width="35" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_3_No_di" bpmnElement="Flow_Agency_3_No">
+        <di:waypoint x="485" y="243" />
+        <di:waypoint x="485" y="290" />
+        <di:waypoint x="560" y="290" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="490" y="260" width="35" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_4_di" bpmnElement="Flow_Agency_4">
+        <di:waypoint x="680" y="150" />
+        <di:waypoint x="730" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_5_di" bpmnElement="Flow_Agency_5">
+        <di:waypoint x="680" y="290" />
+        <di:waypoint x="732" y="290" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_6_di" bpmnElement="Flow_Agency_6">
+        <di:waypoint x="780" y="150" />
+        <di:waypoint x="830" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_7_di" bpmnElement="Flow_Agency_7">
+        <di:waypoint x="950" y="150" />
+        <di:waypoint x="1000" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_8_di" bpmnElement="Flow_Agency_8">
+        <di:waypoint x="1120" y="150" />
+        <di:waypoint x="1170" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_AfterApproval_di" bpmnElement="Flow_Agency_AfterApproval">
+        <di:waypoint x="755" y="208" />
+        <di:waypoint x="755" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_Agency_Recheck_di" bpmnElement="Flow_Agency_Recheck">
+        <di:waypoint x="350" y="290" />
+        <di:waypoint x="350" y="258" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_UHub_di" bpmnElement="Participant_UHub" isHorizontal="true">
+        <dc:Bounds x="120" y="450" width="1800" height="450" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UHub_Sender_di" bpmnElement="Lane_UHub_Sender" isHorizontal="true">
+        <dc:Bounds x="150" y="750" width="1770" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UHub_Processor_di" bpmnElement="Lane_UHub_Processor" isHorizontal="true">
+        <dc:Bounds x="150" y="600" width="1770" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UHub_Receiver_di" bpmnElement="Lane_UHub_Receiver" isHorizontal="true">
+        <dc:Bounds x="150" y="450" width="1770" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveConfirm_di" bpmnElement="Task_UHub_ReceiveConfirm" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="560" y="480" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveTicket_di" bpmnElement="Task_UHub_ReceiveTicket" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="560" y="540" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UHub_ReconciliationType_di" bpmnElement="Gateway_UHub_ReconciliationType" isMarkerVisible="true">
+        <dc:Bounds x="730" y="515" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateConfirm_di" bpmnElement="Task_UHub_ValidateConfirm">
+        <dc:Bounds x="830" y="620" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_SyncNormal_di" bpmnElement="Task_UHub_SyncNormal" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="1000" y="770" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateTicket_di" bpmnElement="Task_UHub_ValidateTicket">
+        <dc:Bounds x="830" y="660" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_SendEmailToBU_di" bpmnElement="Task_UHub_SendEmailToBU" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="1000" y="660" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveUtopConfirm_di" bpmnElement="Task_UHub_ReceiveUtopConfirm" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="1300" y="480" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ProcessUtopConfirm_di" bpmnElement="Task_UHub_ProcessUtopConfirm">
+        <dc:Bounds x="1470" y="620" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_SyncAdjustment_di" bpmnElement="Task_UHub_SyncAdjustment" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="1640" y="770" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_UHub_1a_di" bpmnElement="Flow_UHub_1a">
+        <di:waypoint x="680" y="520" />
+        <di:waypoint x="705" y="520" />
+        <di:waypoint x="705" y="540" />
+        <di:waypoint x="730" y="540" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_1b_di" bpmnElement="Flow_UHub_1b">
+        <di:waypoint x="680" y="580" />
+        <di:waypoint x="705" y="580" />
+        <di:waypoint x="705" y="560" />
+        <di:waypoint x="730" y="560" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_2a_di" bpmnElement="Flow_UHub_2a">
+        <di:waypoint x="755" y="565" />
+        <di:waypoint x="755" y="660" />
+        <di:waypoint x="830" y="660" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="760" y="643" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_2b_di" bpmnElement="Flow_UHub_2b">
+        <di:waypoint x="755" y="565" />
+        <di:waypoint x="755" y="700" />
+        <di:waypoint x="830" y="700" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="760" y="683" width="63" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_3a_di" bpmnElement="Flow_UHub_3a">
+        <di:waypoint x="890" y="700" />
+        <di:waypoint x="890" y="810" />
+        <di:waypoint x="1000" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_3b_di" bpmnElement="Flow_UHub_3b">
+        <di:waypoint x="950" y="700" />
+        <di:waypoint x="1000" y="700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_4_di" bpmnElement="Flow_UHub_4">
+        <di:waypoint x="1360" y="560" />
+        <di:waypoint x="1360" y="660" />
+        <di:waypoint x="1470" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_5_di" bpmnElement="Flow_UHub_5">
+        <di:waypoint x="1530" y="700" />
+        <di:waypoint x="1530" y="810" />
+        <di:waypoint x="1640" y="810" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_BU_di" bpmnElement="Participant_BU" isHorizontal="true">
+        <dc:Bounds x="120" y="970" width="1800" height="300" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_ReceiveTicket_di" bpmnElement="Task_BU_ReceiveTicket" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="1000" y="1020" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_ReviewTicket_di" bpmnElement="Task_BU_ReviewTicket">
+        <dc:Bounds x="1170" y="1020" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_ForwardTicket_di" bpmnElement="Task_BU_ForwardTicket" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="1340" y="1020" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_BU_WaitDecision_di" bpmnElement="Event_BU_WaitDecision">
+        <dc:Bounds x="1512" y="1042" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1500" y="1012" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_ReceiveDecision_di" bpmnElement="Task_BU_ReceiveDecision" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="1340" y="1140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_BU_Decision_di" bpmnElement="Gateway_BU_Decision" isMarkerVisible="true">
+        <dc:Bounds x="1205" y="1155" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1188" y="1212" width="84" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_NotifyUtopAdmin_di" bpmnElement="Task_BU_NotifyUtopAdmin" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="1000" y="1140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_BU_Approved_di" bpmnElement="EndEvent_BU_Approved">
+        <dc:Bounds x="902" y="1162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="890" y="1205" width="60" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_RejectTicket_di" bpmnElement="Task_BU_RejectTicket" bioc:stroke="#831311" bioc:fill="#ffcdd2" color:background-color="#ffcdd2" color:border-color="#831311">
+        <dc:Bounds x="560" y="1140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_RequestCorrection_di" bpmnElement="Task_BU_RequestCorrection" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="390" y="1140" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_BU_Loop_di" bpmnElement="EndEvent_BU_Loop">
+        <dc:Bounds x="292" y="1162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="280" y="1205" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_BU_1_di" bpmnElement="Flow_BU_1">
+        <di:waypoint x="1120" y="1060" />
+        <di:waypoint x="1170" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_2_di" bpmnElement="Flow_BU_2">
+        <di:waypoint x="1290" y="1060" />
+        <di:waypoint x="1340" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_3_di" bpmnElement="Flow_BU_3">
+        <di:waypoint x="1460" y="1060" />
+        <di:waypoint x="1512" y="1060" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_4_di" bpmnElement="Flow_BU_4">
+        <di:waypoint x="1530" y="1078" />
+        <di:waypoint x="1530" y="1180" />
+        <di:waypoint x="1460" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_5_di" bpmnElement="Flow_BU_5">
+        <di:waypoint x="1340" y="1180" />
+        <di:waypoint x="1255" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_6_Approved_di" bpmnElement="Flow_BU_6_Approved">
+        <di:waypoint x="1205" y="1180" />
+        <di:waypoint x="1120" y="1180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1143" y="1162" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_6_Rejected_di" bpmnElement="Flow_BU_6_Rejected">
+        <di:waypoint x="1230" y="1205" />
+        <di:waypoint x="1230" y="1230" />
+        <di:waypoint x="620" y="1230" />
+        <di:waypoint x="620" y="1220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1165" y="1233" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_7_di" bpmnElement="Flow_BU_7">
+        <di:waypoint x="1000" y="1180" />
+        <di:waypoint x="938" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_8_di" bpmnElement="Flow_BU_8">
+        <di:waypoint x="560" y="1180" />
+        <di:waypoint x="510" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_9_di" bpmnElement="Flow_BU_9">
+        <di:waypoint x="390" y="1180" />
+        <di:waypoint x="328" y="1180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_BU_Level2_di" bpmnElement="Participant_BU_Level2" isHorizontal="true">
+        <dc:Bounds x="120" y="1340" width="800" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_Level2_ReviewTicket_di" bpmnElement="Task_BU_Level2_ReviewTicket" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="200" y="1390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_BU_Level2_Decision_di" bpmnElement="Gateway_BU_Level2_Decision" isMarkerVisible="true">
+        <dc:Bounds x="375" y="1405" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="375" y="1462" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_BU_Level2_SendDecision_di" bpmnElement="Task_BU_Level2_SendDecision" bioc:stroke="#6b3c00" bioc:fill="#ffe0b2" color:background-color="#ffe0b2" color:border-color="#6b3c00">
+        <dc:Bounds x="490" y="1390" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_BU_Level2_1_di" bpmnElement="Flow_BU_Level2_1">
+        <di:waypoint x="320" y="1430" />
+        <di:waypoint x="375" y="1430" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_Level2_2_Approved_di" bpmnElement="Flow_BU_Level2_2_Approved">
+        <di:waypoint x="400" y="1405" />
+        <di:waypoint x="400" y="1370" />
+        <di:waypoint x="550" y="1370" />
+        <di:waypoint x="550" y="1390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="414" y="1353" width="48" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_BU_Level2_2_Rejected_di" bpmnElement="Flow_BU_Level2_2_Rejected">
+        <di:waypoint x="400" y="1455" />
+        <di:waypoint x="400" y="1490" />
+        <di:waypoint x="550" y="1490" />
+        <di:waypoint x="550" y="1470" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="414" y="1493" width="44" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_UtopAdmin_di" bpmnElement="Participant_UtopAdmin" isHorizontal="true">
+        <dc:Bounds x="120" y="1610" width="800" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_UtopAdmin_di" bpmnElement="StartEvent_UtopAdmin">
+        <dc:Bounds x="202" y="1682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="190" y="1725" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UtopAdmin_ReviewTicket_di" bpmnElement="Task_UtopAdmin_ReviewTicket">
+        <dc:Bounds x="290" y="1660" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UtopAdmin_ConfirmTicket_di" bpmnElement="Task_UtopAdmin_ConfirmTicket" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="460" y="1660" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_UtopAdmin_di" bpmnElement="EndEvent_UtopAdmin">
+        <dc:Bounds x="632" y="1682" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="620" y="1725" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_UtopAdmin_1_di" bpmnElement="Flow_UtopAdmin_1">
+        <di:waypoint x="238" y="1700" />
+        <di:waypoint x="290" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UtopAdmin_2_di" bpmnElement="Flow_UtopAdmin_2">
+        <di:waypoint x="410" y="1700" />
+        <di:waypoint x="460" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UtopAdmin_3_di" bpmnElement="Flow_UtopAdmin_3">
+        <di:waypoint x="580" y="1700" />
+        <di:waypoint x="632" y="1700" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_UGMS_di" bpmnElement="Participant_UGMS" isHorizontal="true">
+        <dc:Bounds x="120" y="1880" width="800" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_UpdateNormal_di" bpmnElement="Task_UGMS_UpdateNormal" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="200" y="1910" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_UpdateAdjustment_di" bpmnElement="Task_UGMS_UpdateAdjustment" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="200" y="2000" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UGMS_Join_di" bpmnElement="Gateway_UGMS_Join" isMarkerVisible="true">
+        <dc:Bounds x="375" y="1965" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_Log_di" bpmnElement="Task_UGMS_Log">
+        <dc:Bounds x="490" y="1950" width="120" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_UGMS_di" bpmnElement="EndEvent_UGMS">
+        <dc:Bounds x="672" y="1972" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="660" y="2015" width="60" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_UGMS_1_di" bpmnElement="Flow_UGMS_1">
+        <di:waypoint x="320" y="1950" />
+        <di:waypoint x="400" y="1950" />
+        <di:waypoint x="400" y="1965" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_2_di" bpmnElement="Flow_UGMS_2">
+        <di:waypoint x="320" y="2040" />
+        <di:waypoint x="400" y="2040" />
+        <di:waypoint x="400" y="2015" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_3_di" bpmnElement="Flow_UGMS_3">
+        <di:waypoint x="425" y="1990" />
+        <di:waypoint x="490" y="1990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_4_di" bpmnElement="Flow_UGMS_4">
+        <di:waypoint x="610" y="1990" />
+        <di:waypoint x="672" y="1990" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_DigitalConfirm_di" bpmnElement="MessageFlow_DigitalConfirm">
+        <di:waypoint x="620" y="190" />
+        <di:waypoint x="620" y="480" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="636" y="320" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SubmitTicket_di" bpmnElement="MessageFlow_SubmitTicket">
+        <di:waypoint x="620" y="330" />
+        <di:waypoint x="620" y="540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="636" y="420" width="68" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_EmailNotification_di" bpmnElement="MessageFlow_EmailNotification">
+        <di:waypoint x="1060" y="740" />
+        <di:waypoint x="1060" y="1020" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1076" y="860" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ForwardTicket_di" bpmnElement="MessageFlow_ForwardTicket">
+        <di:waypoint x="1400" y="1100" />
+        <di:waypoint x="1400" y="1245" />
+        <di:waypoint x="260" y="1245" />
+        <di:waypoint x="260" y="1390" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="790" y="1200" width="80" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_ApprovalResult_di" bpmnElement="MessageFlow_ApprovalResult">
+        <di:waypoint x="550" y="1390" />
+        <di:waypoint x="550" y="1295" />
+        <di:waypoint x="1400" y="1295" />
+        <di:waypoint x="1400" y="1220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="905" y="1250" width="90" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_UtopConfirm_di" bpmnElement="MessageFlow_UtopConfirm">
+        <di:waypoint x="520" y="1660" />
+        <di:waypoint x="520" y="1090" />
+        <di:waypoint x="1360" y="1090" />
+        <di:waypoint x="1360" y="560" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="856" y="1032" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncToUGMS_Normal_di" bpmnElement="MessageFlow_SyncToUGMS_Normal">
+        <di:waypoint x="1060" y="850" />
+        <di:waypoint x="1060" y="1860" />
+        <di:waypoint x="260" y="1860" />
+        <di:waypoint x="260" y="1910" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="600" y="1806" width="80" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncToUGMS_Adjustment_di" bpmnElement="MessageFlow_SyncToUGMS_Adjustment">
+        <di:waypoint x="1700" y="850" />
+        <di:waypoint x="1700" y="2040" />
+        <di:waypoint x="320" y="2040" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1716" y="1420" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_RequestCorrection_di" bpmnElement="MessageFlow_RequestCorrection">
+        <di:waypoint x="450" y="1140" />
+        <di:waypoint x="450" y="730" />
+        <di:waypoint x="350" y="730" />
+        <di:waypoint x="350" y="360" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="364" y="680" width="72" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

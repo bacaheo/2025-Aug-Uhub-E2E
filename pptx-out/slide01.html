@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>UHub Gift Management Platform - Title</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800;900&display=swap');
+        html, body { margin:0; padding:0; overflow:hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+        .slide { width:1280px; min-height:720px; padding:60px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+        .gradient-bg { 
+            background: linear-gradient(135deg, #6F2DA8 0%, #FF6600 50%, #00BFFF 100%);
+            opacity: 0.1;
+        }
+        .text-gradient {
+            background: linear-gradient(90deg, #6F2DA8, #FF6600, #00BFFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide bg-white relative">
+        <!-- Background Pattern -->
+        <div class="absolute inset-0 gradient-bg"></div>
+        
+        <!-- Decorative Icons -->
+        <div class="absolute top-10 right-10 opacity-20">
+            <span class="material-symbols-outlined text-[150px] text-[#6F2DA8]">inventory_2</span>
+        </div>
+        <div class="absolute bottom-10 left-10 opacity-20">
+            <span class="material-symbols-outlined text-[150px] text-[#00BFFF]">qr_code_scanner</span>
+        </div>
+        <div class="absolute top-20 left-20 opacity-20">
+            <span class="material-symbols-outlined text-[100px] text-[#FF6600]">card_giftcard</span>
+        </div>
+
+        <!-- Main Content -->
+        <div class="relative z-10 text-center max-w-4xl">
+            <!-- Logo Area -->
+            <div class="flex justify-center items-center gap-4 mb-8">
+                <span class="material-symbols-outlined text-6xl text-[#6F2DA8]">hub</span>
+                <span class="text-5xl font-bold text-[#FF6600]">×</span>
+                <span class="material-symbols-outlined text-6xl text-[#00BFFF]">redeem</span>
+            </div>
+
+            <!-- Title -->
+            <h1 class="text-6xl font-black mb-4">
+                <span class="text-[#6F2DA8]">UHub</span>
+                <span class="text-[#000080]"> Gift Management</span>
+            </h1>
+            <h2 class="text-5xl font-bold text-gradient mb-8">
+                Digital Transformation Platform
+            </h2>
+            
+            <!-- Subtitle -->
+            <div class="bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl p-6 mb-8">
+                <h3 class="text-3xl font-bold text-[#000080] mb-2">
+                    E2E Gift & Campaign Management Solution
+                </h3>
+                <p class="text-xl text-gray-600">Transforming Manual Process to Digital Excellence</p>
+            </div>
+
+            <!-- Key Benefits -->
+            <div class="flex justify-center gap-8 mb-10">
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <div class="text-3xl font-bold text-[#6F2DA8]">80%</div>
+                    <div class="text-sm text-gray-600">Gift Usage Rate</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <div class="text-3xl font-bold text-[#FF6600]">70%</div>
+                    <div class="text-sm text-gray-600">Reuse Rate</div>
+                </div>
+                <div class="bg-white rounded-lg p-4 shadow-md">
+                    <div class="text-3xl font-bold text-[#00BFFF]"><5%</div>
+                    <div class="text-sm text-gray-600">Write-off Rate</div>
+                </div>
+            </div>
+
+            <!-- Presenter Info -->
+            <div class="text-xl text-gray-700 font-medium mb-8">
+                Presented by <span class="font-bold text-[#6F2DA8]">UTOP Corporation</span>
+            </div>
+
+            <!-- Partner Collaboration -->
+            <div class="flex justify-center items-center gap-8">
+                <div class="bg-white rounded-lg p-4 shadow-lg">
+                    <div class="text-2xl font-bold text-[#6F2DA8]">UTOP</div>
+                    <div class="text-xs text-gray-500 mt-1">Digital Partner</div>
+                </div>
+                <div class="text-3xl font-bold text-gray-400">+</div>
+                <div class="bg-white rounded-lg p-4 shadow-lg">
+                    <div class="text-2xl font-bold text-[#FF6600]">Unilever</div>
+                    <div class="text-xs text-gray-500 mt-1">Strategic Leader</div>
+                </div>
+                <div class="text-3xl font-bold text-gray-400">=</div>
+                <div class="bg-white rounded-lg p-4 shadow-lg">
+                    <div class="text-2xl font-bold text-gradient">Success</div>
+                    <div class="text-xs text-gray-500 mt-1">Since 2020</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

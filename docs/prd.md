@@ -1,512 +1,1558 @@
-# E2E Physical Gift Management System Product Requirements Document (PRD)
+# E2E Gift Product Requirements Document (PRD)
 
-## Goals and Background Context
+**Author:** Jea
+**Date:** 2025-10-06
+**Project Level:** Level 3 (Full product)
+**Project Type:** Web application
+**Target Scale:** 12-40 stories, 2-5 epics
+
+---
+
+## Description, Context and Goals
+
+### Project Description
+
+E2E Physical Gift Management System là giải pháp quản lý toàn diện quy trình quà tặng vật lý cho Unilever Việt Nam, tự động hóa chuỗi giá trị từ kho Agency đến tay người tiêu dùng cuối. Hệ thống tích hợp liền mạch với UHub platform hiện có và UGMS (Unilever Gift Management System), thay thế quy trình thủ công bằng Excel bằng digital workflows có tính kiểm soát cao.
+
+**Phạm vi core:**
+
+**6 Business Workflows chính:**
+
+1. **B1. Gift Planning** - Lập kế hoạch quà tặng và đồng bộ thông tin từ UGMS
+   - Customer Alignment với Key Accounts
+   - Setup Gift trên UGMS (Giftcode, Scheme, Customer, Ship_to)
+   - Sync UGMS → UHub qua API
+   - Request Setup Campaign với ITU Log Form
+   - Init campaign trên Utop Admin Portal
+
+2. **B2. Gift Delivery to Agency WHs** - Giao quà đến kho Agency
+   - Agency nhận và kiểm tra hàng từ Linfox delivery
+   - Digital confirmation nhận hàng theo Gift Volume
+   - Ticket system cho trường hợp không đủ hàng/hư hỏng
+   - BU review và approval workflow
+   - Xuất thông tin Allocation by store
+
+3. **B3. Gift Delivery to Stores** - Giao quà đến cửa hàng
+   - Sales kiểm tra và confirm nhận hàng theo Allocation
+   - Ticket system cho điều chỉnh kho Store
+   - Campaign Ready validation trước khi go-live
+   - PG chỉ được phép phát quà khi campaign status = "Active"
+
+4. **B4. Gift Usage** - Sử dụng quà trong campaign
+   - PG operates campaign trên UHub (Sampling/Redemption)
+   - BU xem PowerBI Report (refresh 3 lần/ngày)
+   - Quản lý luân chuyển quà giữa các Store
+   - Thu hồi quà từ Stores về Agency WHs
+
+5. **B5. Gift Recall to Agency WHs** - Thu hồi quà sau campaign
+   - Recall gifts từ Store về kho Agency
+   - Hoạt động thu hồi trong vòng 5 ngày từ end-campaign
+
+6. **B6. Stock Management** - Quản lý tồn kho và đối soát
+   - Agency kiểm tra tổng hàng thu hồi vs report đối soát
+   - Digital confirmation hoặc ticket system cho discrepancy
+   - Multi-level Approval workflow (Level 1 + Level 2)
+   - Automatic sync UHub → UGMS post-campaign
+   - Quy trình tái sử dụng Gift
+
+**Key Actors:**
+
+- **Agency Operations Manager** - Digital confirmation nhận hàng, reconciliation
+- **Sales Representative** - Store inventory confirmation
+- **PG (Promotion Girl)** - Gift distribution tracking qua QR scanning
+- **BU Team Member/Lead** - Campaign planning, approval workflows, PowerBI monitoring
+- **Utop Admin** - L2 Support, campaign setup, ticket resolution
+
+### Deployment Intent
+
+**MVP for Early Users** - Triển khai thử nghiệm hệ thống với nhóm pilot users (2-3 Agency operations, 5-10 Sales reps, 10-15 PG) trong Q4 2025, validate workflows và thu thập feedback trước khi scale ra toàn bộ Unilever Vietnam operations (200+ campaigns/năm). MVP tập trung vào core workflows B1-B6 với foundation mạnh mẽ cho automation và digital confirmation, defer advanced analytics và AI features sang Phase 2.
+
+### Context
+
+**Current State - UHub Platform Success & Scale**
+
+UHub đã vận hành thành công từ tháng 05/2020, phục vụ **200-300 chiến dịch quà tặng vật lý mỗi năm** cho Unilever Việt Nam với ngân sách trung bình 50M-500M VNĐ/campaign (tổng ~15-50 tỷ VNĐ/năm). Platform hiện có **~200K MAU (Monthly Active Users)** và 5 user groups chính: Shoppers, PG in-store, RI/BT teams, Utop Admin, và Hotline support, xử lý hàng nghìn transactions mỗi tuần thông qua digital workflows cho shopper redemption và PG distribution.
+
+**The Challenge - 4 Interconnected Pain Points**
+
+Mặc dù thành công trong digital shopper experience, UHub vẫn thiếu end-to-end visibility cho physical gift management, dẫn đến 4 pain points nghiêm trọng và liên kết với nhau:
+
+**Pain Point 1: Thiếu thỏa thuận thu hồi quà với Key Accounts**
+- Không có legal framework để thu hồi quà thừa sau campaign
+- Dẫn đến lãng phí **5-10% ngân sách mỗi campaign** (~750M-2.5B VNĐ/năm)
+- Gift inventory bị "stuck" tại stores không có cơ chế liquidation
+- **Impact cascade:** Quà stuck → Over-ordering cho campaign tiếp theo → Vicious cycle of waste
+
+**Pain Point 2: Không kiểm soát gift-in/gift-out tại Agency warehouses**
+- Quy trình nhập kho thủ công qua điện thoại/Viber confirmation
+- Không có digital evidence cho delivery receipts
+- Thiếu photo documentation khi có discrepancy
+- **Impact cascade:** Thiếu tracking Agency → Không biết baseline inventory → Store allocation không chính xác (PP3)
+
+**Pain Point 3: Không có tracking ở store level**
+- Sales confirm inventory qua Excel và phone calls
+- PG App chỉ track distribution nhưng không link với baseline allocation
+- Không có real-time visibility vào store inventory status
+- **Impact cascade:** Thiếu visibility store → Không phát hiện kịp thời stock issues → Campaign delays và customer complaints
+
+**Pain Point 4: Manual reconciliation tốn 2,000+ giờ hành chính/năm**
+- Post-campaign reconciliation mất trung bình **40 giờ mỗi campaign** (200 campaigns × 40h = 8,000 giờ, nhưng chỉ 25% campaigns có full reconciliation = ~2,000 giờ thực tế)
+- So sánh UGMS records ↔ UHub tracking ↔ Physical inventory thủ công
+- Không có automated exception detection và resolution workflow
+- **Impact cascade:** Manual reconciliation → Delayed learnings → Không optimize allocation cho campaign tiếp theo → Perpetuate PP1 waste
+
+**Total Business Impact:**
+- **Financial:** 750M-2.5B VNĐ/năm waste (không thu hồi được quà, không re-use được quà) + 2,000+ giờ administrative cost
+- **Time/Resource:** Spending significant time trên manual processes thay vì strategic campaign optimization
+- **Operational:** Campaign delays, brand reputation risk khi gift shortages tại stores
+- **Strategic:** Missed opportunities cho data-driven gift allocation optimization
+
+**Previous Attempts:**
+Unilever đã thử cải thiện bằng cách yêu cầu **Agency nhập liệu trực tiếp trên UGMS**, nhưng không thành công do:
+- Agency thiếu quyền access và training cho UGMS
+- UGMS không có mobile-friendly interface cho warehouse operations
+- Không có workflow cho discrepancy resolution và approval
+- Thiếu integration với store-level tracking
+
+Excel templates chuẩn hóa và Viber group communications cũng đã được thử nhưng không giải quyết được root cause: **thiếu digital infrastructure kết nối UGMS ↔ Agency ↔ Stores ↔ PG App**.
+
+**Why Now - Strategic Window of Opportunity**
+
+ITU team đang chuẩn bị nâng cấp UHub platform trong **Q4 2025/đầu 2026**. Đây là **strategic window** để:
+1. **Integrate E2E Gift Management** với modernized UHub architecture từ đầu (tránh retrofit costs sau này)
+2. **Leverage UGMS API** mới đang được develop (RSA 2048-bit integration ready)
+3. **Align với business need** - BU teams đang pressure để giải quyết gift waste trước fiscal year 2026
+4. **Avoid technical debt** - Build on fresh architecture thay vì patch legacy system
 
 ### Goals
 
-• Tự động hóa 80% quy trình quản lý quà tặng vật lý thay thế quy trình Excel thủ công
-• Tạo end-to-end visibility từ kho Agency đến tay người tiêu dùng cuối
-• Giảm 90% thời gian đối soát post-campaign (từ 40 giờ xuống 4 giờ)
-• Đạt tỷ lệ chính xác inventory <2% sai lệch giữa vật lý và hệ thống
-• Tích hợp UGMS-UHub seamless với digital confirmation thay thế báo cáo Excel
-• **MVP Focus**: Thiết lập foundation mạnh mẽ cho automation cơ bản và digital workflows
+**G1. Tự động hóa 80% quy trình quản lý quà tặng vật lý**
+- Thay thế Excel thủ công bằng digital workflows
+- Digital confirmation cho Agency/Sales thay vì phone/Viber
+- Automated UGMS-UHub sync thay vì manual data entry
+- **Success Metric:** ≥80% transactions qua digital workflows (không qua Excel/phone)
 
-### Background Context
+**G2. Tạo end-to-end visibility từ kho Agency đến người tiêu dùng cuối**
+- Real-time tracking gift movement từ Linfox delivery → Agency WHs → Stores → Shoppers
+- PowerBI dashboard với refresh 3 lần/ngày cho BU monitoring
+- Complete audit trail cho mọi gift transaction
+- **Success Metric:** 100% gift transactions có digital trail với timestamps
 
-Unilever Việt Nam triển khai 200-300 chiến dịch quà tặng hàng năm với ngân sách trung bình 50M-500M mỗi campaign, nhưng đang gặp phải 4 pain points nghiêm trọng: không có thỏa thuận thu hồi quà với Key Accounts, thiếu kiểm soát hệ thống gift-in/gift-out tại Agency warehouses, không có liquidation tracking ở store level, và manual reconciliation tốn 2,000+ giờ hành chính hàng năm.
+**G3. Giảm 90% thời gian đối soát post-campaign**
+- Từ 40 giờ xuống 4 giờ mỗi campaign thông qua reconciliation engine
+- Automated comparison: UGMS ↔ UHub ↔ Physical inventory
+- Exception detection và highlighting điểm GAP tự động
+- **Success Metric:** Post-campaign reconciliation time ≤4 giờ/campaign
 
-E2E Physical Gift Management System giải quyết căn bản bằng tích hợp UGMS-UHub với digital confirmation workflow, PowerBI reporting real-time, và reconciliation engine tự động. Hệ thống sẽ tạo ra complete visibility từ Gift Planning với Recall Alignment đến Stock Adjustment với Approval Workflow, đáp ứng nhu cầu cấp bách khi ITU team chuẩn bị nâng cấp UHub trong Q4 2025/Đầu 2026.
+**G4. Đạt inventory accuracy <2% sai lệch**
+- Giữa physical inventory và hệ thống records
+- Multi-level approval workflow cho stock adjustments
+- Real-time sync UGMS-UHub với <30 giây latency
+- **Success Metric:** Inventory accuracy ≥98% (sai lệch <2%)
 
-### Change Log
-
-
-| Date       | Version | Description                                                                      | Author    |
-| ------------ | --------- | ---------------------------------------------------------------------------------- | ----------- |
-| 2025-09-03 | 1.0     | PRD Creation - Goals and Background Context                                      | John (PM) |
-| 2025-09-03 | 1.1     | Scope Simplification - Removed offline capabilities và GPS tracking             | John (PM) |
-| 2025-09-03 | 1.2     | MVP Scope Reduction - Defer advanced analytics, gift recall, compliance features | John (PM) |
-| 2025-09-03 | 1.3     | New Process Alignment - Enhanced FR7/FR8, added FR11/FR12, Level 2 approval workflow | John (PM) |
+**G5. Foundation cho Gift Recall và compliance tracking**
+- Gift Recall Alignment workflow với Key Account agreements
+- Systematic recall của unused gifts post-campaign
+- Legal compliance tracking và audit trail
+- **Success Metric:** MVP enables ≥1 pilot recall workflow before Dec 2025
 
 ## Requirements
 
-Dựa trên brief và 4 pain points chính, tôi xây dựng functional và non-functional requirements:
-
 ### Functional Requirements
 
-**FR1:** Hệ thống tự động đồng bộ thông tin UGMS-UHub bao gồm Schemes, Gift codes, Quantities và Store allocation thay thế nhập Excel thủ công
+**FR Group 1: UGMS Integration & Data Sync**
 
-**FR2:** Agency có thể confirm digital nhận hàng trực tiếp trên UHub với khả năng upload ảnh và ghi chú nguyên nhân
+**FR1: Automated UGMS-UHub Data Synchronization**
+Hệ thống tự động đồng bộ thông tin từ UGMS sang UHub bao gồm Schemes (campaign mechanics, start/end dates), Giftcodes (unique identifiers), Quantities (allocation volumes), Customer (Key Account details), và Ship_to (delivery locations) thay thế nhập Excel thủ công. Sync trigger khi BU setup gift trên UGMS, với latency <30 giây và retry mechanism cho failed syncs.
 
-**FR3:** Sales có thể confirm digital gift inventory tại store level với real-time inventory update và photo documentation
+**FR2: Bi-directional Stock Adjustment Sync**
+Post-campaign và post-approval, hệ thống tự động sync stock adjustments từ UHub về UGMS với complete audit trail (adjustment reasons, approver identity, timestamps, evidence photos). Support batch processing cho multiple adjustments và automatic rollback nếu UGMS API fails.
 
-**FR4:** PG App tracking gift distribution với parallel inventory management - E2E system cung cấp baseline quantities, UHub tracks actual distribution với timestamp recording
+**FR3: RSA 2048-bit API Authentication**
+Implement RSA 2048-bit digital signature authentication cho tất cả UGMS API calls, ensure data integrity và secure communication channel. Include token refresh mechanism và automatic re-authentication khi tokens expire.
 
-**FR5:** Hệ thống tạo PowerBI dashboard với refresh 3 lần/ngày hiển thị gift usage, remaining inventory theo campaign và store
+**FR Group 2: Digital Confirmation Workflows**
 
-**FR6:** Reconciliation engine hỗ trợ so sánh UGMS records ↔ UHub tracking ↔ Physical inventory và highlight điểm GAP
+**FR4: Agency Digital Confirmation Interface**
+Agency Operations Manager có thể digital confirm nhận hàng từ Linfox delivery trực tiếp trên UHub với mobile-responsive interface, bao gồm:
+- Photo upload cho delivery receipts (multiple photos, auto-compression)
+- Quantity verification input với actual vs expected comparison
+- Mandatory reason codes khi có discrepancy
+- Digital signature capture
+- Real-time inventory update sau confirmation
 
-**FR7:** Gift Recall Alignment workflow với Key Account agreements để enable systematic recall của unused gifts post-campaign với legal compliance tracking
+**FR5: Sales Store Inventory Confirmation**
+Sales Representative có thể confirm gift inventory tại store level với:
+- View current Allocation by store từ Agency distribution
+- Quick confirmation buttons cho standard quantities (match allocation)
+- Manual adjustment input với reason code requirements
+- Photo documentation cho inventory discrepancies
+- Real-time sync với central inventory system
+- Timestamp recording cho audit trail
 
-**FR8:** Multi-level Approval workflow (Level 1 + Level 2) cho stock adjustments với ticket system, automatic UGMS-UHub sync, và comprehensive audit trail
+**FR6: Campaign Ready Validation Logic**
+Hệ thống enforce "Campaign Ready Condition" - PG App chỉ allow gift distribution khi:
+- Campaign status = "Active" (BU đã activate)
+- All store allocations confirmed bởi Sales (hoặc approved via ticket)
+- Agency warehouse confirmation completed
+- No blocking tickets (critical discrepancies unresolved)
+- Validation results hiển thị trên BU dashboard và PG App
 
-**FR9:** Exception reporting tự động với basic categorization và assignment workflow
+**FR Group 3: Ticket System & Approval Workflows**
 
-**FR10:** Mobile-responsive interface cho Agency và Sales confirmation trên smartphone/tablet
+**FR7: Multi-level Ticket Creation and Management**
+Agency và Sales có thể tạo tickets cho inventory discrepancies với:
+- Ticket types: Agency Warehouse Discrepancy (deadline: 168 giờ trước live), Store Discrepancy (deadline: 48 giờ trước live)
+- Mandatory fields: Actual quantity, Expected quantity, Reason codes, Evidence photos
+- Automatic email notifications tới BU (based on Scheme ID → BU email mapping)
+- Ticket status tracking: Open → Under Review → Approved/Rejected → Closed
+- Deadline warnings và escalation alerts
 
-**FR11:** Campaign Ready Condition logic để ensure chỉ khi campaign fully ready (inventory confirmed, allocation complete) thì PG mới được phép thao tác & tặng quà
+**FR8: BU Level 1 Approval Workflow**
+BU Team Lead có thể review và approve/reject tickets với:
+- Dashboard hiển thị pending tickets sorted by deadline
+- Detail comparison view (expected vs actual, với photos)
+- Approve action: Cập nhật UGMS Giftcode/Quantity/Allocation, sync UHub
+- Reject action: Mandatory comment field, notification về Agency/Sales
+- SLA tracking: Agency tickets 24h, Store tickets 12h
+- Approval history audit trail
 
-**FR12:** BU Review & Confirm workflow cho Agency reconciliation results với approval/rejection capabilities và feedback mechanism
+**FR9: Level 2 Approval for High-value Adjustments**
+Cho stock adjustments vượt threshold (to be defined, e.g., >10% variance hoặc >50 units), BU Level 1 phải raise ticket qua email để Level 2 (senior manager) approval trước khi Utop Admin có thể digital confirm. Include:
+- Email template với adjustment details và business justification
+- Evidence attachment (photos, reconciliation reports)
+- Level 2 approval via email confirmation
+- Utop Admin portal hiển thị Level 2 approval status
+- Automatic UGMS-UHub sync sau khi Admin confirm
+
+**FR Group 4: Reconciliation & Exception Management**
+
+**FR10: Automated Reconciliation Engine**
+Hệ thống hỗ trợ 3-way comparison giữa UGMS records ↔ UHub tracking (PG distribution) ↔ Physical inventory (Agency recall confirmation) với:
+- Automated discrepancy detection với configurable tolerance thresholds
+- Categorization: Quantity variance, Timing issues, Location mismatches
+- GAP highlighting với visual indicators (Green=match, Yellow=minor variance, Red=major discrepancy)
+- Bulk reconciliation processing cho post-campaign analysis
+- Historical data retention cho trending analysis
+
+**FR11: Exception Reporting and Resolution Dashboard**
+BU Team có thể view và manage exceptions với:
+- Exception dashboard với filtering (campaign, store, severity, date range)
+- Root cause analysis suggestions based on historical patterns
+- Assignment workflow (assign to Agency/Sales/Utop Admin for resolution)
+- Status tracking: Open → In Progress → Resolved → Verified
+- Resolution time metrics và performance KPIs
+- Exception summary reports exportable cho management review
+
+**FR12: PowerBI Dashboard Integration**
+Hệ thống cung cấp data feed cho PowerBI với scheduled refresh 3 lần/ngày (8AM, 2PM, 6PM) bao gồm:
+- Gift usage analytics (distributed vs allocated, by campaign/store/date)
+- Remaining inventory real-time status
+- Campaign performance metrics (distribution rate, waste %, utilization)
+- Store-level inventory drill-down capabilities
+- Exception summary và resolution status
+- Historical trend analysis cho inventory forecasting
+
+**FR Group 5: Gift Recall & Compliance**
+
+**FR13: Gift Recall Workflow Framework**
+Hệ thống support Gift Recall process với:
+- Recall initiation workflow (BU triggers recall cho specific campaign/stores)
+- Automated notifications tới Agency với recall requirements và timeline (5 ngày từ end-campaign)
+- Recall tracking dashboard (collection progress, outstanding items by store)
+- Agency digital confirmation của recalled items với photo evidence
+- Reconciliation report: Initial allocation - Distributed - Recalled = Variance
+- Integration với ticket system cho recall discrepancies
+
+**FR14: BU Review & Confirm Agency Reconciliation**
+BU Team Lead có thể review và confirm Agency reconciliation results với:
+- Dashboard hiển thị pending Agency reconciliation submissions post-campaign
+- Detail comparison interface (expected vs actual inventory)
+- Approve action: Finalize inventory status, mark gifts available for re-use
+- Reject action: Mandatory feedback, request Agency re-check/correction
+- Notification system tới Agency khi reconciliation approved/rejected
+- Audit trail cho final inventory status decisions
+
+**FR Group 6: Mobile & User Experience**
+
+**FR15: Progressive Web App (PWA) for Field Teams**
+Agency và Sales interfaces implement PWA capabilities với:
+- Mobile-first responsive design (optimized cho smartphones/tablets)
+- App-like experience (install to home screen, full-screen mode)
+- Offline-capable cho viewing recent data (read-only)
+- Camera integration cho photo upload
+- Touch-optimized UI components
+- Fast loading với caching strategies
+
+**FR16: Role-based Access Control (RBAC)**
+Hệ thống enforce permissions theo user roles:
+- Agency Operations Manager: Warehouse confirmations, tickets, reconciliation
+- Sales Representative: Store confirmations, store tickets
+- PG: Gift distribution (view only gift inventory status)
+- BU Team Member: View dashboards, approve tickets (Level 1)
+- BU Team Lead: All BU permissions + Level 2 approvals coordination
+- Utop Admin: Campaign setup, Level 2 ticket confirmation, system configuration
+- Audit log cho all permission-based actions
+
+**FR17: Comprehensive Audit Trail**
+Mọi transaction trong hệ thống có immutable audit trail bao gồm:
+- User identity (who), Action type (what), Timestamp (when), Location/context (where)
+- Before/after state cho data changes
+- Evidence attachments (photos, documents)
+- Approval chain cho multi-level workflows
+- Sync status với UGMS (success/failure, retry attempts)
+- Audit trail exportable cho compliance reporting và internal audits
 
 ### Non-Functional Requirements
 
-**NFR1:** API response time <2 giây cho standard operations, <5 giây cho complex reconciliation queries
-
-**NFR2:** Hệ thống hỗ trợ 200+ concurrent users trong peak campaign periods không degradation
-
-**NFR3:** Data sync latency UGMS-UHub <30 giây với guaranteed delivery và retry mechanism
-
-**NFR4:** Mobile interface tương thích 95%+ thiết bị iOS 13+ và Android 9+ với stable internet connectivity
-
-**NFR5:** 99.5% system uptime durante campaign periods với automatic failover capabilities
-
-**NFR6:** All transactions có complete audit trail với immutable logging và data encryption
-
-**NFR7:** Zero data loss trong UGMS-UHub integration với bi-directional sync cho stock adjustments, automatic rollback capabilities, và real-time consistency validation
-
-**NFR8:** RSA 2048-bit authentication cho UGMS API với OAuth 2.0 JWT tokens cho user sessions
-
-## User Interface Design Goals
-
-### Overall UX Vision
-
-Mobile-first approach tối ưu cho field teams với simple, intuitive workflows. Design philosophy: "One-tap confirmation" cho high-frequency actions, progressive disclosure để avoid overwhelming users với nhiều options, và real-time connectivity với robust error handling để manage network issues tại remote stores.
-
-### Key Interaction Paradigms
-
-• **Quick Confirmation Pattern:** Swipe/tap confirm với visual feedback instant
-• **Photo + Notes Pattern:** Camera integration với optional text annotations cho discrepancy reporting
-• **Progressive Dashboard:** Overview cards với drill-down details, từ campaign-level xuống store-level inventory
-• **Status-driven UI:** Clear visual indicators (Green=OK, Yellow=Pending, Red=Issue) để quick status assessment
-
-### Core Screens and Views
-
-• **Agency Confirmation Screen:** Delivery receipt với photo upload và quantity verification
-• **Sales Inventory Screen:** Store gift inventory với current quantities và campaign assignments
-• **PG Distribution Screen:** QR scanner với shopper confirmation và inventory deduction
-• **BU Dashboard:** Campaign overview với gift usage analytics và store performance
-• **Exception Management Screen:** Discrepancy list với resolution workflow và approval status
-
-### Accessibility: WCAG AA
-
-Tuân thủ WCAG 2.1 AA standards với contrast ratios, keyboard navigation support, và screen reader compatibility để ensure usability across diverse user abilities và device types.
-
-### Branding
-
-Integrate với UHub branding guidelines hiện có để maintain consistent user experience. Sử dụng Unilever color palette với emphasis trên blue/green cho confirmed actions, amber cho pending states, và red cho errors/exceptions.
-
-### Target Device and Platforms: Web Responsive
-
-Optimized cho iOS 13+ và Android 9+ browsers với Progressive Web App capabilities, desktop compatibility cho BU Dashboard, và tablet support cho Agency warehouse operations.
-
-## Technical Assumptions
-
-### Repository Structure: Monorepo
-
-Monorepo structure với shared components giữa UHub main app và E2E Gift Management module để tận dụng existing codebase và facilitate maintenance.
-
-### Service Architecture
-
-Microservices architecture với event-driven processing để support scalability và independent deployment. Core services: UGMS Integration Service, Gift Tracking Service, Reconciliation Service, Notification Service, và Reporting Service.
-
-### Testing Requirements
-
-Unit + Integration testing với focus trên API integration testing với UGMS, mobile UI testing trên diverse devices, và end-to-end workflow testing cho complete gift distribution cycles.
-
-### Additional Technical Assumptions and Requests
-
-**Frontend Technology Stack:**
-• **Angular với TypeScript** cho web interface theo existing UHub architecture
-• **Progressive Web App (PWA)** capabilities cho offline functionality và app-like experience
-• **Responsive CSS Framework** (Angular Material hoặc Bootstrap) cho consistent UI components
-
-**Backend Technology Stack:**
-• **.NET Core** cho API development để tương thích với UHub existing stack
-• **Azure MS SQL Server** cho transactional data với **Azure Cache** cho performance optimization
-• **RESTful API architecture** với comprehensive API documentation
-
-**Infrastructure & Deployment:**
-• **Azure App Service** hoặc **Azure Serverless Functions** cho scalable hosting
-• **Azure Service Bus** cho reliable UGMS-UHub data synchronization
-• **Azure CDN** cho fast content delivery và static asset optimization
-
-**Integration Requirements:**
-• **RSA 2048-bit digital signature** cho UGMS API authentication
-• **Webhook-based notifications** cho real-time updates
-• **Event-driven architecture** cho inventory updates và reconciliation triggers
-
-**Ticket System Infrastructure:**
-• **Workflow Engine** để manage multi-level approval processes với escalation rules
-• **Event-driven Architecture** cho automatic UGMS-UHub sync sau approval actions  
-• **Queue Management** cho batch processing của stock adjustments và recalls
-
-**Security & Compliance:**
-• **OAuth 2.0 với JWT tokens** cho user session management
-• **AES-256 encryption** at rest và in transit
-• **GDPR-compliant** personal data handling cho shopper information
-
-## Epic List
-
-**Epic 1: Foundation & UGMS Integration**
-Thiết lập project infrastructure, UGMS-UHub API integration, và basic gift tracking foundation với deployment của initial system health-check capabilities.
-
-**Epic 2: Digital Confirmation Workflows**
-Triển khai Agency và Sales digital confirmation interfaces với mobile-responsive design, photo upload capabilities, và real-time inventory updates.
-
-**Epic 3: Reconciliation & Exception Management**
-Xây dựng reconciliation engine, exception reporting system, và Level 1 approval workflow với PowerBI dashboard integration.
-
-**Epic 4: Gift Recall Implementation & Advanced Approval Workflows**
-Hoàn thiện MVP với Gift Recall workflow implementation, multi-level approval system, và advanced audit trail capabilities.
-
-## Epic 1: Foundation & UGMS Integration
-
-**Expanded Goal:** Thiết lập foundation architecture và UGMS-UHub API integration để thay thế quy trình Excel thủ công, tạo reliable data synchronization infrastructure, và deploy initial health-check functionality for system monitoring. Epic này sẽ deliver immediate value bằng cách eliminate manual data entry và establish audit trail foundation.
-
-### Story 1.1: Project Infrastructure Setup
-
-**As a** DevOps Engineer,
-**I want** project infrastructure và CI/CD pipeline được thiết lập,
-**so that** development team có scalable deployment foundation.
-
-**Acceptance Criteria:**
-
-1. Azure App Service environment provisioned cho development, staging, và production
-2. CI/CD pipeline configured với automated testing và deployment
-3. Database schemas created với initial tables cho gift tracking
-4. Basic authentication và authorization framework implemented
-5. Health check endpoints available cho system monitoring
-
-### Story 1.2: UGMS API Integration Framework
-
-**As a** Backend Developer,
-**I want** UGMS API integration framework được implement,
-**so that** system có thể automatically sync data từ UGMS.
-
-**Acceptance Criteria:**
-
-1. RSA 2048-bit authentication mechanism implemented cho UGMS API calls
-2. API client library created với retry logic và error handling
-3. Data mapping layer established giữa UGMS và UHub data models
-4. Initial sync capability cho Schemes, Gift codes, Quantities
-5. Webhook endpoint ready để receive UGMS notifications
-
-### Story 1.3: Basic Gift Tracking Data Model
-
-**As a** System Administrator,
-**I want** core data models cho gift tracking được established,
-**so that** system có thể store và track gift inventory accurately.
-
-**Acceptance Criteria:**
-
-1. Gift inventory database tables created với proper indexing
-2. Campaign và scheme tracking tables established
-3. Audit trail tables implemented cho all data changes
-4. Data validation rules enforced at database level
-5. Basic CRUD operations available via API endpoints
-
-### Story 1.4: System Health Check & Monitoring
-
-**As a** BU Team Member,
-**I want** system health dashboard available,
-**so that** tôi có thể verify system status và UGMS connection.
-
-**Acceptance Criteria:**
-
-1. Health check dashboard shows UGMS API connectivity status
-2. Database connection status monitoring implemented
-3. Basic system metrics displayed (response times, error rates)
-4. Email notifications configured cho critical system failures
-5. Initial system ready cho Epic 2 development
-
-## Epic 2: Digital Confirmation Workflows
-
-**Expanded Goal:** Implement Agency và Sales digital confirmation interfaces để thay thế manual phone/Viber confirmation process. Epic này addresses pain points #2 và #3 bằng cách tạo mobile-responsive workflows cho gift-in/gift-out tracking với photo documentation và real-time inventory updates. Deliverables include Agency confirmation app, Sales store confirmation interface, và PG App integration cho complete digital workflow.
-
-### Story 2.1: Agency Mobile Confirmation Interface
-
-**As an** Agency Operations Manager,
-**I want** mobile interface để confirm gift deliveries,
-**so that** tôi có thể digitally document receipts thay vì phone calls.
-
-**Acceptance Criteria:**
-
-1. Mobile-responsive confirmation screen accessible via smartphone/tablet
-2. Photo upload functionality với compression và thumbnail preview
-3. Quantity verification input với discrepancy reporting capability
-4. Digital signature capture cho delivery confirmation
-5. Real-time connectivity requirement với error handling cho network issues
-
-### Story 2.2: Sales Store Inventory Confirmation
-
-**As a** Sales Representative,
-**I want** simple interface để confirm store gift inventory,
-**so that** tôi có thể accurately track store-level gift availability.
-
-**Acceptance Criteria:**
-
-1. Store inventory dashboard showing current gift allocations
-2. Quick confirmation buttons cho standard quantities
-3. Manual adjustment input với reason code requirements
-4. Photo documentation cho inventory discrepancies
-5. Real-time sync với central inventory system
-
-### Story 2.3: PG App Integration Enhancement
-
-**As a** Promotion Girl (PG),
-**I want** enhanced QR scanning functionality,
-**so that** gift distribution tracking được synchronized với E2E system.
-
-**Acceptance Criteria:**
-
-1. QR code scanner integrated với existing PG App
-2. Giai đoạn đầu: Parallel tracking system - E2E Physical Gift management cung cấp số đầu kỳ theo scheme/Giftcode, UHub theo dõi số thực tế phát theo campaign
-3. Timestamp recording cho audit trail (GPS location removed)
-4. Shopper confirmation screen với gift details display
-5. Real-time processing với retry mechanism cho network failures
-6. Campaign ready validation - PG App chỉ allow gift distribution khi campaign status = "Active" và inventory confirmed
-7. Integration với BU campaign activation workflow
-
-### Story 2.4: Real-time Inventory Synchronization
-
-**As a** System Administrator,
-**I want** real-time inventory updates across all touchpoints,
-**so that** data consistency maintained throughout gift distribution chain.
-
-**Acceptance Criteria:**
-
-1. Event-driven inventory updates triggered by confirmations
-2. Conflict resolution logic cho concurrent inventory changes
-3. Rollback capabilities cho failed transactions
-4. Notification system cho inventory threshold alerts
-5. Integration testing với UGMS sync mechanisms
-
-## Epic 3: Reconciliation & Exception Management
-
-**Expanded Goal:** Giải quyết pain point #4 bằng cách thay thế manual reconciliation process tốn 2,000+ giờ/năm. Epic này delivers reconciliation engine hỗ trợ comparison giữa UGMS records ↔ UHub tracking ↔ Physical inventory, PowerBI dashboard với refresh 3 lần/ngày, exception reporting system với root cause analysis, và Level 1 approval workflow cho stock adjustments. Target giảm 90% thời gian đối soát từ 40 giờ xuống 4 giờ mỗi campaign.
-
-### Story 3.1: Reconciliation Engine Core Logic
-
-**As a** BU Team Member,
-**I want** reconciliation engine hỗ trợ so sánh data từ multiple sources,
-**so that** tôi có thể quickly identify discrepancies thay vì manual Excel comparison.
-
-**Acceptance Criteria:**
-
-1. Data comparison logic giữa UGMS records, UHub tracking, Physical inventory
-2. Discrepancy detection với configurable tolerance thresholds
-3. Automated categorization của discrepancy types (quantity, timing, location)
-4. Bulk reconciliation processing cho post-campaign analysis
-5. Historical reconciliation data retention và trending analysis
-
-### Story 3.2: Exception Reporting Dashboard
-
-**As a** BU Team Member,
-**I want** exception reporting dashboard với actionable insights,
-**so that** tôi có thể prioritize và resolve discrepancies efficiently.
-
-**Acceptance Criteria:**
-
-1. Exception dashboard với filtering theo campaign, store, severity
-2. Root cause analysis suggestions based trên historical patterns
-3. Assignment workflow cho resolution ownership
-4. Status tracking từ "Open" → "In Progress" → "Resolved"
-5. Exception resolution time metrics và performance reporting
-
-### Story 3.3: PowerBI Dashboard Integration
-
-**As a** BU Team Manager,
-**I want** PowerBI dashboard với gift tracking analytics,
-**so that** tôi có thể monitor campaign performance và inventory utilization.
-
-**Acceptance Criteria:**
-
-1. PowerBI report integration với scheduled refresh 3 lần/ngày
-2. Campaign performance metrics (distribution rate, utilization %, waste reduction)
-3. Store-level inventory analytics với drill-down capabilities
-4. Exception summary reporting với resolution status
-5. Historical trend analysis cho inventory forecasting
-
-### Story 3.4: Level 1 Approval Workflow
-
-**As a** BU Team Lead,
-**I want** approval workflow cho inventory adjustments,
-**so that** stock changes có proper authorization và audit trail.
-
-**Acceptance Criteria:**
-
-1. Approval workflow triggering cho stock adjustments >threshold
-2. Email notifications cho pending approvals với escalation timing
-3. Approval history tracking với approver identity và timestamp
-4. Reason code mandatory cho all manual adjustments
-5. Audit trail integration với complete transaction logging
-
-### Story 3.5: BU Review & Confirm Reconciliation
-
-**As a** BU Team Lead,
-**I want** review và confirm capability cho Agency reconciliation results,
-**so that** tôi có thể validate accuracy trước khi finalize inventory status.
-
-**Acceptance Criteria:**
-
-1. BU dashboard hiển thị pending Agency reconciliation submissions
-2. Review interface với detail comparison (expected vs actual inventory)  
-3. Approve/Reject actions với mandatory comment fields
-4. Notification system cho Agency khi reconciliation approved/rejected
-5. Integration với final inventory status updates
-
-## Epic 4: Gift Recall Implementation & Advanced Approval Workflows
-
-**Expanded Goal:** Giải quyết pain point #1 bằng cách thiết lập systematic gift recall workflow với Key Account agreement tracking để giảm 60% lãng phí quà tặng (từ 5-10% budget xuống <2% budget mỗi campaign). Epic này triển khai advanced features bao gồm predictive analytics cho gift allocation optimization, complete compliance audit trail, và integration với loyalty program cho post-MVP expansion. Target value: Thu hồi systematic 95%+ quà thừa và tạo foundation cho AI-powered optimization.
-
-### Story 4.1: Gift Recall Workflow Framework
-
-**As a** BU Team Member,
-**I want** systematic gift recall process,
-**so that** tôi có thể thu hồi unused gifts từ Key Accounts thay vì accept waste.
-
-**Acceptance Criteria:**
-
-1. Key Account recall agreement templates với legal compliance requirements
-2. Recall initiation workflow với automated notifications và timelines
-3. Recall tracking dashboard với collection progress monitoring
-4. Integration với existing KA relationship management systems
-5. Recall performance metrics và waste reduction reporting
-6. Level 2 Approval integration - Ticket system với senior manager approval required
-7. Automatic UGMS-UHub sync sau khi recall được approved
-8. Integration với inventory adjustment workflows
-
-### Story 4.2: Advanced Analytics & Reporting
-
-**As a** BU Team Manager,
-**I want** advanced analytics cho gift allocation optimization,
-**so that** tôi có thể make data-driven decisions cho future campaigns.
-
-**Acceptance Criteria:**
-
-1. Predictive analytics cho optimal gift allocation based trên historical data
-2. Campaign performance benchmarking với industry standards
-3. Store performance analytics với gift utilization efficiency metrics
-4. Seasonal trend analysis cho inventory planning optimization
-5. Advanced reporting export capabilities cho executive presentations
-
-### Story 4.3: Compliance & Audit Trail Enhancement
-
-**As a** Compliance Officer,
-**I want** comprehensive audit trail và compliance reporting,
-**so that** all gift management processes meet regulatory requirements.
-
-**Acceptance Criteria:**
-
-1. Complete transaction logging với immutable audit trail
-2. Compliance reporting templates cho internal và external audits
-3. Data retention policies với automated archival processes
-4. GDPR compliance features cho personal data handling
-5. Regulatory export capabilities với standardized formats
-
-### Story 4.4: Post-MVP Integration Readiness
-
-**As a** System Architect,
-**I want** integration hooks cho future enhancements,
-**so that** system có thể scale với business growth và new requirements.
-
-**Acceptance Criteria:**
-
-1. API framework cho third-party gift vendor integrations
-2. Loyalty program integration endpoints preparation
-3. Advanced workflow engine foundation cho complex approval processes
-4. Basic extension points cho future AI features (implementation deferred to Phase 2)
-5. Performance optimization foundation cho enterprise scale deployment
-
-## Checklist Results Report
-
-### Executive Summary
-
-**Overall PRD Completeness:** 92% - Rất tốt với detailed requirements và comprehensive epic structure
-**MVP Scope Assessment:** Just Right - Epic structure balanced giữa foundation value và complexity management
-**Architecture Readiness:** Ready - Technical assumptions và functional requirements đủ rõ cho architecture phase
-**Critical Assessment:** PRD hoàn chỉnh với minor improvement areas trong testing strategy và performance metrics
-
-### Category Analysis
-
-
-| Category                         | Status  | Critical Issues                                              |
-| ---------------------------------- | --------- | -------------------------------------------------------------- |
-| 1. Problem Definition & Context  | PASS    | Excellent - 4 pain points clearly mapped to solutions        |
-| 2. MVP Scope Definition          | PASS    | Well-scoped với clear out-of-scope boundaries               |
-| 3. User Experience Requirements  | PASS    | Mobile-first design với accessibility considerations        |
-| 4. Functional Requirements       | PASS    | 10 FRs + 8 NFRs comprehensive và testable                   |
-| 5. Non-Functional Requirements   | PASS    | Performance targets specific (<2s, 200+ users, etc.)         |
-| 6. Epic & Story Structure        | PASS    | 4 epics logically sequential với 16 detailed stories        |
-| 7. Technical Guidance            | PASS    | Architecture stack định nghĩa rõ (.NET, Angular, Azure)  |
-| 8. Cross-Functional Requirements | PARTIAL | API integration clear, data migration needs clarification    |
-| 9. Clarity & Communication       | PASS    | Tiếng Việt terminology consistent, technical terms defined |
-
-### MVP Scope Assessment
-
-**Appropriate Scope Elements:**
-• Epic 1-2 addresses core pain points với immediate value delivery
-• Mobile-first approach phù hợp với field team reality
-• UGMS integration tackles highest technical risk early
-• PowerBI 3x/day refresh realistic cho business needs
-
-**Scope Refinement Suggestions:**
-• Epic 4 advanced analytics có thể defer to post-MVP để focus trên core reconciliation
-• Story 1.4 system monitoring essential - keep in MVP
-• Story 4.4 integration readiness có thể simplify cho MVP focus
-
-### Technical Readiness Assessment
-
-**Architectural Clarity Strengths:**
-• Technology stack alignment với existing UHub (.NET, Angular, Azure)
-• Security requirements specific (RSA 2048-bit, OAuth 2.0, AES-256)
-• Performance targets measurable và realistic
-• Integration patterns clear (API, webhooks, event-driven)
-
-**Areas Requiring Architect Deep-dive:**
-• UGMS API specifications và data mapping complexity
-• Reconciliation engine algorithm design cho 3-way comparison
-• Mobile offline synchronization strategy detail
-• Azure Service Bus event sequencing cho inventory updates
-
-### Top Recommendations by Priority
-
-**MEDIUM Priority (Quality Improvements):**
-
-1. **Enhanced Testing Strategy:** Add integration testing requirements for UGMS API failure scenarios
-2. **Data Migration Planning:** Clarify historical Excel data migration scope và timeline
-3. **Performance Baseline:** Define current manual process metrics để measure improvement accurately
-
-**LOW Priority (Nice to Have):**
-
-1. **User Training Plan:** Consider change management strategy cho field team adoption
-2. **Rollback Strategy:** Detail emergency rollback procedures cho production issues
-
-### Final Assessment: READY FOR ARCHITECT
-
-PRD provides comprehensive foundation cho architectural design với:
-• Clear business value proposition (90% time savings, 60% waste reduction)
-• Well-structured epic progression từ foundation đến advanced features
-• Specific technical constraints và integration requirements
-• Realistic scope cho MVP timeline (Q1 2026 target)
-
-**Recommendation:** Proceed to architecture phase với confidence. Minor improvements có thể address during implementation planning.
+**NFR1: API Response Time & System Performance**
+- Standard operations (view dashboards, confirmations, ticket creation): API response time <2 giây
+- Complex reconciliation queries (3-way comparison, bulk processing): <5 giây
+- Photo upload processing (compression + storage): <3 giây per image
+- PowerBI data feed generation: <10 giây per refresh cycle
+- Page load time cho mobile interfaces: <3 giây on 4G connection
+- **Measurement:** 95th percentile response times monitored via Azure Application Insights
+
+**NFR2: Concurrent User Support**
+- Hệ thống hỗ trợ tối thiểu **50+ concurrent users** trong pilot phase (2-3 Agency, 5-10 Sales, 10-15 PG, 10-20 BU/Admin)
+- No performance degradation under pilot load
+- Scalability plan cho 200+ concurrent users khi full rollout
+- Session management với automatic timeout sau 30 phút inactive
+- **Measurement:** Load testing với simulated concurrent users, monitor resource utilization
+
+**NFR3: UGMS-UHub Data Sync Latency**
+- Sync latency <30 giây cho UGMS → UHub data updates
+- Guaranteed delivery với retry mechanism (3 attempts với exponential backoff)
+- Sync failure alerts tới ITU team và BU lead within 1 phút
+- Bi-directional sync UHub → UGMS post-approval: <1 phút
+- Sync status tracking dashboard cho monitoring team
+- **Measurement:** Timestamp tracking từ UGMS trigger đến UHub data availability
+
+**NFR4: Mobile Device Compatibility**
+- Mobile-responsive interface tương thích **95%+ thiết bị** trong pilot user pool:
+  - iOS 13+ (iPhone 8 trở lên)
+  - Android 9+ (Samsung, Oppo, Xiaomi mainstream models từ 2019)
+- Browser support: Chrome Mobile, Safari Mobile (latest 2 versions)
+- Screen size optimization: 375px (iPhone SE) to 428px (iPhone Pro Max) và Android equivalents
+- Touch target minimum 44px × 44px (WCAG accessibility guidelines)
+- Stable internet connectivity required (minimum 3G, recommend 4G)
+- **Measurement:** Device analytics tracking, cross-device testing matrix
+
+**NFR5: System Uptime & Reliability**
+- Target **99.5% uptime** during campaign periods (định nghĩa: 7 ngày trước campaign start đến 10 ngày sau campaign end)
+- Planned maintenance windows: Off-peak hours only (1AM-4AM Vietnam time), maximum 3 giờ/tháng
+- Automatic failover capabilities cho critical services (UGMS sync, ticket notifications)
+- Recovery Time Objective (RTO): <2 giờ cho major outages
+- Recovery Point Objective (RPO): <15 phút data loss maximum
+- **Measurement:** Uptime monitoring dashboard, incident tracking, SLA reports
+
+**NFR6: Comprehensive Audit Trail & Data Integrity**
+- **100% transactions** có complete audit trail với immutable logging
+- Audit log retention: 3 năm minimum (compliance requirement)
+- Data encryption at rest: AES-256 cho database và file storage
+- Data encryption in transit: TLS 1.2+ cho all API communications
+- Database backup: Daily full backup + hourly incremental backups
+- Backup retention: 30 ngày rolling window
+- **Measurement:** Audit trail completeness checks, encryption validation scans
+
+**NFR7: Zero Data Loss trong UGMS-UHub Integration**
+- Bi-directional sync cho stock adjustments với guaranteed consistency
+- Automatic rollback capabilities nếu UGMS API fails mid-transaction
+- Real-time consistency validation: Compare UGMS ↔ UHub data checksums every 6 giờ
+- Conflict resolution logic cho concurrent updates (last-write-wins với audit trail)
+- Manual reconciliation tool cho rare edge cases
+- **Measurement:** Sync success rate monitoring, data consistency audit reports
+
+**NFR8: Authentication & Authorization Security**
+- RSA 2048-bit authentication cho UGMS API integration
+- OAuth 2.0 với JWT tokens cho user sessions
+- Token expiry: 8 giờ, with automatic refresh mechanism
+- Multi-factor authentication (MFA) optional cho BU Team Lead và Utop Admin
+- Password policy: Minimum 8 characters, complexity requirements
+- Session security: HTTPOnly cookies, CSRF protection
+- **Measurement:** Security audit logs, penetration testing reports
+
+**NFR9: Mobile Network Resilience**
+- Offline-capable cho viewing recent data (last 24 hours cached, read-only)
+- Automatic retry với exponential backoff cho failed network requests
+- Clear user feedback khi offline (banner notification, disabled actions)
+- Queue mechanism cho photo uploads when network unstable (retry when reconnected)
+- Progressive image loading với low-res previews
+- **Measurement:** Network error recovery success rate, user experience feedback
+
+**NFR10: Usability & User Experience**
+- Mobile interfaces pass WCAG 2.1 AA compliance (accessibility standards)
+- User training requirement: <2 giờ cho Agency/Sales field teams
+- Task completion time benchmarks:
+  - Agency warehouse confirmation: <5 phút
+  - Sales store confirmation: <3 phút
+  - BU ticket approval: <10 phút review + decision
+- Error messages in Vietnamese với clear actionable guidance
+- Help documentation embedded trong app (contextual tooltips)
+- **Measurement:** User satisfaction surveys (target ≥4/5), task completion time tracking
+
+**NFR11: Data Privacy & Compliance**
+- Personal data handling compliant với Vietnam Personal Data Protection regulations
+- User consent management cho photo uploads và location data (if implemented)
+- Data retention policies clearly documented
+- Right to erasure support (user data deletion requests)
+- Privacy policy accessible within app
+- Annual privacy audit preparation
+- **Measurement:** Compliance checklist validation, privacy audit results
+
+**NFR12: Integration Testing & Quality Assurance**
+- Minimum **80% code coverage** cho unit tests
+- Integration testing cho all UGMS API endpoints với mock và live environments
+- End-to-end testing cho complete workflows (B1-B6)
+- Mobile UI testing trên diverse devices (minimum 5 representative devices)
+- Performance testing under pilot load scenarios
+- Security testing: OWASP Top 10 vulnerabilities scan
+- **Measurement:** Test coverage reports, bug density metrics, QA sign-off criteria
+
+## User Journeys
+
+### Journey 1: Agency Operations Manager - Warehouse Confirmation Flow
+
+**Persona:** Minh - Agency Operations Manager tại ABC Logistics
+**Context:** Nhận delivery 500 units physical gifts cho campaign "Tết 2026" từ Linfox, cần digital confirm trên UHub
+**Goal:** Confirm nhận hàng chính xác, xử lý discrepancy nếu có, enable store allocation
+
+**Pre-conditions:**
+- BU đã setup gift trên UGMS và sync sang UHub
+- ITU Log Form đã được gửi tới Utop Admin
+- Utop Admin đã init campaign với Allocation by store
+- Minh có account và permissions cho Agency warehouse confirmation
+
+**Journey Steps:**
+
+**1. Receive Delivery Notification (Offline)**
+- Linfox driver giao hàng tại warehouse ABC
+- Minh nhận delivery note với expected quantity: 500 units, Giftcode: GC2026TET001
+- Physical inspection: Count actual units, check for damages
+
+**2. Access UHub Mobile Interface**
+- Minh mở UHub trên smartphone (iPhone 11)
+- Login với số điện thoại + SMS OTP
+- Navigate tới "Agency Warehouse Confirmation" section
+- View pending deliveries list: Campaign "Tết 2026" - Expected 500 units
+
+**3. Decision Point: Delivery Matches Expected?**
+
+**Path A: Full Match (Happy Path - 70% cases)**
+- Actual quantity = 500 units, no damages
+- Minh clicks "Confirm Receipt - Full Match"
+- System prompts: "Upload delivery receipt photo (optional but recommended)"
+- Minh uploads 2 photos: Delivery note + Stacked boxes overview
+- Digital signature capture on screen
+- Clicks "Submit Confirmation"
+- **System Actions:**
+  - Real-time inventory update: Agency WH inventory = 500 units
+  - Send notification tới BU: "ABC Logistics confirmed 500 units GC2026TET001"
+  - Enable "Allocation by Store" export for Minh
+  - Update campaign status: "Warehouse Confirmed ✓"
+- **User sees:** Success message "Confirmation recorded. You can now allocate to stores."
+
+**Path B: Partial Discrepancy (20% cases)**
+- Actual quantity = 480 units (20 units short), no damages
+- Minh clicks "Report Discrepancy"
+- System shows form:
+  - Expected: 500 units (pre-filled)
+  - Actual: [Input field] → Minh enters 480
+  - Discrepancy: -20 units (auto-calculated)
+  - Reason code: [Dropdown] → Minh selects "Delivery shortage"
+  - Evidence photos: [Upload] → Minh uploads delivery note + package count photo
+  - Additional notes: [Text] → "Driver confirmed shortage from DC, will report back"
+- Clicks "Create Ticket"
+- **System Actions:**
+  - Create ticket #TKT-20260106-001 with status "Open"
+  - Calculate deadline: Current time + 168 hours = Jan 13, 2026 11:30 AM
+  - Send auto-email tới BU (based on Scheme ID → BU email mapping)
+  - Email subject: "🚨 Agency Warehouse Discrepancy - Tết 2026 - Deadline: Jan 13"
+  - Temporary inventory: 480 units (pending approval)
+- **User sees:** "Ticket created. BU Team will review within 24 hours. Deadline: Jan 13, 11:30 AM"
+
+**Path C: Major Discrepancy or Damage (10% cases)**
+- Actual quantity = 350 units, 150 units damaged/missing
+- Minh clicks "Report Major Issue"
+- Similar form với higher severity flags
+- **System Actions:**
+  - Create high-priority ticket
+  - Immediate escalation email tới BU Lead + Utop Admin
+  - Campaign status: "Warehouse Issue - Blocked ⚠️"
+  - PG App blocks gift distribution until resolved
+
+**4. Post-Confirmation: Allocation by Store**
+
+**If Path A (approved):**
+- Minh navigates to "Allocation by Store"
+- Views pre-defined allocation từ ITU Log Form:
+  - Store A (Big C Thảo Điền): 150 units
+  - Store B (Coopmart Cống Quỳnh): 200 units
+  - Store C (Lotte Nowzone): 150 units
+- Minh confirms allocation matches warehouse capacity
+- Clicks "Finalize Allocation"
+- **System Actions:**
+  - Lock allocation (cannot change without ticket)
+  - Notify Sales reps tại 3 stores: "Your allocation ready for confirmation"
+  - Update campaign progress: "Ready for Store Delivery"
+
+**If Path B (ticket pending):**
+- Allocation temporarily shows 480 units
+- System suggests: "Adjust allocation by -20 units or wait for BU approval"
+- Minh waits for BU decision (next 24h)
+- **BU approves adjusted quantity:**
+  - Allocation auto-updated: Store A: 144, Store B: 192, Store C: 144 (proportional reduction)
+  - Minh receives notification: "Ticket approved. Proceed with allocation."
+  - Minh finalizes allocation như Path A
+
+**Pain Points Addressed:**
+✅ Thay thế phone/Viber confirmation bằng digital workflow với evidence (PP2)
+✅ Real-time inventory tracking thay vì manual Excel (PP2)
+✅ Automated ticket creation với SLA tracking thay vì email chaos (PP4)
+✅ Clear deadline management (168h) cho Agency adjustments (New process improvement)
+
+---
+
+### Journey 2: Sales Representative - Store Inventory Confirmation Flow
+
+**Persona:** Lan - Sales Representative phụ trách Big C Thảo Điền
+**Context:** Nhận allocation 150 units từ ABC Logistics cho campaign "Tết 2026", cần confirm trước go-live
+**Goal:** Verify physical inventory matches allocation, ensure campaign ready
+
+**Pre-conditions:**
+- Agency đã finalize Allocation by Store (150 units allocated to Big C Thảo Điền)
+- Physical delivery từ Agency warehouse tới store completed
+- Lan có account và permissions cho Store confirmation
+- Campaign go-live: Jan 20, 2026 (5 ngày nữa)
+
+**Journey Steps:**
+
+**1. Receive Allocation Notification**
+- Lan nhận SMS/app notification: "Your allocation for Tết 2026 ready: 150 units. Please confirm before Jan 18, 8AM (48h deadline)"
+- Lan coordinates với store manager để verify physical stock
+
+**2. Physical Count at Store**
+- Lan counts physical gifts tại storage area
+- Finds: 145 units (5 units short)
+- Checks delivery notes từ Agency: Expected 150 units
+
+**3. Access UHub and Review Allocation**
+- Lan login UHub mobile app
+- Navigate to "My Store Confirmations"
+- Views pending confirmation:
+  - Campaign: Tết 2026
+  - Allocated: 150 units
+  - Status: Pending Confirmation
+  - Deadline: Jan 18, 8AM (42 hours remaining) ⚠️
+
+**4. Decision Point: Inventory Matches Allocation?**
+
+**Path A: Full Match (60% cases)**
+- If Lan counted 150 units matching allocation
+- Clicks "Quick Confirm - Match Allocation"
+- System prompts optional photo upload
+- Lan uploads 1 photo of stacked gifts
+- Clicks "Submit"
+- **System Actions:**
+  - Update store inventory: Big C Thảo Điền = 150 units confirmed ✓
+  - Check campaign readiness:
+    - Agency confirmed ✓
+    - Store A confirmed ✓
+    - Store B pending
+    - Store C pending
+    - → Campaign status: "Partially Ready (1/3 stores)"
+  - Notify BU dashboard: "Big C Thảo Điền confirmed"
+- **User sees:** "Confirmation successful. Campaign will activate when all stores ready."
+
+**Path B: Minor Discrepancy - Create Ticket (30% cases)**
+- Actual count = 145 units (-5 variance)
+- Lan clicks "Report Discrepancy"
+- Form appears:
+  - Allocated: 150 units
+  - Actual: [Input] → 145
+  - Variance: -5 units (auto-calculated, <10% threshold)
+  - Reason: [Dropdown] → "Delivery shortage from Agency"
+  - Evidence: [Upload] → Photo of inventory + delivery note
+  - Notes: "Checked with Agency driver, will investigate"
+- Calculate deadline: 48 hours from now = Jan 18, 8AM
+- Clicks "Create Ticket"
+- **System Actions:**
+  - Create ticket #TKT-20260116-002 status "Open"
+  - Email BU Team: "Store discrepancy - Big C Thảo Điền - 48h deadline"
+  - Temporary inventory: 145 units
+  - Campaign status: "Store Issue - Under Review"
+- **User sees:** "Ticket created. BU will review within 12 hours."
+
+**5. BU Reviews Ticket (Within 12 hours)**
+- BU Team Lead reviews ticket in dashboard
+- Options:
+  - **Approve 145 units:** Accept shortage, proceed with reduced allocation
+  - **Reject & Request Investigation:** Lan must re-count or coordinate với Agency
+  - **Escalate to Level 2:** If high-value adjustment
+
+**BU Decision Path: Approve 145 units**
+- BU clicks "Approve" with comment: "Shortage acceptable, Agency will compensate in next delivery"
+- **System Actions:**
+  - Update UGMS: Big C Thảo Điền allocation = 145 units
+  - Sync UHub: Confirmed inventory = 145 units
+  - Notify Lan: "Ticket approved. Proceed with 145 units."
+  - Update campaign readiness check
+- **Lan sees:** Push notification "Your ticket approved. Campaign ready with 145 units."
+
+**6. Campaign Ready Validation**
+- All 3 stores confirmed (Store B: 200✓, Store C: 148✓ after similar ticket)
+- **System performs Campaign Ready Check:**
+  - ✅ Agency warehouse confirmed
+  - ✅ All store allocations confirmed (with approved adjustments)
+  - ✅ No blocking tickets
+  - ✅ Campaign status = "Active"
+- **PG App unlocked:** PGs can now scan QR codes và distribute gifts
+- **BU dashboard shows:** "Campaign Tết 2026 READY - 493 units (adjusted from 500)"
+
+**Pain Points Addressed:**
+✅ Sales không cần Excel + phone calls, all digital (PP3)
+✅ Real-time visibility vào store inventory (PP3)
+✅ Campaign Ready validation prevents PG distribution với incomplete inventory (New FR6)
+✅ Ticket deadline enforcement (48h) ensures timely resolution (New process)
+
+---
+
+### Journey 3: BU Team Lead - Post-Campaign Reconciliation & Recall Flow
+
+**Persona:** Nam - BU Team Lead cho Home Care category
+**Context:** Campaign "Tết 2026" ended Jan 25, cần reconcile inventory và recall unused gifts
+**Goal:** Finalize campaign results, enable gift re-use cho next campaign
+
+**Pre-conditions:**
+- Campaign "Tết 2026" status: "Ended" (Jan 25, 2026)
+- Initial allocation: 493 units (adjusted)
+- PG distribution tracking: 450 units distributed during campaign
+- Expected recall: 493 - 450 = 43 units remaining
+- 5-day recall window: Jan 25-30, 2026
+
+**Journey Steps:**
+
+**1. Monitor PowerBI Dashboard During Campaign**
+- Nam access PowerBI dashboard daily (refresh 8AM, 2PM, 6PM)
+- Views metrics:
+  - Distribution rate: 91% (450/493)
+  - Store performance:
+    - Big C Thảo Điền: 140/145 distributed (96%)
+    - Coopmart Cống Quỳnh: 195/200 (97%)
+    - Lotte Nowzone: 115/148 (78%) ⚠️ Low utilization
+  - Exception alerts: 2 minor discrepancies auto-resolved
+- Nam notes: Lotte underperforming, investigate for next campaign
+
+**2. Initiate Gift Recall (Jan 25 - End of Campaign)**
+- Nam navigates to "Campaign Management" → "Tết 2026"
+- Clicks "Initiate Recall Process"
+- System shows expected recall by store:
+  - Big C: 5 units
+  - Coopmart: 5 units
+  - Lotte: 33 units
+- Nam confirms: "Start Recall - 5 day deadline (Jan 30)"
+- **System Actions:**
+  - Send automated notifications tới ABC Agency:
+    - "Recall required: 43 units from 3 stores by Jan 30"
+    - Breakdown by store attached
+    - Recall confirmation form link
+  - Update campaign status: "Recall In Progress"
+  - Start 5-day countdown timer
+
+**3. Agency Collects Gifts from Stores (Jan 26-29)**
+- ABC Agency coordinates với stores
+- Physical collection:
+  - Big C: Collected 5 units ✓
+  - Coopmart: Collected 5 units ✓
+  - Lotte: Collected 30 units (3 units discrepancy - damaged during campaign)
+
+**4. Agency Reconciliation Submission (Jan 29)**
+- Agency Operations Manager (Minh) accesses "Post-Campaign Reconciliation"
+- Views auto-generated reconciliation report:
+  - Initial allocation (after adjustments): 493 units
+  - Distributed (from UHub PG tracking): 450 units
+  - Expected recall: 43 units
+  - Actual recall: 40 units
+  - Variance: -3 units
+- **Decision Point: Variance exists?**
+
+**Path A: Perfect Match (40% cases)**
+- If actual = expected (43 units)
+- Minh clicks "Confirm Reconciliation - Full Match"
+- Uploads photos of recalled gifts
+- Digital signature
+- Submit
+- **Skip to Step 6 - BU Auto-Approval**
+
+**Path B: Minor Variance - Create Reconciliation Ticket (60% cases)**
+- Actual = 40 units (-3 variance)
+- Minh clicks "Submit Reconciliation with Variance"
+- Form:
+  - Expected: 43
+  - Actual: 40
+  - Variance: -3 (6.9%)
+  - Reason: [Dropdown] → "Damaged during campaign"
+  - Evidence: Photos of damaged units + collection receipts
+  - Store breakdown:
+    - Big C: 5/5 ✓
+    - Coopmart: 5/5 ✓
+    - Lotte: 30/33 (3 damaged)
+- Clicks "Submit for BU Review"
+- **System Actions:**
+  - Create reconciliation ticket #REC-20260129-001
+  - Email Nam (BU Lead): "Agency reconciliation submitted - 3 units variance (damaged)"
+  - Ticket includes complete audit trail:
+    - Initial: 493 units
+    - Distributed: 450 units (with PG timestamps)
+    - Recalled: 40 units (with photos)
+    - Variance: -3 units (damaged evidence)
+
+**5. BU Review & Decision**
+- Nam receives email, opens reconciliation dashboard
+- Views detailed comparison:
+  - UGMS records: 493 initial allocation
+  - UHub tracking: 450 distributed (matched with PG app data ✓)
+  - Physical recall: 40 units (Agency photos attached)
+  - GAP: -3 units
+- Reviews evidence photos: Clear damage visible
+- **Decision Options:**
+  - **Approve:** Accept variance, finalize campaign
+  - **Reject:** Request Agency re-check or additional evidence
+  - **Escalate Level 2:** If variance >10% or high-value
+
+**Nam's Decision: Approve with threshold check**
+- Variance: 3 units = 0.6% of initial allocation (below 2% threshold ✓)
+- Damage evidence clear
+- Nam clicks "Approve Reconciliation"
+- Adds comment: "Damage acceptable. Lotte store needs process review for future campaigns."
+- **System Actions:**
+  - Finalize inventory status:
+    - Total distributed: 450 units (final)
+    - Total recalled: 40 units (available for re-use)
+    - Total waste: 3 units (0.6%)
+  - **Sync to UGMS:**
+    - Update campaign final usage: 450 units
+    - Update Agency inventory: +40 units available
+    - Mark GC2026TET001: 40 units ready for next allocation
+  - Mark campaign: "Reconciliation Complete ✓"
+  - Notify Agency: "Reconciliation approved. 40 units available for re-use."
+
+**6. Post-Reconciliation Analytics**
+- Nam views final campaign report:
+  - **Success Metrics:**
+    - ✅ Distribution rate: 91% (target was 85%)
+    - ✅ Waste rate: 0.6% (target <2%)
+    - ✅ Reconciliation time: 2.5 hours (vs 40 hours previously) → **93% reduction**
+    - ✅ Inventory accuracy: 99.4% (target ≥98%)
+  - **Learnings:**
+    - Lotte Nowzone underperformed (78% vs 96-97% other stores)
+    - Action: Reduce Lotte allocation by 20% in next campaign
+    - Re-usable gifts: 40 units saved (value ~20M VNĐ)
+- Export report cho management presentation
+
+**Pain Points Addressed:**
+✅ Automated 3-way reconciliation (UGMS ↔ UHub ↔ Physical) giảm 93% time (PP4)
+✅ Gift recall systematic với 5-day workflow thay vì ad-hoc (PP1)
+✅ Digital approval với audit trail thay vì email threads (PP4)
+✅ Re-use enablement: 40 units marked available cho next campaign (PP1 - reduce waste)
+
+## UX Design Principles
+
+### 1. Mobile-First Field Optimization
+
+**Principle:** Optimize for one-handed mobile operation in warehouse và store environments với poor lighting và distractions.
+
+**Application:**
+- Primary actions (Confirm, Submit, Upload Photo) positioned in thumb-reach zone (bottom 1/3 of screen)
+- Touch targets minimum 44px × 44px với generous spacing (8px minimum)
+- High contrast UI (WCAG AA 4.5:1 ratio) cho outdoor visibility
+- Large, bold fonts (minimum 16px body text, 20px+ headings) cho quick scanning
+- Progressive disclosure: Show only essential info first, details on tap/expand
+
+**Example:** Agency confirmation screen shows "Confirm Receipt" button prominently at bottom, với "Report Discrepancy" as secondary action.
+
+---
+
+### 2. One-Tap Confirmation for Happy Paths
+
+**Principle:** Minimize friction cho most common scenarios (70-80% cases) với single-tap actions.
+
+**Application:**
+- "Quick Confirm - Match Allocation" button cho full-match scenarios
+- Pre-filled forms với smart defaults (expected quantities, common reason codes)
+- Bulk actions: "Confirm All" cho multiple pending items
+- Skip optional fields unless user explicitly needs them
+- Auto-save drafts để prevent data loss nếu interrupted
+
+**Example:** Sales rep can confirm store inventory với 1 tap nếu matches allocation, optional photo upload sau confirmation.
+
+---
+
+### 3. Progressive Evidence Capture
+
+**Principle:** Make photo documentation easy và non-blocking, but encourage compliance through smart nudges.
+
+**Application:**
+- Camera integration direct from confirmation screens (no app switching)
+- "Recommended" tags on photo upload fields (not mandatory cho happy path)
+- Auto-compression và thumbnail previews cho quick verification
+- Batch photo upload với progress indicators
+- Offline queue: Photos upload automatically when connection restored
+- Smart prompts: "Add photo to strengthen your submission" cho discrepancy reports
+
+**Example:** Agency discrepancy form shows "📷 Evidence Photos (Recommended)" với one-tap camera access.
+
+---
+
+### 4. Real-time Status Transparency
+
+**Principle:** Users always know where they stand với clear status indicators và next actions.
+
+**Application:**
+- Traffic light colors: Green (completed/approved), Yellow (pending/under review), Red (issue/blocked)
+- Status badges với icons: ✓ Confirmed, ⏳ Pending, ⚠️ Issue, 🚫 Blocked
+- Progress bars cho multi-step workflows
+- Real-time updates: "BU Team reviewing your ticket" với estimated response time
+- Campaign Ready dashboard: Visual checklist showing which stores confirmed
+- Notification center: Aggregated alerts với priority sorting
+
+**Example:** BU dashboard shows campaign status card: "Tết 2026 - Partially Ready (2/3 stores confirmed ✓)" với visual progress.
+
+---
+
+### 5. Deadline-Driven Workflows
+
+**Principle:** Surface time-sensitive tasks prominently với clear urgency indicators và auto-escalation.
+
+**Application:**
+- Countdown timers cho tickets: "42 hours remaining" với color coding (Green >24h, Yellow 12-24h, Red <12h)
+- Sort by deadline by default trong task lists
+- Push notifications at key milestones: 48h, 24h, 6h, 1h before deadline
+- Auto-escalation visual cues: "⚡ Urgent - Deadline in 3 hours"
+- Calendar integration: Add deadlines to user calendar
+- Deadline extension requests with justification
+
+**Example:** Sales rep sees "⚠️ Confirm by Jan 18, 8AM (6 hours remaining)" prominently on pending allocation.
+
+---
+
+### 6. Error Prevention over Error Handling
+
+**Principle:** Design workflows to prevent errors rather than just handle them gracefully.
+
+**Application:**
+- Inline validation: Show errors immediately as user types (quantity must be ≤ allocation)
+- Smart constraints: Disable "Create Ticket" until mandatory fields filled
+- Confirmation dialogs for destructive actions: "Rejecting this ticket will notify Agency. Continue?"
+- Auto-save drafts every 30 seconds
+- Pre-flight checks: "Campaign Ready" validation before allowing PG distribution
+- Guided flows: Wizard-style UI for complex workflows với progress steps
+
+**Example:** Allocation screen shows "⚠️ Total: 494 units exceeds available 493" khi Agency over-allocates.
+
+---
+
+### 7. Contextual Help & Self-Service
+
+**Principle:** Embed help where users need it, minimize training requirements.
+
+**Application:**
+- Tooltips on hover/tap: "ℹ️ Reason codes help us improve allocation accuracy"
+- Contextual examples: "e.g., Delivery shortage from DC" in placeholder text
+- Video tutorials embedded in workflow: 30-second clips showing "How to confirm warehouse delivery"
+- FAQ accordion panels: Expand common questions inline
+- Search-powered help center với Vietnamese content
+- Chatbot integration for L1 support (future Phase 2)
+- Role-based onboarding: Different quick-start guides for Agency vs Sales vs BU
+
+**Example:** First-time Agency user sees "👋 New to warehouse confirmation? Watch 1-min tutorial" với skip option.
+
+---
+
+### 8. Offline-First Resilience
+
+**Principle:** Gracefully handle poor connectivity common in warehouse và remote store environments.
+
+**Application:**
+- Cached data: Last 24 hours readable offline (read-only mode)
+- Clear offline indicators: Banner "You're offline. Changes will sync when connected."
+- Queue mechanism: Actions queued locally, auto-retry when online
+- Progressive image loading: Low-res previews load first, full-res in background
+- Smart sync: Prioritize critical data (ticket submissions) over nice-to-have (historical reports)
+- Conflict resolution: Last-write-wins với audit trail if concurrent edits
+- Network diagnostics: "Connection slow. Using cached data from 2 hours ago."
+
+**Example:** Sales rep loses signal mid-confirmation, sees "✓ Saved locally. Will sync when connected" và can continue working.
+
+---
+
+### 9. Data Visualization over Data Tables
+
+**Principle:** Use charts, graphs, và visual indicators to communicate insights faster than raw numbers.
+
+**Application:**
+- PowerBI dashboards: Bar charts cho store performance, pie charts cho distribution breakdown
+- Sparklines: Mini-charts showing trends inline with numbers (distribution rate trending ↗)
+- Heat maps: Color-code stores by performance (green=high utilization, red=low)
+- Comparison views: Side-by-side expected vs actual với GAP highlighting
+- Icon-driven metrics: 📊 91% distribution, 🎯 98% accuracy, ⏱️ 2.5h reconciliation
+- Progressive detail: Summary cards → Drill-down charts → Detailed tables
+- Export capabilities: Download charts as PNG for presentations
+
+**Example:** BU dashboard shows store performance as horizontal bars: Big C 96% (green), Lotte 78% (yellow).
+
+---
+
+### 10. Consistent Design Language with UHub
+
+**Principle:** Maintain visual và interaction consistency với existing UHub platform to reduce cognitive load.
+
+**Application:**
+- Reuse UHub component library: Buttons, cards, forms, navigation patterns
+- Consistent color palette: Blue (primary actions), Green (success), Red (errors), Yellow (warnings)
+- Same authentication flow: Phone number + SMS OTP như shopper login
+- Unified navigation: E2E Gift as new section in existing UHub menu
+- Shared notification system: Same bell icon, same notification format
+- Brand consistency: Unilever logo, typography (existing UHub fonts)
+- Responsive breakpoints aligned với UHub mobile design
+
+**Example:** Agency confirmation screen uses same button styles, color scheme, và navigation header như PG App familiar to users.
+
+## Epics
+
+### Epic Overview
+
+Dự án được breakdown thành **4 epics** phục vụ phased delivery cho MVP trong Q4 2025:
+
+| Epic | Focus | Stories | Priority | Dependencies |
+|------|-------|---------|----------|--------------|
+| **E1: UGMS Integration Foundation** | API integration, data sync, security | 8 stories | P0 - Critical | None |
+| **E2: Digital Confirmation Workflows** | Agency/Sales confirmations, tickets | 12 stories | P0 - Critical | E1 |
+| **E3: Reconciliation & Analytics** | Post-campaign reconciliation, PowerBI | 10 stories | P1 - High | E1, E2 |
+| **E4: Gift Recall & Compliance** | Recall workflows, audit trail | 6 stories | P2 - Medium | E2, E3 |
+
+**Total: 36 stories** (within 12-40 range cho Level 3)
+
+---
+
+### Epic 1: UGMS Integration Foundation
+**Goal:** Establish secure, real-time bi-directional integration với UGMS để enable automated data sync thay thế manual Excel workflows.
+
+**Success Metrics:**
+- UGMS-UHub sync latency <30 giây
+- Zero data loss (100% sync success rate)
+- RSA 2048-bit authentication implemented
+
+**Stories (8 total, 21 story points):**
+
+**E1.S1: UGMS API Authentication Setup** (3 pts, P0)
+- Implement RSA 2048-bit digital signature authentication
+- Token management (generation, refresh, expiry)
+- Secure key storage trong Azure Key Vault
+- Error handling cho authentication failures
+- **Acceptance:** Successfully authenticate all UGMS API calls với RSA 2048-bit
+
+**E1.S2: UGMS → UHub Data Sync (Schemes, Giftcodes)** (5 pts, P0)
+- Sync Schemes: Campaign mechanics, start/end dates
+- Sync Giftcodes: Unique identifiers, quantities
+- Sync Customer: Key Account details
+- Sync Ship_to: Delivery locations
+- Trigger mechanism: Real-time on UGMS setup
+- **Acceptance:** BU setup gift trên UGMS → Data appears trong UHub <30s
+
+**E1.S3: Bi-directional Sync (UHub → UGMS)** (5 pts, P0)
+- Post-approval stock adjustment sync UHub → UGMS
+- Audit trail: Reasons, approver, timestamps, photos
+- Batch processing support
+- Automatic rollback nếu UGMS API fails
+- **Acceptance:** BU approve ticket → UGMS updated within 1 minute với audit trail
+
+**E1.S4: Sync Retry & Error Handling** (3 pts, P0)
+- Exponential backoff retry mechanism (3 attempts)
+- Dead letter queue cho failed syncs
+- Alert system: Email ITU + BU lead within 1 minute
+- Manual retry interface for admins
+- **Acceptance:** Simulated UGMS downtime → System retries 3x, alerts sent, manual retry succeeds
+
+**E1.S5: Data Consistency Validation** (2 pts, P1)
+- Checksum comparison UGMS ↔ UHub every 6 hours
+- Conflict resolution logic (last-write-wins với audit)
+- Consistency audit reports
+- Manual reconciliation tool for edge cases
+- **Acceptance:** Detect data drift >0.1% và alert within 6h cycle
+
+**E1.S6: Sync Status Monitoring Dashboard** (2 pts, P1)
+- Real-time sync status tracking
+- Sync latency metrics visualization
+- Failed sync queue management
+- Historical sync performance trends
+- **Acceptance:** ITU can view sync status dashboard với <5s latency metrics
+
+**E1.S7: Campaign Setup Automation (Utop Admin)** (1 pt, P1)
+- Utop Admin portal: Init campaign from UGMS data
+- Allocation by store configuration
+- Campaign status management (Draft → Active → Ended)
+- Email notification workflow setup
+- **Acceptance:** Admin init campaign từ UGMS sync trong <2 minutes
+
+**E1.S8: Integration Testing Suite** (0 pts - QA task, P0)
+- Mock UGMS environment setup
+- Integration test scenarios (happy path, failures, retries)
+- Performance testing: 100 concurrent sync requests
+- Security testing: Authentication bypass attempts
+- **Acceptance:** 100% integration test pass rate, zero security vulnerabilities
+
+---
+
+### Epic 2: Digital Confirmation Workflows
+**Goal:** Replace manual Excel/phone confirmations với digital mobile workflows cho Agency và Sales, với automated ticket system cho discrepancies.
+
+**Success Metrics:**
+- ≥80% confirmations qua digital workflow (không qua Excel/phone)
+- Average confirmation time: Agency <5 min, Sales <3 min
+- Ticket resolution SLA: Agency 24h, Store 12h
+
+**Stories (12 total, 34 story points):**
+
+**E2.S1: Agency Warehouse Confirmation - Happy Path** (5 pts, P0)
+- Mobile-responsive confirmation interface
+- View pending deliveries list
+- "Confirm Receipt - Full Match" one-tap button
+- Optional photo upload (delivery receipts)
+- Digital signature capture
+- Real-time inventory update
+- **Acceptance:** Agency confirm 500 units delivery trong <3 taps, inventory updated real-time
+
+**E2.S2: Agency Warehouse Confirmation - Discrepancy Flow** (5 pts, P0)
+- "Report Discrepancy" form
+- Actual vs Expected quantity comparison (auto-calculate variance)
+- Mandatory reason codes dropdown
+- Evidence photo upload (multi-photo support)
+- Additional notes text field
+- Auto-create ticket với 168h deadline
+- **Acceptance:** Agency report 20-unit shortage → Ticket created, BU notified via email <1 min
+
+**E2.S3: Sales Store Confirmation - Happy Path** (3 pts, P0)
+- View allocation by store
+- "Quick Confirm - Match Allocation" button
+- Optional photo upload
+- Real-time central inventory sync
+- Timestamp audit trail
+- **Acceptance:** Sales confirm 150 units tại store trong <2 taps, synced real-time
+
+**E2.S4: Sales Store Confirmation - Discrepancy Flow** (3 pts, P0)
+- Similar to E2.S2 but 48h deadline
+- Store-specific reason codes
+- Auto-email notification to BU
+- Temporary inventory status (pending approval)
+- **Acceptance:** Sales report 5-unit variance → Ticket created với 48h deadline
+
+**E2.S5: Multi-level Ticket Management System** (5 pts, P0)
+- Ticket types: Agency WH Discrepancy, Store Discrepancy
+- Status tracking: Open → Under Review → Approved/Rejected → Closed
+- Deadline calculation và countdown display
+- Email notification engine (Scheme ID → BU mapping)
+- Escalation alerts (24h, 12h, 6h before deadline)
+- **Acceptance:** Ticket lifecycle từ creation → resolution tracked với status updates
+
+**E2.S6: BU Level 1 Approval Dashboard** (5 pts, P0)
+- Pending tickets dashboard (sorted by deadline)
+- Detail comparison view (expected vs actual, photos)
+- Approve action: Update UGMS + UHub sync
+- Reject action: Mandatory comment, notify Agency/Sales
+- SLA tracking visualization
+- Approval history audit trail
+- **Acceptance:** BU approve ticket → UGMS/UHub updated, Agency notified <2 min
+
+**E2.S7: Level 2 Approval Workflow (High-value)** (2 pts, P1)
+- Threshold configuration (>10% variance OR >50 units)
+- Email template generation (adjustment details + justification)
+- Evidence attachment (photos, reports)
+- Utop Admin portal: View Level 2 approval status
+- Auto-sync post Admin confirmation
+- **Acceptance:** 15% variance triggers Level 2 workflow, email sent to senior manager
+
+**E2.S8: Campaign Ready Validation Logic** (3 pts, P0)
+- Validation rules engine:
+  - Campaign status = "Active" ✓
+  - All store allocations confirmed (or approved) ✓
+  - Agency WH confirmed ✓
+  - No blocking tickets ✓
+- BU dashboard: Campaign Ready checklist
+- PG App: Lock/unlock gift distribution based on validation
+- **Acceptance:** Campaign passes all checks → PG App unlocked, BU sees "Ready" status
+
+**E2.S9: Allocation by Store Management** (2 pts, P1)
+- Agency view pre-defined allocation (from ITU Log Form)
+- Allocation lock mechanism (prevent changes without ticket)
+- Proportional adjustment logic (khi approved quantity < expected)
+- Notify Sales reps when allocation finalized
+- **Acceptance:** Agency finalize allocation → Sales notified, allocation locked
+
+**E2.S10: Progressive Web App (PWA) Infrastructure** (1 pt, P1)
+- PWA manifest configuration
+- Service worker setup cho offline caching
+- Install to home screen prompt
+- App-like navigation (no browser chrome)
+- **Acceptance:** Agency/Sales can install app to phone home screen, works offline (read-only)
+
+**E2.S11: Mobile Camera Integration & Photo Upload** (2 pts, P1)
+- Direct camera access from confirmation screens
+- Auto-compression (target 500KB per image)
+- Thumbnail preview generation
+- Batch upload với progress indicators
+- Offline queue: Auto-upload when connected
+- **Acceptance:** Upload 5 photos từ mobile camera, auto-compressed, queued khi offline
+
+**E2.S12: Role-based Access Control (RBAC)** (3 pts, P0)
+- User role definitions (Agency, Sales, PG, BU, Admin)
+- Permission matrix implementation
+- Login flow: Phone + SMS OTP (reuse UHub auth)
+- Session management (8h expiry, auto-refresh)
+- Audit log: All permission-based actions
+- **Acceptance:** Each role can only access permitted features, all actions logged
+
+---
+
+### Epic 3: Reconciliation & Analytics
+**Goal:** Automate post-campaign reconciliation từ 40 giờ → 4 giờ thông qua 3-way comparison engine và PowerBI analytics.
+
+**Success Metrics:**
+- Reconciliation time ≤4 giờ/campaign (90% reduction)
+- Inventory accuracy ≥98% (variance <2%)
+- PowerBI refresh 3x/day with <10s latency
+
+**Stories (10 total, 28 story points):**
+
+**E3.S1: Automated Reconciliation Engine - 3-way Comparison** (5 pts, P0)
+- Compare UGMS records ↔ UHub PG tracking ↔ Physical inventory
+- Configurable tolerance thresholds (default 2%)
+- Discrepancy categorization: Quantity, Timing, Location
+- GAP highlighting: Green (match), Yellow (minor <2%), Red (major >2%)
+- Bulk processing support (multiple campaigns)
+- **Acceptance:** Run reconciliation cho campaign với 493 units → GAP report generated <5s
+
+**E3.S2: Exception Detection & Reporting** (3 pts, P1)
+- Automated exception detection rules
+- Exception dashboard với filtering (campaign, store, severity, date)
+- Root cause analysis suggestions (based on historical patterns)
+- Assignment workflow (assign to Agency/Sales/Admin)
+- Status tracking: Open → In Progress → Resolved → Verified
+- **Acceptance:** System detect 3-unit variance → Exception raised, assigned to Agency
+
+**E3.S3: Reconciliation Dashboard for BU** (3 pts, P1)
+- Pending reconciliation submissions list
+- Detail comparison interface (UGMS vs UHub vs Physical)
+- Side-by-side expected vs actual với visual GAP indicators
+- Evidence photo viewer
+- Variance approval threshold logic (auto-approve <2%, manual >2%)
+- **Acceptance:** BU view reconciliation dashboard, approve 0.6% variance in 1 click
+
+**E3.S4: Historical Data Retention & Trending** (2 pts, P2)
+- Store reconciliation history (3 năm retention)
+- Trending analysis: Waste rate over time, accuracy by campaign
+- Predictive insights: "Lotte consistently underperforms by 15%"
+- Exportable historical reports (CSV, PDF)
+- **Acceptance:** View 12-month waste trend chart, export to CSV
+
+**E3.S5: PowerBI Data Feed Integration** (5 pts, P0)
+- Scheduled data refresh: 8AM, 2PM, 6PM (3x/day)
+- Data schema design cho PowerBI consumption:
+  - Gift usage analytics (distributed vs allocated)
+  - Remaining inventory real-time
+  - Campaign performance metrics
+  - Store-level drill-down data
+  - Exception summary
+- API endpoint cho PowerBI connector
+- Refresh monitoring và error alerts
+- **Acceptance:** PowerBI dashboard refreshes tại 8AM, data latency <10s
+
+**E3.S6: PowerBI Dashboard Design - BU View** (3 pts, P1)
+- Campaign overview card (distribution rate, waste %, utilization)
+- Store performance bar charts (sortable by rate)
+- Heat map: Store utilization by geography
+- Exception summary table với drill-down
+- Time-series: Distribution progress during campaign
+- Export capabilities (PNG charts for presentations)
+- **Acceptance:** BU view campaign performance dashboard, drill-down to store level, export chart
+
+**E3.S7: Real-time Inventory Sync & Accuracy Tracking** (2 pts, P0)
+- Real-time inventory updates (Agency confirm → UHub → PowerBI)
+- Inventory accuracy calculation: (Physical / System) × 100%
+- Accuracy dashboard với threshold alerts (target ≥98%)
+- Store-level accuracy tracking
+- **Acceptance:** Inventory accuracy tracked real-time, alert when <98%
+
+**E3.S8: Performance Metrics & KPIs** (2 pts, P1)
+- Reconciliation time tracking (start to approval)
+- Resolution time metrics cho tickets và exceptions
+- User engagement metrics (digital workflow adoption %)
+- Campaign success metrics aggregation
+- Management reports: Weekly/Monthly summaries
+- **Acceptance:** Generate weekly report: 91% distribution rate, 2.5h reconciliation avg
+
+**E3.S9: Export & Reporting Capabilities** (2 pts, P2)
+- Exception summary reports (exportable cho management)
+- Reconciliation audit reports (compliance)
+- Campaign final reports (post-approval)
+- Scheduled email reports (weekly to BU leads)
+- Format support: PDF, CSV, Excel
+- **Acceptance:** Export reconciliation report to PDF, email to BU lead
+
+**E3.S10: Audit Trail & Compliance Logging** (1 pt, P0)
+- Immutable audit trail: Who, What, When, Where
+- Before/after state logging cho data changes
+- Evidence attachment linking
+- Approval chain tracking
+- Sync status logging (UGMS success/failure)
+- Exportable audit logs cho compliance
+- **Acceptance:** 100% transactions logged, export audit trail for 6-month period
+
+---
+
+### Epic 4: Gift Recall & Compliance
+**Goal:** Enable systematic gift recall post-campaign với 5-day workflow, reduce waste thông qua gift re-use mechanism.
+
+**Success Metrics:**
+- ≥1 pilot recall workflow completed before Dec 2025
+- Recall completion rate ≥90% within 5-day window
+- Re-usable gifts marked available cho next campaigns
+
+**Stories (6 total, 15 story points):**
+
+**E4.S1: Gift Recall Initiation Workflow** (3 pts, P1)
+- BU trigger recall cho specific campaign/stores
+- Expected recall calculation: Allocation - Distributed
+- Store-level recall breakdown
+- Automated notifications tới Agency (email + app)
+- Recall requirements và timeline (5 ngày) communication
+- 5-day countdown timer activation
+- **Acceptance:** BU initiate recall → Agency notified với breakdown, timer starts
+
+**E4.S2: Recall Tracking Dashboard** (3 pts, P1)
+- Collection progress visualization by store
+- Outstanding items tracking
+- Daily reminder notifications (D-4, D-3, D-2, D-1)
+- Escalation alerts khi <24h remaining
+- Store completion status (collected vs pending)
+- **Acceptance:** Agency view recall progress: 2/3 stores completed, 1 pending
+
+**E4.S3: Agency Recall Confirmation Interface** (3 pts, P1)
+- Digital confirm recalled items by store
+- Photo evidence upload (recalled gifts)
+- Actual vs Expected recall comparison
+- Variance explanation (if actual ≠ expected)
+- Submit for BU review
+- **Acceptance:** Agency confirm recall 40/43 units với photos, variance explanation
+
+**E4.S4: BU Review & Approve Recall Reconciliation** (2 pts, P1)
+- Dashboard: Pending recall reconciliations
+- Detail view: Initial - Distributed - Recalled = Variance
+- Approve action: Finalize inventory, mark for re-use
+- Reject action: Request re-check, feedback to Agency
+- Notification system (approval/rejection)
+- **Acceptance:** BU approve recall reconciliation → 40 units marked "Available for re-use"
+
+**E4.S5: Gift Re-use Mechanism** (2 pts, P2)
+- Mark recalled gifts as "Available" trong inventory
+- Link to Agency warehouse inventory
+- Re-use allocation planning cho next campaign
+- Historical re-use tracking (cost savings)
+- **Acceptance:** 40 re-used units allocated to next campaign, savings tracked
+
+**E4.S6: Recall Compliance & Reporting** (2 pts, P2)
+- Recall completion reports (per campaign)
+- Legal compliance tracking (Key Account agreements)
+- Waste reduction metrics (re-use rate)
+- Audit trail: Complete recall lifecycle
+- Annual compliance summary reports
+- **Acceptance:** Generate recall compliance report: 90% completion, 40 units re-used, ~20M VNĐ saved
+
+---
+
+## Epic Dependencies & Phasing
+
+**Phase 1 (Months 1-2): Foundation** → E1 complete
+- UGMS integration stable
+- Authentication working
+- Data sync operational
+
+**Phase 2 (Months 2-3): Core Workflows** → E2 complete (depends on E1)
+- Digital confirmations live
+- Ticket system operational
+- Campaign Ready validation working
+
+**Phase 3 (Month 3-4): Analytics** → E3 complete (depends on E1, E2)
+- Reconciliation engine operational
+- PowerBI dashboards live
+- Real-time metrics available
+
+**Phase 4 (Month 4): Recall & Optimization** → E4 complete (depends on E2, E3)
+- Recall workflow operational
+- Re-use mechanism active
+- Full compliance tracking
+
+**MVP Launch: Dec 2025** - All 4 epics complete, pilot users onboarded
+
+---
+
+## Story Point Distribution
+
+| Epic | Stories | Story Points | % of Total |
+|------|---------|--------------|------------|
+| E1: UGMS Integration | 8 | 21 | 21% |
+| E2: Digital Confirmations | 12 | 34 | 35% |
+| E3: Reconciliation & Analytics | 10 | 28 | 29% |
+| E4: Gift Recall | 6 | 15 | 15% |
+| **Total** | **36** | **98** | **100%** |
+
+**Team Capacity Estimate:**
+- Team: 1 FE, 1 BE, 1 QA
+- Sprint velocity: ~20-25 points/2-week sprint
+- Timeline: 4 sprints × 2 weeks = 8 weeks (~2 months) + 1 month buffer
+- **Total: ~3 months development** cho MVP (Sept-Nov 2025, Dec 2025 pilot launch)
+
+## Out of Scope
+
+The following features are explicitly **out of scope** for MVP (Dec 2025) and deferred to Phase 2 (2026+):
+
+### Phase 2 Features (Post-MVP)
+
+**1. Advanced AI/ML Capabilities**
+- Predictive allocation algorithms (AI-based demand forecasting)
+- Anomaly detection for fraud prevention
+- Computer vision for automated gift counting từ photos
+- Chatbot L1 support automation
+- Smart recommendation engine cho optimal allocation
+
+**2. Extended Integration & Automation**
+- Direct integration với Key Account systems (beyond UGMS)
+- Linfox logistics API integration (real-time delivery tracking)
+- SAP integration cho financial reconciliation
+- Automated invoice generation và matching
+- Blockchain-based gift provenance tracking
+
+**3. Advanced Analytics & Reporting**
+- Predictive analytics dashboard (forecast waste trends)
+- Machine learning insights cho allocation optimization
+- Advanced geospatial analytics (store clustering)
+- Real-time sentiment analysis từ PG feedback
+- Custom report builder với drag-and-drop
+
+**4. Extended User Experience**
+- Native mobile apps (iOS/Android) thay vì PWA
+- Multi-language support (English, Vietnamese, regional languages)
+- Dark mode UI theme
+- Voice commands cho hands-free warehouse operations
+- AR visualization cho gift allocation planning
+
+**5. Extended Compliance & Governance**
+- Automated regulatory reporting (customs, tax)
+- Advanced fraud detection workflows
+- Legal contract management cho Key Account agreements
+- Automated compliance audit scheduling
+- GDPR/international privacy law compliance (nếu expand ra ngoài Vietnam)
+
+### Explicitly Excluded from All Phases
+
+**1. Financial Management**
+- Campaign budget management và tracking (owned by Finance team)
+- Payment processing cho gift purchases (handled by Procurement)
+- Cost allocation và chargeback workflows (Finance responsibility)
+
+**2. Gift Sourcing & Procurement**
+- Supplier management và negotiations (Procurement owns)
+- Gift design và manufacturing oversight (Brand team owns)
+- Quality control tại manufacturing level (Supply Chain owns)
+
+**3. Campaign Marketing & Execution**
+- Campaign creative development (Marketing team owns)
+- Shopper engagement mechanics (UHub shopper-facing features already exist)
+- PG training và performance management (HR/Operations owns)
+- In-store promotional material management (Marketing owns)
+
+**4. Store Operations Management**
+- General store inventory management (beyond gifts)
+- Store staff scheduling và management
+- Point-of-sale system integration
+- Store performance analytics (beyond gift distribution)
+
+### Technical Constraints for MVP
+
+**1. Scale Limitations**
+- MVP supports pilot: 2-3 Agencies, 5-10 Sales, 10-15 PG, 10-20 BU/Admin
+- Full scale (200+ concurrent users) requires infrastructure upgrade post-MVP
+- PowerBI refresh limited to 3x/day (real-time streaming deferred)
+
+**2. Platform Limitations**
+- Mobile web only (PWA), no native apps
+- Single region deployment (Vietnam only)
+- Vietnamese language only (no i18n)
+- Manual Level 2 approval via email (no automated workflow)
+
+**3. Integration Limitations**
+- UGMS integration only (no other enterprise systems)
+- Email notifications only (no SMS, push notifications to external apps)
+- Photo evidence manual review (no AI auto-validation)
+
+---
 
 ## Next Steps
 
-### UX Expert Prompt
+### Immediate Actions (Week 1-2)
 
-"Xin chào UX Expert! Tôi đã hoàn thành PRD cho E2E Physical Gift Management System với mobile-first approach cho field teams (Agency, Sales, PG) và desktop dashboard cho BU team. Vui lòng *create architecture mode using this document as input* để design UI/UX mockups cho 5 core screens: Agency Confirmation, Sales Inventory, PG Distribution, BU Dashboard, và Exception Management."
+**1. Stakeholder Validation**
+- [ ] Present PRD to BU Team Leads (Home Care, Personal Care, Foods)
+- [ ] Review goals and success metrics với Senior Management
+- [ ] Validate MVP scope và timeline với ITU team
+- [ ] Confirm pilot user selection (2-3 Agencies, 5-10 Sales, 10-15 PG)
 
-### Architect Prompt
+**2. Technical Architecture Planning**
+- [ ] Route to `/bmad:bmm:workflows:3-solutioning` for architecture design
+- [ ] Architect review: System design, integration patterns, data models
+- [ ] Infrastructure assessment: Azure resources, scaling strategy
+- [ ] UGMS API documentation review và technical feasibility study
 
-"Xin chào System Architect! PRD cho E2E Physical Gift Management System đã ready với technical stack (.NET Core, Angular, Azure), 4 epics structure, và integration requirements với UGMS API. Vui lòng *create architecture mode using this document as input* để design system architecture, database schema, và API specifications cho MVP deployment target Q1 2026."
+**3. Team Mobilization**
+- [ ] Onboard development team (1 FE, 1 BE, 1 QA)
+- [ ] Setup development environment (Azure DevOps, test environments)
+- [ ] Sprint planning: Map 36 stories to 4 sprints (2-week sprints)
+- [ ] Establish QA strategy và testing environments
+
+### Development Phase (Month 1-3: Sept-Nov 2025)
+
+**Sprint 1 (Weeks 1-2): Foundation**
+- Complete Epic 1: UGMS Integration (8 stories, 21 pts)
+- Setup CI/CD pipeline
+- Establish code review và testing protocols
+
+**Sprint 2 (Weeks 3-4): Core Workflows Part 1**
+- Start Epic 2: Digital Confirmations (stories E2.S1-S6, ~18 pts)
+- Agency confirmation flows
+- Ticket management system foundation
+
+**Sprint 3 (Weeks 5-6): Core Workflows Part 2**
+- Complete Epic 2 (stories E2.S7-S12, ~16 pts)
+- Sales confirmation flows
+- Campaign Ready validation
+- RBAC implementation
+
+**Sprint 4 (Weeks 7-8): Analytics & Recall**
+- Epic 3: Reconciliation & Analytics (10 stories, 28 pts)
+- Epic 4: Gift Recall (6 stories, 15 pts)
+- Integration testing và bug fixes
+
+### Pre-Launch Activities (Month 4: Nov-Dec 2025)
+
+**Week 9-10: UAT & Training**
+- [ ] User Acceptance Testing với pilot users
+- [ ] Training sessions: Agency (2h), Sales (2h), BU (4h)
+- [ ] Documentation: User guides, video tutorials (Vietnamese)
+- [ ] Helpdesk setup: L1/L2 support readiness
+
+**Week 11-12: Pilot Launch Preparation**
+- [ ] Production deployment checklist validation
+- [ ] Data migration: Sync pilot campaigns từ UGMS
+- [ ] Go-live readiness review: Technical, operational, support
+- [ ] Communication plan: Announce to pilot users
+
+**Week 13: MVP Launch (Target: Dec 2025)**
+- [ ] Soft launch: Enable access cho pilot users
+- [ ] Monitor system performance và user adoption
+- [ ] Daily standups cho rapid issue resolution
+- [ ] Collect feedback for iteration planning
+
+### Post-Launch (Month 5+: Jan 2026+)
+
+**Week 14-16: Stabilization & Feedback**
+- [ ] Monitor success metrics: 80% digital adoption, 4h reconciliation, 98% accuracy
+- [ ] Collect user feedback và pain points
+- [ ] Bug fixes và minor enhancements
+- [ ] Prepare lessons learned document
+
+**Month 6+: Scale Planning**
+- [ ] Evaluate MVP success against goals
+- [ ] Plan full rollout: All agencies, stores, BU teams
+- [ ] Phase 2 feature prioritization (AI/ML, advanced analytics)
+- [ ] Infrastructure scaling for 200+ concurrent users
+
+### Key Decisions Required
+
+**Decision 1: Pilot Campaign Selection**
+- **Owner:** BU Team Leads
+- **Timeline:** Week 1
+- **Question:** Which 2-3 campaigns will pilot the system? (Recommend: Mix of high-value và high-complexity campaigns)
+
+**Decision 2: Level 2 Approval Threshold**
+- **Owner:** Senior Management + BU Leads
+- **Timeline:** Week 2
+- **Question:** What variance threshold triggers Level 2 approval? (Recommend: >10% OR >50 units)
+
+**Decision 3: UGMS API Access & Credentials**
+- **Owner:** ITU + UGMS Team
+- **Timeline:** Week 1
+- **Question:** Provision API access, RSA keys, test environment
+
+**Decision 4: PowerBI Workspace Setup**
+- **Owner:** Analytics Team + ITU
+- **Timeline:** Week 3
+- **Question:** Create dedicated workspace, configure refresh schedules, permissions
+
+### Success Criteria for MVP
+
+Before declaring MVP success, validate:
+
+✅ **Functional Completeness**
+- All 36 stories delivered và accepted
+- 4 epics complete với acceptance criteria met
+- Zero P0/P1 bugs in production
+
+✅ **Performance Metrics**
+- API response time <2s (standard), <5s (complex)
+- UGMS sync latency <30s
+- PowerBI refresh <10s
+- 99.5% uptime during campaigns
+
+✅ **Business Goals**
+- ≥80% digital workflow adoption (vs Excel/phone)
+- ≤4h reconciliation time (vs 40h baseline)
+- ≥98% inventory accuracy
+- ≥1 successful recall workflow completed
+
+✅ **User Satisfaction**
+- User satisfaction score ≥4/5
+- Task completion time: Agency <5min, Sales <3min
+- <2h training requirement achieved
+- Positive feedback from 80%+ pilot users
+
+### Risk Mitigation
+
+**Risk 1: UGMS API delays**
+- Mitigation: Start API integration testing in Sprint 1, escalate blockers immediately
+- Contingency: Build mock UGMS for parallel development
+
+**Risk 2: Team capacity constraints (3-person team)**
+- Mitigation: Ruthless prioritization, defer P2 stories if needed
+- Contingency: Request additional dev support from ITU pool
+
+**Risk 3: User adoption resistance**
+- Mitigation: Extensive training, hands-on support during pilot
+- Contingency: Extend pilot phase, gather feedback, iterate UX
+
+**Risk 4: Dec 2025 timeline pressure**
+- Mitigation: Weekly sprint reviews, agile adaptation
+- Contingency: Launch with core epics (E1, E2) only, defer E3/E4 to Jan 2026
+
+## Document Status
+
+- [ ] Goals and context validated with stakeholders
+- [ ] All functional requirements reviewed
+- [ ] User journeys cover all major personas
+- [ ] Epic structure approved for phased delivery
+- [ ] Ready for architecture phase
+
+_Note: See technical-decisions.md for captured technical context_
+
+---
+
+_This PRD adapts to project level Level 3 (Full product) - providing appropriate detail without overburden._

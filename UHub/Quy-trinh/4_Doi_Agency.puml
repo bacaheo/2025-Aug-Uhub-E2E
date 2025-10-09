@@ -1,0 +1,143 @@
+@startuml Doi_Agency
+title Quy trình đổi Agency (Remove phân bổ => Chuyển Agency)
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|BU/Operations|
+|#LightGreen|Current Agency|
+|#LightYellow|New Agency|
+|#Pink|UHub System|
+|#Orange|UGMS System|
+
+|BU/Operations|
+start
+:Identify need to change Agency;
+note right
+  **Reasons:**
+  • Performance issues
+  • Geographic optimization
+  • Contract termination
+  • Capacity constraints
+end note
+
+:Submit change request;
+:Specify transfer details;
+note right
+  • Source Agency
+  • Target Agency
+  • Gift quantities
+  • Transfer date
+  • Reason code
+end note
+
+|UHub System|
+:Receive change request;
+:Validate request;
+if (Valid request?) then (yes)
+  :Check current allocation;
+  :Verify gift status;
+  if (Gifts at Agency?) then (yes)
+    :Lock current allocation;
+  else (no)
+    :Alert: Gifts in transit/store;
+    :Request confirmation;
+    if (Force transfer?) then (no)
+      stop
+    endif
+  endif
+else (no)
+  :Return validation errors;
+  stop
+endif
+
+|Current Agency|
+:Receive transfer notice;
+:Conduct physical count;
+:Prepare for transfer;
+if (Count matches system?) then (yes)
+  :Generate transfer document;
+  :Pack gifts for transfer;
+else (no)
+  :Report discrepancy;
+  :Investigate difference;
+  |UHub System|
+  :Create discrepancy ticket;
+  :Pause transfer;
+  :Request resolution;
+  |Current Agency|
+  :Resolve discrepancy;
+endif
+
+:Initiate physical transfer;
+:Update local records;
+
+|New Agency|
+:Receive transfer notice;
+:Prepare receiving area;
+:Receive physical goods;
+:Count and verify;
+if (Count correct?) then (yes)
+  :Confirm receipt;
+  :Update inventory;
+else (no)
+  :Report shortage/excess;
+  :Document issues;
+endif
+
+|UHub System|
+:Process transfer confirmation;
+:Remove old allocation;
+:Create new allocation;
+:Update Agency mapping;
+:Maintain gift history;
+note left
+  **Important:**
+  • Keep scheme binding
+  • Keep campaign link
+  • Update location only
+end note
+
+|UGMS System|
+:Receive transfer update;
+:Update master records;
+:Adjust Agency inventory;
+:Log transfer history;
+:Send confirmation;
+
+|UHub System|
+:Complete transfer process;
+:Update all statuses;
+:Generate reports;
+:Notify stakeholders;
+
+|BU/Operations|
+:Review transfer report;
+:Verify completion;
+:Update operations plan;
+stop
+
+legend right
+  **Transfer Types:**
+  • Full Transfer: All inventory
+  • Partial Transfer: Selected items
+  • Emergency Transfer: < 24 hours
+  • Scheduled Transfer: Planned
+  
+  **Validation Rules:**
+  • Both agencies must be active
+  • No pending reconciliation
+  • Gifts must be UNUSED status
+  • Transfer quantity > 0
+  
+  **SLA:**
+  • Standard: 5 business days
+  • Urgent: 2 business days
+  • Emergency: Same day
+endlegend
+
+@enduml

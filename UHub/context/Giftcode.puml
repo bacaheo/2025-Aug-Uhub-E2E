@@ -1,0 +1,103 @@
+@startuml Giftcode
+[*] --> CREATED
+
+     CREATED --> REGISTERED : API Sync
+
+     REGISTERED --> PLANNED : B1. Planning
+
+     PLANNED --> AT_AGENCY_WH : B2. Delivery
+
+     AT_AGENCY_WH --> AT_STORE : B3. Delivery
+     AT_AGENCY_WH --> DAMAGED_AGENCY : Damaged in Storage
+
+     state AT_STORE {
+       [*] --> Available
+       Available --> DELIVERED : B4. PG Scan
+       Available --> UNUSED : B4. Not Used
+       Available --> DAMAGED_STORE : B4. Incident
+     }
+
+     DELIVERED --> [*] : CONSUMED
+
+     UNUSED --> RECALLED : B5. Recall
+     DAMAGED_STORE --> RECALLED : B5. Recall
+
+     RECALLED --> RECONCILED : B6. Match
+     RECALLED --> DISCREPANCY : B6. No Match
+
+     RECONCILED --> AVAILABLE_FOR_REUSE
+
+     state AVAILABLE_FOR_REUSE {
+       [*] --> Ready
+       Ready --> ReuseDecision
+       ReuseDecision --> PLANNED : Reuse Same Scheme
+       ReuseDecision --> TRANSFERRED : Transfer New Scheme
+       Ready --> DAMAGED_AGENCY : Damaged
+     }
+
+     TRANSFERRED --> REGISTERED : New Lifecycle
+
+     DISCREPANCY --> WRITE_OFF : B7. BU Level-2 Approved
+     DISCREPANCY --> RECALLED : B7. Rejected (Loop)
+     DAMAGED_AGENCY --> DISCREPANCY
+
+     WRITE_OFF --> DISPOSED : Utop Admin Confirm
+     DISPOSED --> [*]
+
+@enduml
+
+@startuml
+|UGMS|
+     start
+     :Create Gift Code (CREATED);
+     :Sync API to UHub;
+
+     |UHub|
+     :Register (REGISTERED);
+     :B1. Plan Campaign (PLANNED);
+
+     |Agency|
+     :B2. Receive at Agency WH (AT_AGENCY_WH);
+     fork
+       :Check Inventory;
+     fork again
+       :Check for Damage;
+     end fork
+
+     if (OK?) then (yes)
+       :Digital Confirm;
+     else (no)
+       :Create Ticket;
+       |BU|
+       :Review & Approve;
+     endif
+
+     :B3. Deliver to Store (AT_STORE);
+
+     |PG|
+     if (Usage?) then (delivered)
+       :Scan QR (DELIVERED);
+       |Shopper|
+       :Receive Gift (CONSUMED);
+       stop
+     else (unused)
+       |Agency|
+       :B5. Recall (RECALLED);
+       :B6. Reconcile;
+       if (Match?) then (yes)
+         :AVAILABLE_FOR_REUSE;
+         if (Reuse?) then (same scheme)
+           :B1. Plan Campaign 2;
+         else (new scheme)
+           :Transfer to Scheme B;
+         endif
+       else (no)
+         :DISCREPANCY;
+         |BU Level-2|
+         :Approve Write-off;
+         :WRITE_OFF;
+         :DISPOSED;
+         stop
+       endif
+     endif
+@enduml

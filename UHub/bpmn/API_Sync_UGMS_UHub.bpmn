@@ -1,0 +1,653 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="sample-diagram" targetNamespace="http://bpmn.io/schema/bpmn" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+  <bpmn2:collaboration id="Collaboration_API_Sync_UGMS_UHub">
+    <bpmn2:participant id="Participant_UGMS" name="UGMS System" processRef="Process_UGMS" />
+    <bpmn2:participant id="Participant_UHub" name="UHub System" processRef="Process_UHub" />
+    <bpmn2:messageFlow id="MessageFlow_SyncGiftcode" name="API 1: Sync Giftcode" sourceRef="Task_UGMS_SyncGiftcode" targetRef="Task_UHub_ReceiveGiftcode" />
+    <bpmn2:messageFlow id="MessageFlow_SyncScheme" name="API 2: Sync Scheme" sourceRef="Task_UGMS_SyncScheme" targetRef="Task_UHub_ReceiveScheme" />
+    <bpmn2:messageFlow id="MessageFlow_SyncCustomer" name="API 3: Sync Store/Customer" sourceRef="Task_UGMS_SyncCustomer" targetRef="Task_UHub_ReceiveCustomer" />
+    <bpmn2:messageFlow id="MessageFlow_SyncReceiveGift" name="API 4: Sync Xuất Kho" sourceRef="Task_UGMS_SyncReceiveGift" targetRef="Task_UHub_ReceiveGift" />
+    <bpmn2:messageFlow id="MessageFlow_SyncAdjustStock" name="API 5: Sync Điều Chỉnh Kho" sourceRef="Task_UGMS_SyncAdjustStock" targetRef="Task_UHub_AdjustStock" />
+    <bpmn2:messageFlow id="MessageFlow_SyncGiftUsage" name="API 6: Sync Gift Usage" sourceRef="Task_UHub_SyncGiftUsage" targetRef="Task_UGMS_ReceiveGiftUsage" />
+  </bpmn2:collaboration>
+  <bpmn2:process id="Process_UGMS" name="UGMS Process" isExecutable="false">
+    <bpmn2:laneSet id="LaneSet_UGMS">
+      <bpmn2:lane id="Lane_UGMS_API_Sender" name="UGMS API Sender">
+        <bpmn2:flowNodeRef>StartEvent_UGMS</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_CreateGiftcode</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_SyncGiftcode</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_CreateScheme</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_SyncScheme</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_CreateCustomer</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_SyncCustomer</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_CreateShipment</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_SyncReceiveGift</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_CreateAdjustment</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_SyncAdjustStock</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UGMS_Parallel</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UGMS_Join1</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UGMS_Join2</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+      <bpmn2:lane id="Lane_UGMS_Receiver" name="UGMS Data Receiver">
+        <bpmn2:flowNodeRef>Task_UGMS_ReceiveGiftUsage</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UGMS_UpdateStock</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>EndEvent_UGMS</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+    </bpmn2:laneSet>
+    <bpmn2:startEvent id="StartEvent_UGMS" name="UGMS Data&#10;Created/Updated">
+      <bpmn2:outgoing>Flow_UGMS_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:parallelGateway id="Gateway_UGMS_Parallel">
+      <bpmn2:incoming>Flow_UGMS_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_2a</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_UGMS_2b</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_UGMS_2c</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:task id="Task_UGMS_CreateGiftcode" name="Create/Update&#10;Giftcode">
+      <bpmn2:incoming>Flow_UGMS_2a</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_3a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_SyncGiftcode" name="API 1:&#10;Sync Giftcode&#10;to UHub">
+      <bpmn2:incoming>Flow_UGMS_3a</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_4a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_CreateScheme" name="Create/Update&#10;Scheme">
+      <bpmn2:incoming>Flow_UGMS_2b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_3b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_SyncScheme" name="API 2:&#10;Sync Scheme&#10;to UHub">
+      <bpmn2:incoming>Flow_UGMS_3b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_4b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_CreateCustomer" name="Create/Update&#10;Store/Customer">
+      <bpmn2:incoming>Flow_UGMS_4b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_5b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_SyncCustomer" name="API 3:&#10;Sync Store/Customer&#10;to UHub">
+      <bpmn2:incoming>Flow_UGMS_5b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_6b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:parallelGateway id="Gateway_UGMS_Join1">
+      <bpmn2:incoming>Flow_UGMS_4a</bpmn2:incoming>
+      <bpmn2:incoming>Flow_UGMS_6b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_7</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:task id="Task_UGMS_CreateShipment" name="Create&#10;Phiếu Xuất Kho">
+      <bpmn2:incoming>Flow_UGMS_2c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_3c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_SyncReceiveGift" name="API 4:&#10;Sync Xuất Kho&#10;to UHub">
+      <bpmn2:incoming>Flow_UGMS_3c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_4c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_CreateAdjustment" name="Create&#10;Phiếu Điều Chỉnh">
+      <bpmn2:incoming>Flow_UGMS_4c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_5c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_SyncAdjustStock" name="API 5:&#10;Sync Điều Chỉnh Kho&#10;to UHub">
+      <bpmn2:incoming>Flow_UGMS_5c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_6c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:parallelGateway id="Gateway_UGMS_Join2">
+      <bpmn2:incoming>Flow_UGMS_7</bpmn2:incoming>
+      <bpmn2:incoming>Flow_UGMS_6c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_8</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:task id="Task_UGMS_ReceiveGiftUsage" name="API 6:&#10;Receive Gift Usage&#10;from UHub">
+      <bpmn2:incoming>Flow_UGMS_8</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_9</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UGMS_UpdateStock" name="Update Stock&#10;Based on Usage">
+      <bpmn2:incoming>Flow_UGMS_9</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UGMS_10</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_UGMS" name="UGMS Sync&#10;Complete">
+      <bpmn2:incoming>Flow_UGMS_10</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_UGMS_1" sourceRef="StartEvent_UGMS" targetRef="Gateway_UGMS_Parallel" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_2a" sourceRef="Gateway_UGMS_Parallel" targetRef="Task_UGMS_CreateGiftcode" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_2b" sourceRef="Gateway_UGMS_Parallel" targetRef="Task_UGMS_CreateScheme" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_2c" sourceRef="Gateway_UGMS_Parallel" targetRef="Task_UGMS_CreateShipment" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_3a" sourceRef="Task_UGMS_CreateGiftcode" targetRef="Task_UGMS_SyncGiftcode" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_3b" sourceRef="Task_UGMS_CreateScheme" targetRef="Task_UGMS_SyncScheme" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_3c" sourceRef="Task_UGMS_CreateShipment" targetRef="Task_UGMS_SyncReceiveGift" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_4a" sourceRef="Task_UGMS_SyncGiftcode" targetRef="Gateway_UGMS_Join1" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_4b" sourceRef="Task_UGMS_SyncScheme" targetRef="Task_UGMS_CreateCustomer" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_4c" sourceRef="Task_UGMS_SyncReceiveGift" targetRef="Task_UGMS_CreateAdjustment" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_5b" sourceRef="Task_UGMS_CreateCustomer" targetRef="Task_UGMS_SyncCustomer" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_5c" sourceRef="Task_UGMS_CreateAdjustment" targetRef="Task_UGMS_SyncAdjustStock" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_6b" sourceRef="Task_UGMS_SyncCustomer" targetRef="Gateway_UGMS_Join1" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_6c" sourceRef="Task_UGMS_SyncAdjustStock" targetRef="Gateway_UGMS_Join2" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_7" sourceRef="Gateway_UGMS_Join1" targetRef="Gateway_UGMS_Join2" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_8" sourceRef="Gateway_UGMS_Join2" targetRef="Task_UGMS_ReceiveGiftUsage" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_9" sourceRef="Task_UGMS_ReceiveGiftUsage" targetRef="Task_UGMS_UpdateStock" />
+    <bpmn2:sequenceFlow id="Flow_UGMS_10" sourceRef="Task_UGMS_UpdateStock" targetRef="EndEvent_UGMS" />
+  </bpmn2:process>
+  <bpmn2:process id="Process_UHub" name="UHub Process" isExecutable="false">
+    <bpmn2:laneSet id="LaneSet_UHub">
+      <bpmn2:lane id="Lane_UHub_API_Receiver" name="UHub API Receiver">
+        <bpmn2:flowNodeRef>StartEvent_UHub</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveGiftcode</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ValidateGiftcode</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_StoreGiftcode</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveScheme</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ValidateScheme</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_StoreScheme</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveCustomer</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ValidateCustomer</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_StoreCustomer</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ReceiveGift</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ValidateReceiveGift</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_UpdateInventory</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_AdjustStock</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_ValidateAdjustment</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_UpdateStockAdjustment</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UHub_Parallel</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UHub_Join2</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Gateway_UHub_Join1</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+      <bpmn2:lane id="Lane_UHub_Sender" name="UHub Data Sender">
+        <bpmn2:flowNodeRef>Task_UHub_TrackGiftUsage</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>Task_UHub_SyncGiftUsage</bpmn2:flowNodeRef>
+        <bpmn2:flowNodeRef>EndEvent_UHub</bpmn2:flowNodeRef>
+      </bpmn2:lane>
+    </bpmn2:laneSet>
+    <bpmn2:startEvent id="StartEvent_UHub" name="Wait for&#10;UGMS Data">
+      <bpmn2:outgoing>Flow_UHub_1</bpmn2:outgoing>
+    </bpmn2:startEvent>
+    <bpmn2:parallelGateway id="Gateway_UHub_Parallel">
+      <bpmn2:incoming>Flow_UHub_1</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_2a</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_UHub_2b</bpmn2:outgoing>
+      <bpmn2:outgoing>Flow_UHub_2c</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:task id="Task_UHub_ReceiveGiftcode" name="API 1:&#10;Receive Giftcode&#10;from UGMS">
+      <bpmn2:incoming>Flow_UHub_2a</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_3a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ValidateGiftcode" name="Validate&#10;Giftcode Data">
+      <bpmn2:incoming>Flow_UHub_3a</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_4a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_StoreGiftcode" name="Store Giftcode&#10;in Database">
+      <bpmn2:incoming>Flow_UHub_4a</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_5a</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ReceiveScheme" name="API 2:&#10;Receive Scheme&#10;from UGMS">
+      <bpmn2:incoming>Flow_UHub_2b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_3b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ValidateScheme" name="Validate&#10;Scheme Data">
+      <bpmn2:incoming>Flow_UHub_3b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_4b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_StoreScheme" name="Store Scheme&#10;in Database">
+      <bpmn2:incoming>Flow_UHub_4b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_5b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ReceiveCustomer" name="API 3:&#10;Receive Customer&#10;from UGMS">
+      <bpmn2:incoming>Flow_UHub_5b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_6b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ValidateCustomer" name="Validate&#10;Customer Data">
+      <bpmn2:incoming>Flow_UHub_6b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_7b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_StoreCustomer" name="Store Customer&#10;in Database">
+      <bpmn2:incoming>Flow_UHub_7b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_8b</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ReceiveGift" name="API 4:&#10;Receive Xuất Kho&#10;from UGMS">
+      <bpmn2:incoming>Flow_UHub_2c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_3c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ValidateReceiveGift" name="Validate&#10;Xuất Kho Data">
+      <bpmn2:incoming>Flow_UHub_3c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_4c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_UpdateInventory" name="Update Inventory&#10;(+Stock)">
+      <bpmn2:incoming>Flow_UHub_4c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_5c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_AdjustStock" name="API 5:&#10;Receive Điều Chỉnh&#10;from UGMS">
+      <bpmn2:incoming>Flow_UHub_5c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_6c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_ValidateAdjustment" name="Validate&#10;Adjustment Data">
+      <bpmn2:incoming>Flow_UHub_6c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_7c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_UpdateStockAdjustment" name="Update Inventory&#10;(Adjustment)">
+      <bpmn2:incoming>Flow_UHub_7c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_8c</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_TrackGiftUsage" name="Track Gift Usage&#10;(PG Operations)">
+      <bpmn2:incoming>Flow_UHub_10</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_11</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:task id="Task_UHub_SyncGiftUsage" name="API 6:&#10;Sync Gift Usage&#10;to UGMS">
+      <bpmn2:incoming>Flow_UHub_11</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_12</bpmn2:outgoing>
+    </bpmn2:task>
+    <bpmn2:endEvent id="EndEvent_UHub" name="UHub Sync&#10;Complete">
+      <bpmn2:incoming>Flow_UHub_12</bpmn2:incoming>
+    </bpmn2:endEvent>
+    <bpmn2:sequenceFlow id="Flow_UHub_1" sourceRef="StartEvent_UHub" targetRef="Gateway_UHub_Parallel" />
+    <bpmn2:sequenceFlow id="Flow_UHub_2a" sourceRef="Gateway_UHub_Parallel" targetRef="Task_UHub_ReceiveGiftcode" />
+    <bpmn2:sequenceFlow id="Flow_UHub_2b" sourceRef="Gateway_UHub_Parallel" targetRef="Task_UHub_ReceiveScheme" />
+    <bpmn2:sequenceFlow id="Flow_UHub_2c" sourceRef="Gateway_UHub_Parallel" targetRef="Task_UHub_ReceiveGift" />
+    <bpmn2:sequenceFlow id="Flow_UHub_3a" sourceRef="Task_UHub_ReceiveGiftcode" targetRef="Task_UHub_ValidateGiftcode" />
+    <bpmn2:sequenceFlow id="Flow_UHub_3b" sourceRef="Task_UHub_ReceiveScheme" targetRef="Task_UHub_ValidateScheme" />
+    <bpmn2:sequenceFlow id="Flow_UHub_3c" sourceRef="Task_UHub_ReceiveGift" targetRef="Task_UHub_ValidateReceiveGift" />
+    <bpmn2:sequenceFlow id="Flow_UHub_4a" sourceRef="Task_UHub_ValidateGiftcode" targetRef="Task_UHub_StoreGiftcode" />
+    <bpmn2:sequenceFlow id="Flow_UHub_4b" sourceRef="Task_UHub_ValidateScheme" targetRef="Task_UHub_StoreScheme" />
+    <bpmn2:sequenceFlow id="Flow_UHub_4c" sourceRef="Task_UHub_ValidateReceiveGift" targetRef="Task_UHub_UpdateInventory" />
+    <bpmn2:sequenceFlow id="Flow_UHub_5a" sourceRef="Task_UHub_StoreGiftcode" targetRef="Gateway_UHub_Join1" />
+    <bpmn2:sequenceFlow id="Flow_UHub_5b" sourceRef="Task_UHub_StoreScheme" targetRef="Task_UHub_ReceiveCustomer" />
+    <bpmn2:sequenceFlow id="Flow_UHub_5c" sourceRef="Task_UHub_UpdateInventory" targetRef="Task_UHub_AdjustStock" />
+    <bpmn2:sequenceFlow id="Flow_UHub_6b" sourceRef="Task_UHub_ReceiveCustomer" targetRef="Task_UHub_ValidateCustomer" />
+    <bpmn2:sequenceFlow id="Flow_UHub_6c" sourceRef="Task_UHub_AdjustStock" targetRef="Task_UHub_ValidateAdjustment" />
+    <bpmn2:sequenceFlow id="Flow_UHub_7b" sourceRef="Task_UHub_ValidateCustomer" targetRef="Task_UHub_StoreCustomer" />
+    <bpmn2:sequenceFlow id="Flow_UHub_7c" sourceRef="Task_UHub_ValidateAdjustment" targetRef="Task_UHub_UpdateStockAdjustment" />
+    <bpmn2:sequenceFlow id="Flow_UHub_8b" sourceRef="Task_UHub_StoreCustomer" targetRef="Gateway_UHub_Join1" />
+    <bpmn2:sequenceFlow id="Flow_UHub_8c" sourceRef="Task_UHub_UpdateStockAdjustment" targetRef="Gateway_UHub_Join2" />
+    <bpmn2:sequenceFlow id="Flow_UHub_10" sourceRef="Gateway_UHub_Join2" targetRef="Task_UHub_TrackGiftUsage" />
+    <bpmn2:sequenceFlow id="Flow_UHub_11" sourceRef="Task_UHub_TrackGiftUsage" targetRef="Task_UHub_SyncGiftUsage" />
+    <bpmn2:sequenceFlow id="Flow_UHub_12" sourceRef="Task_UHub_SyncGiftUsage" targetRef="EndEvent_UHub" />
+    <bpmn2:parallelGateway id="Gateway_UHub_Join2">
+      <bpmn2:incoming>Flow_UHub_9</bpmn2:incoming>
+      <bpmn2:incoming>Flow_UHub_8c</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_10</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:parallelGateway id="Gateway_UHub_Join1">
+      <bpmn2:incoming>Flow_UHub_5a</bpmn2:incoming>
+      <bpmn2:incoming>Flow_UHub_8b</bpmn2:incoming>
+      <bpmn2:outgoing>Flow_UHub_9</bpmn2:outgoing>
+    </bpmn2:parallelGateway>
+    <bpmn2:sequenceFlow id="Flow_UHub_9" sourceRef="Gateway_UHub_Join1" targetRef="Gateway_UHub_Join2" />
+  </bpmn2:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_API_Sync_UGMS_UHub">
+      <bpmndi:BPMNShape id="Participant_UGMS_di" bpmnElement="Participant_UGMS" isHorizontal="true">
+        <dc:Bounds x="120" y="80" width="2400" height="500" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UGMS_Receiver_di" bpmnElement="Lane_UGMS_Receiver" isHorizontal="true">
+        <dc:Bounds x="150" y="430" width="2370" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UGMS_API_Sender_di" bpmnElement="Lane_UGMS_API_Sender" isHorizontal="true">
+        <dc:Bounds x="150" y="80" width="2370" height="350" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_UGMS_di" bpmnElement="StartEvent_UGMS">
+        <dc:Bounds x="200" y="220" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="187" y="263" width="62" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UGMS_Parallel_di" bpmnElement="Gateway_UGMS_Parallel" isMarkerVisible="true">
+        <dc:Bounds x="285" y="213" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_CreateGiftcode_di" bpmnElement="Task_UGMS_CreateGiftcode">
+        <dc:Bounds x="380" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_SyncGiftcode_di" bpmnElement="Task_UGMS_SyncGiftcode" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="520" y="120" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_CreateScheme_di" bpmnElement="Task_UGMS_CreateScheme">
+        <dc:Bounds x="380" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_SyncScheme_di" bpmnElement="Task_UGMS_SyncScheme" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="520" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_CreateCustomer_di" bpmnElement="Task_UGMS_CreateCustomer">
+        <dc:Bounds x="660" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_SyncCustomer_di" bpmnElement="Task_UGMS_SyncCustomer" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="800" y="230" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UGMS_Join1_di" bpmnElement="Gateway_UGMS_Join1" isMarkerVisible="true">
+        <dc:Bounds x="945" y="213" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_CreateShipment_di" bpmnElement="Task_UGMS_CreateShipment">
+        <dc:Bounds x="380" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_SyncReceiveGift_di" bpmnElement="Task_UGMS_SyncReceiveGift" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="520" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_CreateAdjustment_di" bpmnElement="Task_UGMS_CreateAdjustment">
+        <dc:Bounds x="660" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_SyncAdjustStock_di" bpmnElement="Task_UGMS_SyncAdjustStock" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="800" y="340" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UGMS_Join2_di" bpmnElement="Gateway_UGMS_Join2" isMarkerVisible="true">
+        <dc:Bounds x="1045" y="213" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_ReceiveGiftUsage_di" bpmnElement="Task_UGMS_ReceiveGiftUsage" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="1140" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UGMS_UpdateStock_di" bpmnElement="Task_UGMS_UpdateStock">
+        <dc:Bounds x="1280" y="460" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_UGMS_di" bpmnElement="EndEvent_UGMS">
+        <dc:Bounds x="1420" y="482" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1413" y="525" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_UGMS_1_di" bpmnElement="Flow_UGMS_1">
+        <di:waypoint x="236" y="238" />
+        <di:waypoint x="285" y="238" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_2a_di" bpmnElement="Flow_UGMS_2a">
+        <di:waypoint x="310" y="213" />
+        <di:waypoint x="310" y="160" />
+        <di:waypoint x="380" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_2b_di" bpmnElement="Flow_UGMS_2b">
+        <di:waypoint x="335" y="238" />
+        <di:waypoint x="358" y="238" />
+        <di:waypoint x="358" y="270" />
+        <di:waypoint x="380" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_2c_di" bpmnElement="Flow_UGMS_2c">
+        <di:waypoint x="310" y="263" />
+        <di:waypoint x="310" y="380" />
+        <di:waypoint x="380" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_3a_di" bpmnElement="Flow_UGMS_3a">
+        <di:waypoint x="480" y="160" />
+        <di:waypoint x="520" y="160" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_3b_di" bpmnElement="Flow_UGMS_3b">
+        <di:waypoint x="480" y="270" />
+        <di:waypoint x="520" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_3c_di" bpmnElement="Flow_UGMS_3c">
+        <di:waypoint x="480" y="380" />
+        <di:waypoint x="520" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_4a_di" bpmnElement="Flow_UGMS_4a">
+        <di:waypoint x="620" y="160" />
+        <di:waypoint x="970" y="160" />
+        <di:waypoint x="970" y="213" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_4b_di" bpmnElement="Flow_UGMS_4b">
+        <di:waypoint x="620" y="270" />
+        <di:waypoint x="660" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_4c_di" bpmnElement="Flow_UGMS_4c">
+        <di:waypoint x="620" y="380" />
+        <di:waypoint x="660" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_5b_di" bpmnElement="Flow_UGMS_5b">
+        <di:waypoint x="760" y="270" />
+        <di:waypoint x="800" y="270" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_5c_di" bpmnElement="Flow_UGMS_5c">
+        <di:waypoint x="760" y="380" />
+        <di:waypoint x="800" y="380" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_6b_di" bpmnElement="Flow_UGMS_6b">
+        <di:waypoint x="900" y="270" />
+        <di:waypoint x="970" y="270" />
+        <di:waypoint x="970" y="263" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_6c_di" bpmnElement="Flow_UGMS_6c">
+        <di:waypoint x="900" y="380" />
+        <di:waypoint x="1070" y="380" />
+        <di:waypoint x="1070" y="263" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_7_di" bpmnElement="Flow_UGMS_7">
+        <di:waypoint x="995" y="238" />
+        <di:waypoint x="1045" y="238" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_8_di" bpmnElement="Flow_UGMS_8">
+        <di:waypoint x="1095" y="238" />
+        <di:waypoint x="1110" y="238" />
+        <di:waypoint x="1110" y="500" />
+        <di:waypoint x="1140" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_9_di" bpmnElement="Flow_UGMS_9">
+        <di:waypoint x="1240" y="500" />
+        <di:waypoint x="1280" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UGMS_10_di" bpmnElement="Flow_UGMS_10">
+        <di:waypoint x="1380" y="500" />
+        <di:waypoint x="1420" y="500" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Participant_UHub_di" bpmnElement="Participant_UHub" isHorizontal="true">
+        <dc:Bounds x="120" y="680" width="2400" height="500" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UHub_Sender_di" bpmnElement="Lane_UHub_Sender" isHorizontal="true">
+        <dc:Bounds x="150" y="1030" width="2370" height="150" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_UHub_API_Receiver_di" bpmnElement="Lane_UHub_API_Receiver" isHorizontal="true">
+        <dc:Bounds x="150" y="680" width="2370" height="350" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="StartEvent_UHub_di" bpmnElement="StartEvent_UHub">
+        <dc:Bounds x="200" y="820" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="190" y="863" width="56" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UHub_Parallel_di" bpmnElement="Gateway_UHub_Parallel" isMarkerVisible="true">
+        <dc:Bounds x="285" y="813" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveGiftcode_di" bpmnElement="Task_UHub_ReceiveGiftcode" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="380" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateGiftcode_di" bpmnElement="Task_UHub_ValidateGiftcode">
+        <dc:Bounds x="520" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_StoreGiftcode_di" bpmnElement="Task_UHub_StoreGiftcode">
+        <dc:Bounds x="660" y="720" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveScheme_di" bpmnElement="Task_UHub_ReceiveScheme" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="380" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateScheme_di" bpmnElement="Task_UHub_ValidateScheme">
+        <dc:Bounds x="520" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_StoreScheme_di" bpmnElement="Task_UHub_StoreScheme">
+        <dc:Bounds x="660" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveCustomer_di" bpmnElement="Task_UHub_ReceiveCustomer" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="800" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateCustomer_di" bpmnElement="Task_UHub_ValidateCustomer">
+        <dc:Bounds x="940" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_StoreCustomer_di" bpmnElement="Task_UHub_StoreCustomer">
+        <dc:Bounds x="1080" y="830" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ReceiveGift_di" bpmnElement="Task_UHub_ReceiveGift" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="380" y="940" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateReceiveGift_di" bpmnElement="Task_UHub_ValidateReceiveGift">
+        <dc:Bounds x="520" y="940" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_UpdateInventory_di" bpmnElement="Task_UHub_UpdateInventory">
+        <dc:Bounds x="660" y="940" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_AdjustStock_di" bpmnElement="Task_UHub_AdjustStock" bioc:stroke="#0d4372" bioc:fill="#bbdefb" color:background-color="#bbdefb" color:border-color="#0d4372">
+        <dc:Bounds x="800" y="940" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_ValidateAdjustment_di" bpmnElement="Task_UHub_ValidateAdjustment">
+        <dc:Bounds x="940" y="940" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_UpdateStockAdjustment_di" bpmnElement="Task_UHub_UpdateStockAdjustment">
+        <dc:Bounds x="1080" y="940" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_TrackGiftUsage_di" bpmnElement="Task_UHub_TrackGiftUsage">
+        <dc:Bounds x="1420" y="1060" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Task_UHub_SyncGiftUsage_di" bpmnElement="Task_UHub_SyncGiftUsage" bioc:stroke="#205022" bioc:fill="#c8e6c9" color:background-color="#c8e6c9" color:border-color="#205022">
+        <dc:Bounds x="1560" y="1060" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="EndEvent_UHub_di" bpmnElement="EndEvent_UHub">
+        <dc:Bounds x="1700" y="1082" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1693" y="1125" width="50" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UHub_Join2_di" bpmnElement="Gateway_UHub_Join2" isMarkerVisible="true">
+        <dc:Bounds x="1325" y="797" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gateway_UHub_Join1_di" bpmnElement="Gateway_UHub_Join1" isMarkerVisible="true">
+        <dc:Bounds x="1225" y="797" width="50" height="50" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_UHub_1_di" bpmnElement="Flow_UHub_1">
+        <di:waypoint x="236" y="838" />
+        <di:waypoint x="285" y="838" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_2a_di" bpmnElement="Flow_UHub_2a">
+        <di:waypoint x="310" y="813" />
+        <di:waypoint x="310" y="760" />
+        <di:waypoint x="380" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_2b_di" bpmnElement="Flow_UHub_2b">
+        <di:waypoint x="335" y="838" />
+        <di:waypoint x="358" y="838" />
+        <di:waypoint x="358" y="870" />
+        <di:waypoint x="380" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_2c_di" bpmnElement="Flow_UHub_2c">
+        <di:waypoint x="310" y="863" />
+        <di:waypoint x="310" y="980" />
+        <di:waypoint x="380" y="980" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_3a_di" bpmnElement="Flow_UHub_3a">
+        <di:waypoint x="480" y="760" />
+        <di:waypoint x="520" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_3b_di" bpmnElement="Flow_UHub_3b">
+        <di:waypoint x="480" y="870" />
+        <di:waypoint x="520" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_3c_di" bpmnElement="Flow_UHub_3c">
+        <di:waypoint x="480" y="980" />
+        <di:waypoint x="520" y="980" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_4a_di" bpmnElement="Flow_UHub_4a">
+        <di:waypoint x="620" y="760" />
+        <di:waypoint x="660" y="760" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_4b_di" bpmnElement="Flow_UHub_4b">
+        <di:waypoint x="620" y="870" />
+        <di:waypoint x="660" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_4c_di" bpmnElement="Flow_UHub_4c">
+        <di:waypoint x="620" y="980" />
+        <di:waypoint x="660" y="980" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_5a_di" bpmnElement="Flow_UHub_5a">
+        <di:waypoint x="760" y="760" />
+        <di:waypoint x="1250" y="760" />
+        <di:waypoint x="1250" y="797" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_5b_di" bpmnElement="Flow_UHub_5b">
+        <di:waypoint x="760" y="870" />
+        <di:waypoint x="800" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_5c_di" bpmnElement="Flow_UHub_5c">
+        <di:waypoint x="760" y="980" />
+        <di:waypoint x="800" y="980" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_6b_di" bpmnElement="Flow_UHub_6b">
+        <di:waypoint x="900" y="870" />
+        <di:waypoint x="940" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_6c_di" bpmnElement="Flow_UHub_6c">
+        <di:waypoint x="900" y="980" />
+        <di:waypoint x="940" y="980" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_7b_di" bpmnElement="Flow_UHub_7b">
+        <di:waypoint x="1040" y="870" />
+        <di:waypoint x="1080" y="870" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_7c_di" bpmnElement="Flow_UHub_7c">
+        <di:waypoint x="1040" y="980" />
+        <di:waypoint x="1080" y="980" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_8b_di" bpmnElement="Flow_UHub_8b">
+        <di:waypoint x="1180" y="870" />
+        <di:waypoint x="1203" y="870" />
+        <di:waypoint x="1203" y="822" />
+        <di:waypoint x="1225" y="822" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_8c_di" bpmnElement="Flow_UHub_8c">
+        <di:waypoint x="1180" y="980" />
+        <di:waypoint x="1350" y="980" />
+        <di:waypoint x="1350" y="847" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_10_di" bpmnElement="Flow_UHub_10">
+        <di:waypoint x="1375" y="822" />
+        <di:waypoint x="1400" y="822" />
+        <di:waypoint x="1400" y="1100" />
+        <di:waypoint x="1420" y="1100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_11_di" bpmnElement="Flow_UHub_11">
+        <di:waypoint x="1520" y="1100" />
+        <di:waypoint x="1560" y="1100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_12_di" bpmnElement="Flow_UHub_12">
+        <di:waypoint x="1660" y="1100" />
+        <di:waypoint x="1700" y="1100" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_UHub_9_di" bpmnElement="Flow_UHub_9">
+        <di:waypoint x="1275" y="822" />
+        <di:waypoint x="1325" y="822" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncGiftcode_di" bpmnElement="MessageFlow_SyncGiftcode">
+        <di:waypoint x="570" y="200" />
+        <di:waypoint x="570" y="460" />
+        <di:waypoint x="430" y="460" />
+        <di:waypoint x="430" y="720" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="446" y="430" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncScheme_di" bpmnElement="MessageFlow_SyncScheme">
+        <di:waypoint x="570" y="310" />
+        <di:waypoint x="570" y="590" />
+        <di:waypoint x="430" y="590" />
+        <di:waypoint x="430" y="830" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="446" y="560" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncCustomer_di" bpmnElement="MessageFlow_SyncCustomer">
+        <di:waypoint x="850" y="310" />
+        <di:waypoint x="850" y="830" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="866" y="560" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncReceiveGift_di" bpmnElement="MessageFlow_SyncReceiveGift">
+        <di:waypoint x="570" y="420" />
+        <di:waypoint x="570" y="650" />
+        <di:waypoint x="430" y="650" />
+        <di:waypoint x="430" y="940" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="446" y="620" width="88" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncAdjustStock_di" bpmnElement="MessageFlow_SyncAdjustStock">
+        <di:waypoint x="850" y="420" />
+        <di:waypoint x="850" y="940" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="866" y="660" width="68" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="MessageFlow_SyncGiftUsage_di" bpmnElement="MessageFlow_SyncGiftUsage">
+        <di:waypoint x="1610" y="1060" />
+        <di:waypoint x="1610" y="630" />
+        <di:waypoint x="1190" y="630" />
+        <di:waypoint x="1190" y="540" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1201" y="600" width="78" height="27" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

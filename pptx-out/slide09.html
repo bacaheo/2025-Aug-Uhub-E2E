@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>API Integration Architecture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800;900&display=swap');
+        html, body { margin:0; padding:0; overflow:hidden; font-family: 'Be Vietnam Pro', sans-serif; }
+        .slide { width:1280px; min-height:720px; padding:60px; box-sizing:border-box; overflow:hidden; position:relative; display:flex; flex-direction:column; }
+    </style>
+</head>
+<body>
+    <div class="slide bg-gradient-to-br from-[#00BFFF]/10 to-white">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-4xl font-bold text-[#00BFFF]">API Integration Architecture</h1>
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-3xl text-[#00BFFF]">api</span>
+                <span class="text-2xl font-bold text-gray-600">UGMS ↔ UHub</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col">
+            <!-- API Overview -->
+            <div class="bg-white rounded-xl p-5 shadow-lg mb-4">
+                <h2 class="text-xl font-bold text-[#000080] mb-4 text-center">6 Core APIs - Real-time Synchronization</h2>
+                
+                <!-- API Flow Diagram -->
+                <div class="flex items-center justify-between">
+                    <!-- UGMS Side -->
+                    <div class="bg-gradient-to-br from-[#6F2DA8]/20 to-[#6F2DA8]/10 rounded-lg p-4 flex-1">
+                        <h3 class="font-bold text-[#6F2DA8] text-center mb-3">UGMS</h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="bg-white rounded p-2">Gift Master Data</div>
+                            <div class="bg-white rounded p-2">Scheme Information</div>
+                            <div class="bg-white rounded p-2">Customer/Store Data</div>
+                            <div class="bg-white rounded p-2">Transaction Logs</div>
+                        </div>
+                    </div>
+
+                    <!-- Bidirectional APIs -->
+                    <div class="px-4 flex flex-col gap-2">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[#FF6600]">sync_alt</span>
+                            <span class="text-xs font-bold">Sync</span>
+                        </div>
+                        <div class="bg-gradient-to-r from-[#FF6600]/20 to-transparent rounded-lg p-2">
+                            <div class="text-xs font-semibold text-center mb-1">RSA 2048-bit</div>
+                            <div class="text-xs text-center">Secured</div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[#FF6600]">sync_alt</span>
+                            <span class="text-xs font-bold">Real-time</span>
+                        </div>
+                    </div>
+
+                    <!-- UHub Side -->
+                    <div class="bg-gradient-to-br from-[#00BFFF]/20 to-[#00BFFF]/10 rounded-lg p-4 flex-1">
+                        <h3 class="font-bold text-[#00BFFF] text-center mb-3">UHub</h3>
+                        <div class="space-y-2 text-xs">
+                            <div class="bg-white rounded p-2">Campaign Management</div>
+                            <div class="bg-white rounded p-2">Gift Distribution</div>
+                            <div class="bg-white rounded p-2">Stock Reconciliation</div>
+                            <div class="bg-white rounded p-2">Usage Tracking</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 6 APIs Grid -->
+            <div class="grid grid-cols-3 gap-4 flex-1">
+                <!-- API 1 -->
+                <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#6F2DA8]">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-[#6F2DA8] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">1</span>
+                        <h3 class="font-bold text-sm">Sync GiftCode</h3>
+                    </div>
+                    <div class="text-xs space-y-1">
+                        <div class="font-semibold text-[#6F2DA8]">UGMS → UHub</div>
+                        <div>• gift_code</div>
+                        <div>• gift_name</div>
+                        <div>• gift_type</div>
+                        <div>• uom</div>
+                        <div class="mt-2 bg-gray-50 p-2 rounded">
+                            <span class="font-semibold">Trigger:</span> Create/Update
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 2 -->
+                <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#FF6600]">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-[#FF6600] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">2</span>
+                        <h3 class="font-bold text-sm">Sync Scheme</h3>
+                    </div>
+                    <div class="text-xs space-y-1">
+                        <div class="font-semibold text-[#FF6600]">UGMS → UHub</div>
+                        <div>• scheme_id</div>
+                        <div>• start/end_date</div>
+                        <div>• requester</div>
+                        <div>• gift_list[]</div>
+                        <div class="mt-2 bg-gray-50 p-2 rounded">
+                            <span class="font-semibold">For:</span> Campaigns
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 3 -->
+                <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-[#00BFFF]">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-[#00BFFF] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">3</span>
+                        <h3 class="font-bold text-sm">Sync Store</h3>
+                    </div>
+                    <div class="text-xs space-y-1">
+                        <div class="font-semibold text-[#00BFFF]">UGMS → UHub</div>
+                        <div>• customer_id</div>
+                        <div>• ship_to_code</div>
+                        <div>• ship_to_name</div>
+                        <div>• province</div>
+                        <div class="mt-2 bg-gray-50 p-2 rounded">
+                            <span class="font-semibold">Type:</span> Master Data
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 4 -->
+                <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-green-500">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-green-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">4</span>
+                        <h3 class="font-bold text-sm">Delivery Transaction</h3>
+                    </div>
+                    <div class="text-xs space-y-1">
+                        <div class="font-semibold text-green-600">UGMS → UHub</div>
+                        <div>• ship_to_code</div>
+                        <div>• receive_date</div>
+                        <div>• trans_code</div>
+                        <div>• gift_list[]</div>
+                        <div class="mt-2 bg-gray-50 p-2 rounded">
+                            <span class="font-semibold">For:</span> Stock In
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 5 -->
+                <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-yellow-500">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">5</span>
+                        <h3 class="font-bold text-sm">Stock Adjustment</h3>
+                    </div>
+                    <div class="text-xs space-y-1">
+                        <div class="font-semibold text-yellow-600">UGMS → UHub</div>
+                        <div>• ship_to_code</div>
+                        <div>• scheme_id</div>
+                        <div>• gift_list[]</div>
+                        <div>• quantity (±)</div>
+                        <div class="mt-2 bg-gray-50 p-2 rounded">
+                            <span class="font-semibold">For:</span> Corrections
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API 6 -->
+                <div class="bg-white rounded-lg p-4 shadow-md border-l-4 border-purple-500">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="bg-purple-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold">6</span>
+                        <h3 class="font-bold text-sm">Usage Report</h3>
+                    </div>
+                    <div class="text-xs space-y-1">
+                        <div class="font-semibold text-purple-600">UHub → UGMS</div>
+                        <div>• customer_id</div>
+                        <div>• scheme_id</div>
+                        <div>• gift_code</div>
+                        <div>• quantity_used</div>
+                        <div class="mt-2 bg-gray-50 p-2 rounded">
+                            <span class="font-semibold">For:</span> Reconciliation
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security & Performance -->
+            <div class="mt-4 grid grid-cols-3 gap-4">
+                <!-- Security -->
+                <div class="bg-gradient-to-r from-[#6F2DA8]/10 to-transparent rounded-lg p-4">
+                    <h3 class="font-bold text-[#6F2DA8] mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">security</span>
+                        Security Features
+                    </h3>
+                    <div class="text-xs space-y-1">
+                        <div>• RSA 2048-bit signature</div>
+                        <div>• HTTPS/TLS 1.2+</div>
+                        <div>• IP whitelisting</div>
+                        <div>• Request signing</div>
+                    </div>
+                </div>
+
+                <!-- Performance -->
+                <div class="bg-gradient-to-r from-[#00BFFF]/10 to-transparent rounded-lg p-4">
+                    <h3 class="font-bold text-[#00BFFF] mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">speed</span>
+                        Performance
+                    </h3>
+                    <div class="text-xs space-y-1">
+                        <div>• Real-time sync</div>
+                        <div>• <500ms latency</div>
+                        <div>• Retry mechanism</div>
+                        <div>• Queue processing</div>
+                    </div>
+                </div>
+
+                <!-- Monitoring -->
+                <div class="bg-gradient-to-r from-green-100 to-transparent rounded-lg p-4">
+                    <h3 class="font-bold text-green-600 mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined">monitoring</span>
+                        Monitoring
+                    </h3>
+                    <div class="text-xs space-y-1">
+                        <div>• API health checks</div>
+                        <div>• Error tracking</div>
+                        <div>• Audit logging</div>
+                        <div>• Alert system</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

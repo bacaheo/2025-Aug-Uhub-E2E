@@ -1,0 +1,94 @@
+@startuml Dong_bo_UGMS_UHub
+title Quy trình đồng bộ dữ liệu từ UGMS sang UHub
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|UGMS System|
+|#LightGreen|UHub System|
+|#LightYellow|Integration Layer|
+
+|UGMS System|
+start
+:Tạo/Cập nhật Gift Code;
+:Gắn Scheme (Plan sử dụng);
+:Tạo Allocation cho Campaign;
+note right
+  **Data includes:**
+  • Gift Code details
+  • Scheme binding
+  • Allocation info
+  • Campaign mapping
+end note
+
+|Integration Layer|
+:Trigger sync event;
+:Validate data format;
+:Transform data structure;
+if (Data valid?) then (yes)
+  :Queue for sync;
+  :Call UHub API;
+else (no)
+  :Log error;
+  :Send notification;
+  stop
+endif
+
+|UHub System|
+:Receive sync request;
+:Authenticate request;
+if (Authentication OK?) then (yes)
+  :Parse data;
+  :Check existing records;
+  if (Record exists?) then (yes)
+    :Update existing;
+    :Log changes;
+  else (no)
+    :Create new record;
+    :Initialize status;
+  endif
+  :Update Campaign mapping;
+  :Sync inventory status;
+  :Return success;
+else (no)
+  :Return error 401;
+  stop
+endif
+
+|Integration Layer|
+:Process response;
+if (Success?) then (yes)
+  :Update sync log;
+  :Mark as completed;
+else (no)
+  :Retry mechanism;
+  if (Max retries?) then (yes)
+    :Alert admin;
+    :Manual intervention;
+  else (no)
+    :Schedule retry;
+  endif
+endif
+
+|UGMS System|
+:Update sync status;
+:Log transaction;
+stop
+
+legend right
+  **Sync Frequency:**
+  • Real-time for critical updates
+  • Batch sync every 15 minutes
+  • Full sync daily at 2 AM
+  
+  **Error Handling:**
+  • Auto-retry 3 times
+  • Exponential backoff
+  • Admin alerts after failures
+endlegend
+
+@enduml

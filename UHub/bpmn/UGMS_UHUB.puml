@@ -1,0 +1,213 @@
+@startuml UGMS_UHUB_Integration
+title UGMS ↔ UHub Integration Process
+title API Data Synchronization Workflow
+
+skinparam participant {
+    BackgroundColor LightBlue
+    BorderColor DarkBlue
+}
+skinparam actor {
+    BackgroundColor LightGreen
+    BorderColor DarkGreen
+}
+skinparam database {
+    BackgroundColor LightYellow
+    BorderColor Orange
+}
+
+actor "UGMS User" as UGMS_User
+participant "UGMS System" as UGMS
+participant "UHub API" as UHub_API
+participant "UHub Database" as UHub_DB
+participant "Notification Service" as Notify
+
+== Phase 1: UGMS → UHub Data Sync ==
+
+== 1.1 Giftcode Sync ==
+UGMS_User -> UGMS: Create/Update Giftcode
+note right: gift_code, gift_name, gift_type, uom
+
+UGMS -> UHub_API: POST /api/giftcode
+note right: API #1\nSync Giftcode Information
+activate UHub_API
+
+UHub_API -> UHub_DB: Check existing giftcode
+UHub_DB --> UHub_API: Giftcode exists?
+
+alt Giftcode exists
+    UHub_API -> UHub_DB: Update giftcode data
+    UHub_DB --> UHub_API: Update successful
+else New giftcode
+    UHub_API -> UHub_DB: Insert new giftcode
+    UHub_DB --> UHub_API: Insert successful
+end
+
+UHub_API --> UGMS: Response: Success/Failure
+deactivate UHub_API
+
+== 1.2 Scheme Sync ==
+UGMS_User -> UGMS: Create/Update Scheme
+note right: scheme_id, scheme_name, start_date, end_date, list_gift
+
+UGMS -> UHub_API: POST /api/scheme
+note right: API #2\nSync Scheme Information
+activate UHub_API
+
+UHub_API -> UHub_DB: Validate scheme data
+UHub_API -> UHub_DB: Validate gift codes in list_gift
+UHub_DB --> UHub_API: All gift codes exist?
+
+alt Gift codes valid
+    UHub_API -> UHub_DB: Insert/Update scheme
+    UHub_API -> UHub_DB: Update scheme-gift relationships
+    UHub_DB --> UHub_API: Scheme sync successful
+else Invalid gift codes
+    UHub_API --> UGMS: Response: Invalid gift codes
+    UHub_API -> Notify: Send error notification
+end
+
+UHub_API --> UGMS: Response: Success/Failure
+deactivate UHub_API
+
+== 1.3 Store/Customer Sync ==
+UGMS_User -> UGMS: Create/Update Store/Customer
+note right: Customer ID, Customer Name, Ship To Code, Province
+
+UGMS -> UHub_API: POST /api/store
+note right: API #3\nSync Store/Customer Information
+activate UHub_API
+
+UHub_API -> UHub_DB: Check existing store
+alt Store exists
+    UHub_API -> UHub_DB: Update store information
+else New store
+    UHub_API -> UHub_DB: Insert new store
+end
+
+UHub_API --> UGMS: Response: Success/Failure
+deactivate UHub_API
+
+== 1.4 Ship to Store Transaction Sync ==
+UGMS_User -> UGMS: Create Ship to Store Transaction
+note right: Ship To Code, Receive Date, scheme_id, Trans code, GiftList
+
+UGMS -> UHub_API: POST /api/ship-to-store
+note right: API #4\nSync Warehouse Transaction to Store
+activate UHub_API
+
+UHub_API -> UHub_DB: Validate scheme_id
+UHub_API -> UHub_DB: Validate gift codes
+UHub_API -> UHub_DB: Calculate inventory impact
+
+alt Validation successful
+    UHub_API -> UHub_DB: Create inventory transaction
+    UHub_API -> UHub_DB: Update store inventory
+    UHub_DB --> UHub_API: Transaction created
+else Validation failed
+    UHub_API --> UGMS: Response: Validation error
+    UHub_API -> Notify: Send error notification
+end
+
+UHub_API --> UGMS: Response: Success/Failure
+deactivate UHub_API
+
+== 1.5 Store Adjustment Sync ==
+UGMS_User -> UGMS: Create Store Adjustment
+note right: Ship To Code, Receive Date, scheme_id, Trans code, GiftList
+
+UGMS -> UHub_API: POST /api/adjustment
+note right: API #5\nSync Store Inventory Adjustment
+activate UHub_API
+
+UHub_API -> UHub_DB: Create adjustment transaction
+UHub_API -> UHub_DB: Update store inventory with adjustment
+UHub_API -> UHub_DB: Log adjustment details
+UHub_DB --> UHub_API: Adjustment completed
+
+UHub_API --> UGMS: Response: Success/Failure
+deactivate UHub_API
+
+== Phase 2: UHub → UGMS Usage Sync ==
+
+== 2.1 Gift Usage Sync ==
+participant "PG/Shopper" as EndUser
+participant "UHub Application" as UHub_App
+
+EndUser -> UHub_App: Use gift (Redemption/Sampling)
+UHub_App -> UHub_DB: Record gift usage
+UHub_DB -> UHub_DB: Calculate usage by store & scheme
+
+UHub_DB -> UHub_API: Trigger usage sync
+note right: Real-time or batch process
+activate UHub_API
+
+UHub_API -> UHub_DB: Get usage data
+note right: Customer Id (Store), Scheme Id, Ship to code, GiftList with used quantity
+
+UHub_API -> UGMS: POST /api/usage-sync
+note right: API #6\nSync Gift Usage Data from UHub to UGMS
+
+UGMS -> UHub_API: Response: Success/Failure
+deactivate UHub_API
+
+== Error Handling & Monitoring ==
+
+== 3.1 API Error Handling ==
+group API Error Handling
+    alt API Call Fails
+        UGMS -> Notify: Log error details
+        UGMS -> Notify: Send alert to admin
+        
+        alt Retry Logic
+            UGMS -> UGMS: Wait retry interval
+            UGMS -> UHub_API: Retry API call
+        else Max retries exceeded
+            UGMS -> Notify: Escalate to L2 support
+        end
+    end
+end
+
+== 3.2 Data Consistency Check ==
+group Daily Data Reconciliation
+    activate UHub_API
+    UHub_API -> UHub_DB: Compare UGMS vs UHub data
+    UHub_DB --> UHub_API: Identify discrepancies
+    
+    alt Data mismatch found
+        UHub_API -> Notify: Generate reconciliation report
+        UHub_API -> UHub_API: Attempt automatic correction
+        
+        alt Auto-correction successful
+            UHub_API -> Notify: Log successful correction
+        else Manual intervention required
+            UHub_API -> Notify: Create reconciliation ticket
+            UHub_API -> Notify: Notify data team
+        end
+    end
+    deactivate UHub_API
+end
+
+== Performance Monitoring ==
+group API Performance Monitoring
+    activate UHub_API
+    UHub_API -> UHub_API: Track response times
+    UHub_API -> UHub_API: Monitor error rates
+    UHub_API -> UHub_API: Log API usage patterns
+    
+    alt Performance degradation detected
+        UHub_API -> Notify: Alert performance team
+        UHub_API -> Notify: Generate performance report
+    end
+    deactivate UHub_API
+end
+
+legend
+Legend:
+  • Blue boxes: UGMS System components
+  • Green boxes: UHub System components  
+  • Yellow boxes: Database/Storage
+  • Arrows: Data flow and API calls
+  • Notes: API ID and description
+end legend
+
+@enduml

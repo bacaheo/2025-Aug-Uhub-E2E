@@ -1,0 +1,189 @@
+@startuml Doi_soat_UHub_UGMS
+title Quy trình đối soát UHub => UGMS
+skinparam backgroundColor #FEFEFE
+skinparam activity {
+  BackgroundColor #E6F3FF
+  BorderColor #0066CC
+  DiamondBackgroundColor #FFF0E6
+  DiamondBorderColor #FF6600
+}
+
+|#LightBlue|UHub System|
+|#LightGreen|UGMS System|
+|#LightYellow|Finance Team|
+|#Pink|Audit Team|
+|#Orange|Store/Agency|
+
+|UHub System|
+start
+:Initiate reconciliation;
+note right
+  **Triggers:**
+  • Daily: 11 PM
+  • Weekly: Sunday
+  • Monthly: Last day
+  • On-demand: Manual
+end note
+
+:Collect transaction data;
+partition "Data Collection" {
+  :Gift issued count;
+  :Gift redeemed count;
+  :Gift in-transit;
+  :Gift damaged/lost;
+  :Gift returned;
+}
+
+:Generate reconciliation report;
+:Calculate balances;
+
+|UGMS System|
+:Generate master report;
+:Compile inventory status;
+partition "Master Data" {
+  :Total gifts created;
+  :Gifts allocated;
+  :Gifts available;
+  :Gifts consumed;
+  :Gifts written-off;
+}
+
+:Send report to UHub;
+
+|UHub System|
+:Receive UGMS report;
+:Compare datasets;
+partition "Comparison Logic" {
+  :Match gift codes;
+  :Compare quantities;
+  :Verify status transitions;
+  :Check timestamps;
+}
+
+if (Data matches?) then (yes)
+  :Mark as reconciled;
+  :Generate success report;
+else (no)
+  :Identify discrepancies;
+  :Categorize issues;
+  note left
+    **Discrepancy types:**
+    • Quantity mismatch
+    • Status mismatch
+    • Missing records
+    • Duplicate entries
+    • Timing issues
+  end note
+endif
+
+:Create detailed report;
+:Highlight discrepancies;
+
+|Store/Agency|
+:Provide physical count;
+:Submit evidence;
+note right
+  • Stock certificates
+  • Count sheets
+  • Photos
+  • Damage reports
+end note
+
+|UHub System|
+:Include physical counts;
+:Three-way matching;
+note left
+  Match:
+  1. UHub records
+  2. UGMS records
+  3. Physical counts
+end note
+
+if (Three-way match?) then (yes)
+  :Confirm reconciliation;
+else (no)
+  :Escalate to Finance;
+  
+  |Finance Team|
+  :Review discrepancies;
+  :Investigate root cause;
+  if (System error?) then (yes)
+    :Request IT fix;
+    :Document issue;
+  elseif (Process error?) then (yes)
+    :Update procedures;
+    :Train staff;
+  else (Fraud/Loss)
+    :Escalate to Audit;
+    
+    |Audit Team|
+    :Conduct investigation;
+    :Interview stakeholders;
+    :Review evidence;
+    if (Issue confirmed?) then (yes)
+      :Document findings;
+      :Recommend actions;
+    else (no)
+      :Request recount;
+    endif
+    :Submit report;
+    |Finance Team|
+  endif
+  
+  :Make adjustments;
+  :Document resolution;
+endif
+
+|UGMS System|
+:Receive adjustments;
+:Update master records;
+if (Adjustment needed?) then (yes)
+  :Process corrections;
+  :Update inventory;
+  :Generate adjustment note;
+else (no)
+  :Confirm as-is;
+endif
+
+:Send final confirmation;
+
+|UHub System|
+:Update local records;
+:Close reconciliation;
+:Archive reports;
+:Generate metrics;
+note left
+  **Metrics:**
+  • Accuracy rate
+  • Discrepancy value
+  • Resolution time
+  • Adjustment frequency
+end note
+
+:Send notifications;
+stop
+
+legend right
+  **Reconciliation Frequency:**
+  • Real-time: Status changes
+  • Daily: Transaction summary
+  • Weekly: Operational review
+  • Monthly: Financial close
+  
+  **Key Metrics:**
+  • Match Rate: Target > 99.5%
+  • Resolution Time: < 48 hours
+  • Adjustment Rate: < 0.5%
+  
+  **Escalation Matrix:**
+  • < $1000: Team Lead
+  • $1000-5000: Manager
+  • $5000-20000: Director
+  • > $20000: CFO
+  
+  **Audit Trail:**
+  All reconciliations kept
+  for 7 years minimum
+endlegend
+
+@enduml
